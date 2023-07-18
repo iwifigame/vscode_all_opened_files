@@ -1,0 +1,107 @@
+{
+  "name": "all-opened-files",
+  "displayName": "All Opened Files",
+  "description": "Manage all Opened Files, and quick access it.",
+  "license": "MIT",
+  "version": "3.0.10",
+  "keywords": [
+    "files",
+    "open",
+    "history"
+  ],
+  "author": {
+    "name": "liyongjin"
+  },
+  "homepage": "https://github.com/iwifigame/vscode_line_number",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iwifigame/vscode_line_number"
+  },
+  "bugs": {
+    "url": "https://github.com/iwifigame/vscode_line_number/issues"
+  },
+  "publisher": "liyongjin",
+  "engines": {
+    "vscode": "^1.30.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "icon": "images/icon2.png",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.showAllOpenedFiles",
+        "category": "AllOpenedFiles",
+        "title": "Show All Opened Files"
+      },
+      {
+        "command": "extension.quickOpen",
+        "category": "AllOpenedFiles",
+        "title": "Quick Open"
+      },
+      {
+        "command": "extension.insertLineNumber",
+        "category": "AllOpenedFiles",
+        "title": "Insert Line Number"
+      }
+    ],
+    "configuration": {
+      "title": "All Opened Files",
+      "properties": {
+        "ShowAllOpenedFiles.itemWidth": {
+          "type": "number",
+          "default": 80,
+          "description": "all opened files item width"
+        },
+        "InsertLineNumber.formats": {
+          "type": "array",
+          "default": [
+            {
+              "align": "right",
+              "width": "alignToLast"
+            },
+            {
+              "width": "alignToLast"
+            },
+            {},
+            {
+              "start": "current",
+              "align": "right",
+              "padding": "zero",
+              "width": 6,
+              "prefix": "[CODE_",
+              "suffix": "]    "
+            }
+          ],
+          "description": "insert line number"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "extension.showAllOpenedFiles",
+        "key": "alt+shift+o",
+        "mac": "alt+shift+o"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^3.1.4",
+    "vscode": "^1.1.25",
+    "tslint": "^5.8.0",
+    "@types/node": "^8.10.25",
+    "@types/mocha": "^2.2.42"
+  }
+}
