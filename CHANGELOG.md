@@ -1,9 +1,6 @@
-# Change Log
+# 3.0.10 (2023-7-19)
+Manage all Opened Files, and quick access it. 
 
-All notable changes to the "helloworld" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+* Remember all opened files.(alt+shift+o)
+* Quick open file with args.
+* Quick access All opened files.
