@@ -1,5 +1,54 @@
 import * as vscode from 'vscode';
-import { InsertLineNumberConfig } from './configuration';
+import { commandList } from './common';
+import { InsertLineNumberConfig } from '../configuration';
+
+export class InsertLineNumberCommand implements vscode.Disposable {
+    private _disposable: vscode.Disposable[] = [];
+
+    constructor() {
+        this._disposable.push(
+            vscode.commands.registerCommand(
+                commandList.insertLineNumber,
+                this.execute,
+                this
+            )
+        );
+
+        this.init();
+    }
+
+    private init() {
+        setupDefaultFormatConfigs();
+    }
+
+    protected async execute() {
+        if (!vscode.window.activeTextEditor) {
+            vscode.window.showWarningMessage("No activated editor.");
+            return;
+        }
+
+        let quickPickItems = buildFormatQuickPickItems();
+        if (quickPickItems.length == 1) {
+            let item = quickPickItems[0];
+            insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
+        } else {
+            vscode.window.showQuickPick(quickPickItems, {
+                canPickMany: false,
+                placeHolder: "Select a format (Define your own formats under 'InsertLineNumber.formats' in config file.)"
+            }).then(item => {
+                if (item) {
+                    insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
+                }
+            });
+        }
+
+    }
+
+    public dispose() {
+        this._disposable.forEach(d => d.dispose());
+    }
+}
+
 
 interface FormatQuickPickItem extends vscode.QuickPickItem {
     formatConfig: InsertLineNumberConfig.Format;
@@ -10,31 +59,6 @@ interface LineRange {
     end: number;
 }
 
-export function onActivate() {
-    setupDefaultFormatConfigs();
-}
-
-export function execInsertLineNumber() {
-    if (!vscode.window.activeTextEditor) {
-        vscode.window.showWarningMessage("No activated editor.");
-        return;
-    }
-
-    let quickPickItems = buildFormatQuickPickItems();
-    if (quickPickItems.length == 1) {
-        let item = quickPickItems[0];
-        insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
-    } else {
-        vscode.window.showQuickPick(quickPickItems, {
-            canPickMany: false,
-            placeHolder: "Select a format (Define your own formats under 'InsertLineNumber.formats' in config file.)"
-        }).then(item => {
-            if (item) {
-                insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
-            }
-        });
-    }
-}
 
 function buildFormatQuickPickItems(): FormatQuickPickItem[] {
     const items = normalizedFormatConfigs.map((v) => ({

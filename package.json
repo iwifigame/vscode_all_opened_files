@@ -1,112 +1,148 @@
 {
-  "name": "all-opened-files",
-  "displayName": "All Opened Files",
-  "description": "Manage all Opened Files, and quick access it.",
-  "license": "MIT",
-  "version": "3.0.12",
-  "keywords": [
-    "files",
-    "open",
-    "history"
-  ],
-  "author": {
-    "name": "liyongjin"
-  },
-  "homepage": "https://github.com/iwifigame/vscode_line_number",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/iwifigame/vscode_line_number"
-  },
-  "bugs": {
-    "url": "https://github.com/iwifigame/vscode_line_number/issues"
-  },
-  "publisher": "liyongjin",
-  "engines": {
-    "vscode": "^1.30.0"
-  },
-  "categories": [
-    "Formatters"
-  ],
-  "icon": "images/icon2.png",
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "extension.showAllOpenedFiles",
-        "category": "AllOpenedFiles",
-        "title": "Show All Opened Files"
-      },
-      {
-        "command": "extension.quickOpen",
-        "category": "AllOpenedFiles",
-        "title": "Quick Open"
-      },
-      {
-        "command": "extension.insertLineNumber",
-        "category": "AllOpenedFiles",
-        "title": "Insert Line Number"
-      }
+    "name": "all-opened-files",
+    "displayName": "All Opened Files",
+    "description": "Manage all Opened Files, and quick access it.",
+    "license": "MIT",
+    "version": "3.0.26",
+    "keywords": [
+        "files",
+        "open",
+        "history"
     ],
-    "configuration": {
-      "title": "All Opened Files",
-      "properties": {
-        "ShowAllOpenedFiles.itemWidth": {
-          "type": "number",
-          "default": 80,
-          "description": "all opened files item width"
-        },
-        "InsertLineNumber.formats": {
-          "type": "array",
-          "default": [
-            {
-              "align": "right",
-              "width": "alignToLast"
-            },
-            {
-              "width": "alignToLast"
-            },
-            {},
-            {
-              "start": "current",
-              "align": "right",
-              "padding": "zero",
-              "width": 6,
-              "prefix": "[CODE_",
-              "suffix": "]    "
-            }
-          ],
-          "description": "insert line number"
-        }
-      }
+    "author": {
+        "name": "liyongjin"
     },
-    "keybindings": [
-      {
-        "command": "extension.showAllOpenedFiles",
-        "key": "alt+shift+o",
-        "mac": "alt+shift+o"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "version": "tsc -v",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
-  },
-  "devDependencies": {
-    "@types/mocha": "^2.2.42",
-    "@types/node": "^8.10.25",
-    "tslint": "^5.8.0",
-    "typescript": "^3.9.10",
-    "vscode": "^1.1.25"
-  },
-  "dependencies": {
-    "glob": "^10.3.3",
-    "sinon": "^15.2.0"
-  }
+    "homepage": "https://github.com/iwifigame/vscode_all_opened_files",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/iwifigame/vscode_all_opened_files"
+    },
+    "bugs": {
+        "url": "https://github.com/iwifigame/vscode_all_opened_files/issues"
+    },
+    "publisher": "liyongjin",
+    "engines": {
+        "vscode": "^1.30.0"
+    },
+    "categories": [
+        "Formatters"
+    ],
+    "icon": "images/icon2.png",
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "AllOpenedFiles.showAllOpenedFiles",
+                "category": "AllOpenedFiles",
+                "title": "Show All Opened Files"
+            },
+            {
+                "command": "AllOpenedFiles.quickOpen",
+                "category": "AllOpenedFiles",
+                "title": "Quick Open"
+            },
+            {
+                "command": "AllOpenedFiles.insertLineNumber",
+                "category": "AllOpenedFiles",
+                "title": "Insert Line Number"
+            },
+            {
+                "command": "ClipManager.copyToHistory",
+                "title": "Copy to Clipboard History",
+                "category": "ClipManager"
+            },
+            {
+                "command": "ClipManager.pickAndPaste",
+                "title": "Pick and Paste",
+                "category": "ClipManager"
+            },
+            {
+                "command": "ClipManager.ringPaste",
+                "title": "Ring Paste",
+                "category": "ClipManager"
+            },
+            {
+                "command": "ClipManager.showClipboardInFile",
+                "title": "Show in the file",
+                "category": "ClipManager"
+            },
+            {
+                "command": "ClipManager.history.clear",
+                "title": "Clear History",
+                "category": "ClipManager",
+                "icon": {
+                    "dark": "resources/dark/clear-history.svg",
+                    "light": "resources/light/clear-history.svg"
+                }
+            },
+            {
+                "command": "ClipManager.history.remove",
+                "title": "Remove",
+                "category": "ClipManager",
+                "icon": {
+                    "dark": "resources/dark/remove.svg",
+                    "light": "resources/light/remove.svg"
+                }
+            }
+        ],
+        "configuration": {
+            "title": "All Opened Files",
+            "properties": {
+                "ShowAllOpenedFiles.itemWidth": {
+                    "type": "number",
+                    "default": 80,
+                    "description": "all opened files item width"
+                },
+                "InsertLineNumber.formats": {
+                    "type": "array",
+                    "default": [
+                        {
+                            "align": "right",
+                            "width": "alignToLast"
+                        },
+                        {
+                            "width": "alignToLast"
+                        },
+                        {},
+                        {
+                            "start": "current",
+                            "align": "right",
+                            "padding": "zero",
+                            "width": 6,
+                            "prefix": "[CODE_",
+                            "suffix": "]    "
+                        }
+                    ],
+                    "description": "insert line number"
+                }
+            }
+        },
+        "keybindings": [
+            {
+                "command": "AllOpenedFiles.showAllOpenedFiles",
+                "key": "alt+shift+o",
+                "mac": "alt+shift+o"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "tslint": "^5.8.0",
+        "typescript": "^3.1.4",
+        "vscode": "^1.1.25"
+    },
+    "dependencies": {
+        "clipboardy": "^2.3.0"
+    }
 }

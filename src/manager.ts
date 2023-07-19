@@ -209,21 +209,21 @@ export class ClipboardManager implements vscode.Disposable {
     try {
       fs.writeFileSync(file, json);
       this.lastUpdate = fs.statSync(file).mtimeMs;
-    } catch (error: any) {
-      switch (error.code) {
-        case "EPERM":
-          vscode.window.showErrorMessage(
-            `Not permitted to save clipboards on "${file}"`
-          );
-          break;
-        case "EISDIR":
-          vscode.window.showErrorMessage(
-            `Failed to save clipboards on "${file}", because the path is a directory`
-          );
-          break;
-        default:
-          console.error(error);
-      }
+    } catch (error) {
+      // switch (error.code) {
+      //   case "EPERM":
+      //     vscode.window.showErrorMessage(
+      //       `Not permitted to save clipboards on "${file}"`
+      //     );
+      //     break;
+      //   case "EISDIR":
+      //     vscode.window.showErrorMessage(
+      //       `Failed to save clipboards on "${file}", because the path is a directory`
+      //     );
+      //     break;
+      //   default:
+      //     console.error(error);
+      // }
     }
   }
 

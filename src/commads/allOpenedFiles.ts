@@ -3,31 +3,85 @@ import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { AllOpenedFiles } from './global';
-import { updateLRUFiles, deleteLRUFiles } from './fileUtils';
-import { showErrorMessage } from './handleError';
-import { ShowAllOpenedFilesConfig } from './configuration';
+import { AllOpenedFiles } from '../global';
+import { updateLRUFiles, deleteLRUFiles } from '../fileUtils';
+import { showErrorMessage } from '../handleError';
+import { ShowAllOpenedFilesConfig } from '../configuration';
+import { commandList } from './common';
 
 const oldAllOpenedFilesPath = path.join(os.homedir(), "allOpenedFiles.txt");
 const allOpenedFilesPath = path.join(os.homedir(), ".allOpenedFiles.txt");
 
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
 
-export function onActivate() {
-    setupConfg();
-    vscode.workspace.onDidChangeConfiguration(event => {
-        let affected = event.affectsConfiguration("ShowAllOpenedFiles.itemWidth");
-        if (affected) {
-            setupConfg();
-        }
-    })
+export class ShowAllOpenedFilesCommand implements vscode.Disposable {
+    private _disposable: vscode.Disposable[] = [];
 
-    watchFileOpen();
-    readAllOpenedFiles();
+    constructor() {
+        this._disposable.push(
+            vscode.commands.registerCommand(
+                commandList.showAllOpenedFiles,
+                this.execute,
+                this
+            )
+        );
 
-    watchAllOpenedFilesChange();
+        this.init();
+    }
 
+    private init() {
+        setupConfg();
+        vscode.workspace.onDidChangeConfiguration(event => {
+            let affected = event.affectsConfiguration("ShowAllOpenedFiles.itemWidth");
+            if (affected) {
+                setupConfg();
+            }
+        })
+
+        watchFileOpen();
+        readAllOpenedFiles();
+
+        watchAllOpenedFilesChange();
+    }
+
+    protected async execute() {
+        let quickPickItems = buildFileQuickPickItems(AllOpenedFiles);
+        vscode.window.showQuickPick(quickPickItems, {
+            canPickMany: false,
+            placeHolder: ""
+        }).then(item => {
+            if (item) {
+                console.log(`execshowAllOpenedFiles: ${item.fileName}`);
+                // insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
+                // const path = '/Users/somefile.txt';
+                const path = item.fileName;
+                const options = {
+                    // 选中第3行第9列到第3行第17列
+                    // selection: new vscode.Range(new vscode.Position(2, 8), new vscode.Position(2, 16)),
+                    // 是否预览，默认true，预览的意思是下次再打开文件是否会替换当前文件
+                    // preview: false,
+                    // 显示在第二个编辑器
+                    // viewColumn: vscode.ViewColumn.Two
+                };
+                // vscode.window.open(vscode.Uri.file(path), options);
+                vscode.window.showTextDocument(vscode.Uri.file(path), options).then((editor) => {
+                    updateLRUFiles(AllOpenedFiles, path);
+                    saveAllOpenedFiles(AllOpenedFiles)
+                }, (err) => {
+                    console.log(`Open error, ${err}.`);
+                    deleteLRUFiles(AllOpenedFiles, path);
+                    saveAllOpenedFiles(AllOpenedFiles)
+                });
+            }
+        });
+
+    }
+
+    public dispose() {
+        this._disposable.forEach(d => d.dispose());
+    }
 }
+
 
 function setupConfg() {
     let w = vscode.workspace.getConfiguration("ShowAllOpenedFiles").get<number>("itemWidth");
@@ -35,38 +89,6 @@ function setupConfg() {
         w = 80
     }
     config.itemWidth = w
-}
-
-export function execShowAllOpenedFiles() {
-    let quickPickItems = buildFileQuickPickItems(AllOpenedFiles);
-    vscode.window.showQuickPick(quickPickItems, {
-        canPickMany: false,
-        placeHolder: ""
-    }).then(item => {
-        if (item) {
-            console.log(`execshowAllOpenedFiles: ${item.fileName}`);
-            // insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
-            // const path = '/Users/somefile.txt';
-            const path = item.fileName;
-            const options = {
-                // 选中第3行第9列到第3行第17列
-                // selection: new vscode.Range(new vscode.Position(2, 8), new vscode.Position(2, 16)),
-                // 是否预览，默认true，预览的意思是下次再打开文件是否会替换当前文件
-                // preview: false,
-                // 显示在第二个编辑器
-                // viewColumn: vscode.ViewColumn.Two
-            };
-            // vscode.window.open(vscode.Uri.file(path), options);
-            vscode.window.showTextDocument(vscode.Uri.file(path), options).then((editor) => {
-                updateLRUFiles(AllOpenedFiles, path);
-                saveAllOpenedFiles(AllOpenedFiles)
-            }, (err) => {
-                console.log(`Open error, ${err}.`);
-                deleteLRUFiles(AllOpenedFiles, path);
-                saveAllOpenedFiles(AllOpenedFiles)
-            });
-        }
-    });
 }
 
 function readAllOpenedFiles() {
@@ -164,38 +186,4 @@ function buildFileQuickPickItems(files: Array<string>): FileQuickPickItem[] {
     });
 
     return items;
-}
-
-export async function execQuickOpen(filePath: string, line: Number = 0, character: Number = 0) {
-    try {
-        const activeTextEditor = vscode.window.activeTextEditor;
-        if (activeTextEditor == undefined) {
-            return
-        }
-        if (activeTextEditor.document.fileName !== filePath) {
-            const homedir = require("os").homedir();
-            if (filePath.includes("~")) {
-                filePath = path.join(homedir, filePath.replace("~", ""));
-            }
-            const doc = await vscode.workspace.openTextDocument(
-                vscode.Uri.file(filePath)
-            );
-            const editor = await vscode.window.showTextDocument(doc);
-            revealEditorPosition(editor, line, character);
-        }
-    } catch (error: any) {
-        console.error(`error:`, error);
-        vscode.window.showErrorMessage(error.message);
-    }
-}
-
-function revealEditorPosition(editor: any, line: any, character: any) {
-    if (!line) return;
-    character = character || 1;
-    const position = new vscode.Position(line - 1, character - 1);
-    editor.selections = [new vscode.Selection(position, position)];
-    editor.revealRange(
-        new vscode.Range(position, position),
-        vscode.TextEditorRevealType.InCenterIfOutsideViewport
-    );
 }

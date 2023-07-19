@@ -1,11 +1,18 @@
 export enum commandList {
-  apiGetMonitor = "clipboard-manager.api.getMonitor",
-  clearClipboardHistory = "clipboard-manager.history.clear",
-  copyToHistory = "clipboard-manager.editor.copyToHistory",
-  historyTreeDoubleClick = "clipboard-manager.historyTree.doubleClick",
-  pickAndPaste = "clipboard-manager.editor.pickAndPaste",
-  ringPaste = "clipboard-manager.editor.ringPaste",
-  removeClipboardHistory = "clipboard-manager.history.remove",
-  setClipboardValue = "clipboard-manager.setClipboardValue",
-  showClipboardInFile = "clipboard-manager.editor.showClipboardInFile",
+  showAllOpenedFiles = "AllOpenedFiles.showAllOpenedFiles",
+  quickOpen = "AllOpenedFiles.quickOpen",
+  insertLineNumber = "AllOpenedFiles.insertLineNumber",
+
+  pickAndPaste = "ClipManager.pickAndPaste",
+  ringPaste = "ClipManager.ringPaste",
+
+  apiGetMonitor = "ClipManager.api.getMonitor",
+  copyToHistory = "ClipManager.copyToHistory",
+  setClipboardValue = "ClipManager.setClipboardValue",
+  showClipboardInFile = "ClipManager.showClipboardInFile",
+
+  historyTreeDoubleClick = "ClipManager.historyTree.doubleClick",
+
+  clearClipboardHistory = "ClipManager.history.clear",
+  removeClipboardHistory = "ClipManager.history.remove",
 }
