@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.26",
+    "version": "3.0.42",
     "keywords": [
         "files",
         "open",
@@ -125,6 +125,24 @@
                 "command": "AllOpenedFiles.showAllOpenedFiles",
                 "key": "alt+shift+o",
                 "mac": "alt+shift+o"
+            },
+            {
+                "command": "ClipManager.copyToHistory",
+                "key": "Ctrl+Shift+C",
+                "mac": "Cmd+Shift+C",
+                "when": "textInputFocus && !editorReadonly"
+            },
+            {
+                "command": "ClipManager.pickAndPaste",
+                "key": "Ctrl+Shift+V",
+                "mac": "Cmd+Shift+V",
+                "when": "textInputFocus && !editorReadonly"
+            },
+            {
+                "command": "ClipManager.ringPaste",
+                "key": "Alt+P",
+                "mac": "Alt+P",
+                "when": "textInputFocus && !editorReadonly"
             }
         ]
     },

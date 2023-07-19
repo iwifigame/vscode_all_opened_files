@@ -9,7 +9,6 @@ import { showErrorMessage } from '../handleError';
 import { ShowAllOpenedFilesConfig } from '../configuration';
 import { commandList } from './common';
 
-const oldAllOpenedFilesPath = path.join(os.homedir(), "allOpenedFiles.txt");
 const allOpenedFilesPath = path.join(os.homedir(), ".allOpenedFiles.txt");
 
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
@@ -92,7 +91,6 @@ function setupConfg() {
 }
 
 function readAllOpenedFiles() {
-    updateAllOpenedFilesFromFile(oldAllOpenedFilesPath)
     updateAllOpenedFilesFromFile(allOpenedFilesPath)
 }
 
