@@ -1,107 +1,236 @@
 {
-  "name": "all-opened-files",
-  "displayName": "All Opened Files",
-  "description": "Manage all Opened Files, and quick access it.",
-  "license": "MIT",
-  "version": "3.0.10",
-  "keywords": [
-    "files",
-    "open",
-    "history"
-  ],
-  "author": {
-    "name": "liyongjin"
-  },
-  "homepage": "https://github.com/iwifigame/vscode_line_number",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/iwifigame/vscode_line_number"
-  },
-  "bugs": {
-    "url": "https://github.com/iwifigame/vscode_line_number/issues"
-  },
-  "publisher": "liyongjin",
-  "engines": {
-    "vscode": "^1.30.0"
-  },
-  "categories": [
-    "Formatters"
-  ],
-  "icon": "images/icon2.png",
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "extension.showAllOpenedFiles",
-        "category": "AllOpenedFiles",
-        "title": "Show All Opened Files"
-      },
-      {
-        "command": "extension.quickOpen",
-        "category": "AllOpenedFiles",
-        "title": "Quick Open"
-      },
-      {
-        "command": "extension.insertLineNumber",
-        "category": "AllOpenedFiles",
-        "title": "Insert Line Number"
-      }
+    "name": "all-opened-files",
+    "displayName": "All Opened Files",
+    "description": "Manage all Opened Files, and quick access it.",
+    "license": "MIT",
+    "version": "3.0.48",
+    "keywords": [
+        "files",
+        "open",
+        "history"
     ],
-    "configuration": {
-      "title": "All Opened Files",
-      "properties": {
-        "ShowAllOpenedFiles.itemWidth": {
-          "type": "number",
-          "default": 80,
-          "description": "all opened files item width"
-        },
-        "InsertLineNumber.formats": {
-          "type": "array",
-          "default": [
-            {
-              "align": "right",
-              "width": "alignToLast"
-            },
-            {
-              "width": "alignToLast"
-            },
-            {},
-            {
-              "start": "current",
-              "align": "right",
-              "padding": "zero",
-              "width": 6,
-              "prefix": "[CODE_",
-              "suffix": "]    "
-            }
-          ],
-          "description": "insert line number"
-        }
-      }
+    "author": {
+        "name": "liyongjin"
     },
-    "keybindings": [
-      {
-        "command": "extension.showAllOpenedFiles",
-        "key": "alt+shift+o",
-        "mac": "alt+shift+o"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
-  },
-  "devDependencies": {
-    "typescript": "^3.1.4",
-    "vscode": "^1.1.25",
-    "tslint": "^5.8.0",
-    "@types/node": "^8.10.25",
-    "@types/mocha": "^2.2.42"
-  }
+    "homepage": "https://github.com/iwifigame/vscode_all_opened_files",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/iwifigame/vscode_all_opened_files"
+    },
+    "bugs": {
+        "url": "https://github.com/iwifigame/vscode_all_opened_files/issues"
+    },
+    "publisher": "liyongjin",
+    "engines": {
+        "vscode": "^1.30.0"
+    },
+    "categories": [
+        "Formatters"
+    ],
+    "icon": "images/icon2.png",
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "AllOpenedFiles.showAllOpenedFiles",
+                "category": "AllOpenedFiles",
+                "title": "Show All Opened Files"
+            },
+            {
+                "command": "AllOpenedFiles.quickOpen",
+                "category": "AllOpenedFiles",
+                "title": "Quick Open"
+            },
+            {
+                "command": "AllOpenedFiles.insertLineNumber",
+                "category": "AllOpenedFiles",
+                "title": "Insert Line Number"
+            },
+            {
+                "command": "ClipManager.copyToHistory",
+                "title": "Copy to Clipboard History",
+                "category": "ClipManager"
+            },
+            {
+                "command": "ClipManager.pickAndPaste",
+                "title": "Pick and Paste",
+                "category": "ClipManager"
+            },
+            {
+                "command": "ClipManager.ringPaste",
+                "title": "Ring Paste",
+                "category": "ClipManager"
+            },
+            {
+                "command": "ClipManager.showClipboardInFile",
+                "title": "Show in the file",
+                "category": "ClipManager"
+            },
+            {
+                "command": "ClipManager.history.clear",
+                "title": "Clear History",
+                "category": "ClipManager",
+                "icon": {
+                    "dark": "resources/dark/clear-history.svg",
+                    "light": "resources/light/clear-history.svg"
+                }
+            },
+            {
+                "command": "ClipManager.history.remove",
+                "title": "Remove",
+                "category": "ClipManager",
+                "icon": {
+                    "dark": "resources/dark/remove.svg",
+                    "light": "resources/light/remove.svg"
+                }
+            }
+        ],
+        "configuration": [
+            {
+                "title": "All Opened Files",
+                "properties": {
+                    "ShowAllOpenedFiles.itemWidth": {
+                        "type": "number",
+                        "default": 80,
+                        "description": "all opened files item width"
+                    },
+                    "InsertLineNumber.formats": {
+                        "type": "array",
+                        "default": [
+                            {
+                                "align": "right",
+                                "width": "alignToLast"
+                            },
+                            {
+                                "width": "alignToLast"
+                            },
+                            {},
+                            {
+                                "start": "current",
+                                "align": "right",
+                                "padding": "zero",
+                                "width": 6,
+                                "prefix": "[CODE_",
+                                "suffix": "]    "
+                            }
+                        ],
+                        "description": "insert line number"
+                    }
+                }
+            },
+            {
+                "title": "Clip Manager",
+                "properties": {
+                    "clip-manager.avoidDuplicates": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Avoid duplicate clips in the list"
+                    },
+                    "clip-manager.checkInterval": {
+                        "type": "integer",
+                        "default": 500,
+                        "description": "Time in milliseconds to check changes in clipboard. Set zero to disable."
+                    },
+                    "clip-manager.maxClipboardSize": {
+                        "type": "integer",
+                        "default": 1000000,
+                        "description": "Maximum clipboard size in bytes."
+                    },
+                    "clip-manager.maxClips": {
+                        "type": "integer",
+                        "default": 100,
+                        "description": "Maximum number of clips to save in clipboard"
+                    },
+                    "clip-manager.moveToTop": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Move used clip to top in the list"
+                    },
+                    "clip-manager.onlyWindowFocused": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Get clips only from VSCode"
+                    },
+                    "clip-manager.preview": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "View a preview while you are choosing the clip"
+                    },
+                    "clip-manager.saveTo": {
+                        "type": [
+                            "string",
+                            "null",
+                            "boolean"
+                        ],
+                        "default": null,
+                        "description": "Set location to save the clipboard file, set false to disable",
+                        "scope": "application"
+                    },
+                    "clip-manager.snippet.enabled": {
+                        "scope": "resource",
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable completion snippets"
+                    },
+                    "clip-manager.snippet.max": {
+                        "scope": "resource",
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Maximum number of clips to suggests in snippets (Zero for all)"
+                    },
+                    "clip-manager.snippet.prefix": {
+                        "scope": "resource",
+                        "type": "string",
+                        "default": "clip",
+                        "description": "Default prefix for snippets completion (clip1, clip2, ...)"
+                    }
+                }
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "AllOpenedFiles.showAllOpenedFiles",
+                "key": "alt+shift+o",
+                "mac": "alt+shift+o"
+            },
+            {
+                "command": "ClipManager.copyToHistory",
+                "key": "Ctrl+Shift+C",
+                "mac": "Cmd+Shift+C",
+                "when": "textInputFocus && !editorReadonly"
+            },
+            {
+                "command": "ClipManager.pickAndPaste",
+                "key": "Ctrl+Shift+V",
+                "mac": "Cmd+Shift+V",
+                "when": "textInputFocus && !editorReadonly"
+            },
+            {
+                "command": "ClipManager.ringPaste",
+                "key": "Alt+P",
+                "mac": "Alt+P",
+                "when": "textInputFocus && !editorReadonly"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "tslint": "^5.8.0",
+        "typescript": "^3.1.4",
+        "vscode": "^1.1.25"
+    },
+    "dependencies": {
+        "clipboardy": "^2.3.0"
+    }
 }
