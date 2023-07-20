@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { ClipboardManager } from "../manager";
-import { leftPad } from "../util";
+import { leftPad } from "../util/util";
 import { commandList } from "./common";
 import { ClipPickItem } from "./pickAndPaste";
 

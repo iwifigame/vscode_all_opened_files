@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { commandList } from "./commads/common";
 import { ClipboardManager } from "./manager";
-import { leftPad } from "./util";
+import { leftPad } from "./util/util";
 
 export class ClipboardCompletion implements vscode.CompletionItemProvider {
   constructor(protected manager: ClipboardManager) {}
@@ -13,7 +13,7 @@ export class ClipboardCompletion implements vscode.CompletionItemProvider {
     _context: vscode.CompletionContext
   ): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
     const config = vscode.workspace.getConfiguration(
-      "clipboard-manager",
+      "clip-manager",
       document.uri
     );
 

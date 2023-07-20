@@ -25,10 +25,6 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             )
         );
 
-        this.init();
-    }
-
-    private init() {
         setupConfg();
         vscode.workspace.onDidChangeConfiguration(event => {
             let affected = event.affectsConfiguration("ShowAllOpenedFiles.itemWidth");
@@ -50,10 +46,10 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             placeHolder: ""
         }).then(item => {
             if (item) {
-                console.log(`execshowAllOpenedFiles: ${item.fileName}`);
+                // console.log(`execshowAllOpenedFiles: ${item.fileName}`);
                 // insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
                 // const path = '/Users/somefile.txt';
-                const path = item.fileName;
+                const path = item.filePath;
                 const options = {
                     // 选中第3行第9列到第3行第17列
                     // selection: new vscode.Range(new vscode.Position(2, 8), new vscode.Position(2, 16)),
@@ -147,7 +143,7 @@ function watchFileOpen() {
         if (document == undefined) {
             return
         }
-        console.log(`onDidChangeActiveTextEditor ${document.uri.fsPath}`);
+        // console.log(`onDidChangeActiveTextEditor ${document.uri.fsPath}`);
         try {
             updateLRUFiles(AllOpenedFiles, document.fileName)
             saveAllOpenedFiles(AllOpenedFiles)
@@ -158,7 +154,7 @@ function watchFileOpen() {
 }
 
 interface FileQuickPickItem extends vscode.QuickPickItem {
-    fileName: string
+    filePath: string
 }
 
 function buildFileQuickPickItems(files: Array<string>): FileQuickPickItem[] {
@@ -166,19 +162,31 @@ function buildFileQuickPickItems(files: Array<string>): FileQuickPickItem[] {
     const number = 1234;
     // const width = Math.floor(Math.log10(number));
 
-    const items = files.map((path, i) => {
-        let showPath = path;
+    const items = files.map((filePath, i) => {
+        let dirName = path.dirname(filePath)
+        let baseName = path.basename(filePath)
 
+        let label = i.toString() + ") " + baseName;
+        let description = dirName;
+
+        // 调整宽度与显示
         const itemWidth = config.itemWidth;
-        if (path.length > itemWidth) {
-            showPath = '...' + path.slice(-itemWidth);
+        const prefix = "   ...";
+        const wholeWidth = label.length + description.length + prefix.length
+        if (wholeWidth > itemWidth) {
+            let tle = itemWidth - label.length - prefix.length
+            if (tle > 0) {
+                description = prefix + description.slice(-tle);
+            } else {
+                description = prefix
+            }
         }
+        // console.log(i, label.length, description.length, label.length + description.length)
 
         let item = {
-            fileName: path,
-            // label: i.toString().padStart(width, '0') + ")" + showPath,
-            label: i.toString() + ")" + showPath,
-            // description: "--- " + i.toString(),
+            filePath: filePath,
+            label: label,
+            description: description,
         } as FileQuickPickItem;
         return item
     });

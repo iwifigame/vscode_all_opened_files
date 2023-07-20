@@ -14,10 +14,6 @@ export class InsertLineNumberCommand implements vscode.Disposable {
             )
         );
 
-        this.init();
-    }
-
-    private init() {
         setupDefaultFormatConfigs();
     }
 

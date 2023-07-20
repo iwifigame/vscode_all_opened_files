@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.42",
+    "version": "3.0.48",
     "keywords": [
         "files",
         "open",
@@ -88,38 +88,108 @@
                 }
             }
         ],
-        "configuration": {
-            "title": "All Opened Files",
-            "properties": {
-                "ShowAllOpenedFiles.itemWidth": {
-                    "type": "number",
-                    "default": 80,
-                    "description": "all opened files item width"
-                },
-                "InsertLineNumber.formats": {
-                    "type": "array",
-                    "default": [
-                        {
-                            "align": "right",
-                            "width": "alignToLast"
-                        },
-                        {
-                            "width": "alignToLast"
-                        },
-                        {},
-                        {
-                            "start": "current",
-                            "align": "right",
-                            "padding": "zero",
-                            "width": 6,
-                            "prefix": "[CODE_",
-                            "suffix": "]    "
-                        }
-                    ],
-                    "description": "insert line number"
+        "configuration": [
+            {
+                "title": "All Opened Files",
+                "properties": {
+                    "ShowAllOpenedFiles.itemWidth": {
+                        "type": "number",
+                        "default": 80,
+                        "description": "all opened files item width"
+                    },
+                    "InsertLineNumber.formats": {
+                        "type": "array",
+                        "default": [
+                            {
+                                "align": "right",
+                                "width": "alignToLast"
+                            },
+                            {
+                                "width": "alignToLast"
+                            },
+                            {},
+                            {
+                                "start": "current",
+                                "align": "right",
+                                "padding": "zero",
+                                "width": 6,
+                                "prefix": "[CODE_",
+                                "suffix": "]    "
+                            }
+                        ],
+                        "description": "insert line number"
+                    }
+                }
+            },
+            {
+                "title": "Clip Manager",
+                "properties": {
+                    "clip-manager.avoidDuplicates": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Avoid duplicate clips in the list"
+                    },
+                    "clip-manager.checkInterval": {
+                        "type": "integer",
+                        "default": 500,
+                        "description": "Time in milliseconds to check changes in clipboard. Set zero to disable."
+                    },
+                    "clip-manager.maxClipboardSize": {
+                        "type": "integer",
+                        "default": 1000000,
+                        "description": "Maximum clipboard size in bytes."
+                    },
+                    "clip-manager.maxClips": {
+                        "type": "integer",
+                        "default": 100,
+                        "description": "Maximum number of clips to save in clipboard"
+                    },
+                    "clip-manager.moveToTop": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Move used clip to top in the list"
+                    },
+                    "clip-manager.onlyWindowFocused": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Get clips only from VSCode"
+                    },
+                    "clip-manager.preview": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "View a preview while you are choosing the clip"
+                    },
+                    "clip-manager.saveTo": {
+                        "type": [
+                            "string",
+                            "null",
+                            "boolean"
+                        ],
+                        "default": null,
+                        "description": "Set location to save the clipboard file, set false to disable",
+                        "scope": "application"
+                    },
+                    "clip-manager.snippet.enabled": {
+                        "scope": "resource",
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable completion snippets"
+                    },
+                    "clip-manager.snippet.max": {
+                        "scope": "resource",
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Maximum number of clips to suggests in snippets (Zero for all)"
+                    },
+                    "clip-manager.snippet.prefix": {
+                        "scope": "resource",
+                        "type": "string",
+                        "default": "clip",
+                        "description": "Default prefix for snippets completion (clip1, clip2, ...)"
+                    }
                 }
             }
-        },
+        ],
         "keybindings": [
             {
                 "command": "AllOpenedFiles.showAllOpenedFiles",

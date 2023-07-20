@@ -2,7 +2,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { commandList } from "../commads/common";
 import { ClipboardManager, IClipboardItem } from "../manager";
-import { leftPad } from "../util";
+import { leftPad } from "../util/util";
 
 export class ClipHistoryItem extends vscode.TreeItem {
   constructor(readonly clip: IClipboardItem) {

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { ClipboardManager, IClipboardItem } from "../manager";
-import { leftPad } from "../util";
+import { leftPad } from "../util/util";
 import { commandList } from "./common";
 
 // 剪贴板快速选择项目
@@ -34,7 +34,7 @@ export class PickAndPasteCommand implements vscode.Disposable {
   }
 
   protected async execute() {
-    const config = vscode.workspace.getConfiguration("clipboard-manager");
+    const config = vscode.workspace.getConfiguration("clip-manager");
     const preview = config.get("preview", true);
 
     // 得到所有剪贴板
