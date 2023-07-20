@@ -4,6 +4,12 @@ Manage all Opened Files, and quick access it.
 
 ## Features
 
-- Remember all opened files.(alt+shift+o)
-- Quick open file with args.
-- Quick access All opened files.
+* Quick access All opened files.((alt+shift+o))
+* ring paste.(alt+p)
+* Quick open file with args.
+```
+"command": "AllOpenedFiles.quickOpen",
+"args": [
+    "file path to open",
+]
+```

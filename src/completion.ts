@@ -13,7 +13,7 @@ export class ClipboardCompletion implements vscode.CompletionItemProvider {
     _context: vscode.CompletionContext
   ): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
     const config = vscode.workspace.getConfiguration(
-      "clip-manager",
+      "ClipManager",
       document.uri
     );
 

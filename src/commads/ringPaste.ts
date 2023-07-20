@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ClipboardManager } from "../manager";
+import { ClipboardManager, IClipboardItem } from "../manager";
 import { leftPad } from "../util/util";
 import { commandList } from "./common";
 import { ClipPickItem } from "./pickAndPaste";
@@ -35,22 +35,10 @@ export class RingPasteCommand implements vscode.Disposable {
         this.lastPasteTime = Date.now();
 
         // 得到所有剪贴板
-        const clips = this._manager.clips;
-
-        const maxLength = `${clips.length}`.length; // 列表长度转成字符串，再取长度。即最大数字长度
-
-        // 创建快速选择项目
-        const picks = clips.map((c, index) => {
-            const item = new ClipPickItem(c);
-            const indexNumber = leftPad(index + 1, maxLength, "0");
-
-            item.label = `${indexNumber}) ${item.label}`;
-
-            return item;
-        });
+        const picks = this._manager.clips;
 
         // 设置选择事件处理
-        let ringPaste = (selected: ClipPickItem) => {
+        let ringPasteFun = (selected: IClipboardItem) => {
             const editor = vscode.window.activeTextEditor;
             if (editor) {
                 // 定义替换成选择的剪贴板内容的方法
@@ -59,7 +47,7 @@ export class RingPasteCommand implements vscode.Disposable {
                         edit => {
                             for (const selection of editor.selections) {
                                 // console.log("------------ccccccc ", selection);
-                                edit.replace(selection, selected.clip.value); // 替换成选择的剪贴板内容
+                                edit.replace(selection, selected.value); // 替换成选择的剪贴板内容
                             }
                             this.needUndo = true;
                         },
@@ -103,10 +91,10 @@ export class RingPasteCommand implements vscode.Disposable {
         };
 
         const pick = picks[this.curIndex];
-        ringPaste(pick);
+        ringPasteFun(pick);
 
         this.curIndex++;
-        if (this.curIndex >= clips.length) {
+        if (this.curIndex >= picks.length) {
             this.curIndex = 0;
         }
     }
