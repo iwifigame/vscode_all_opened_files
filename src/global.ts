@@ -28,5 +28,6 @@ export enum commandList {
 
 
     addBookmark = "BookmarkManager.addBookmark",
+    removeBookmark = "BookmarkManager.remove",
     showBookmarkInFile = "BookmarkManager.showBookmarkInFile",
 }

@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.58",
+    "version": "3.0.60",
     "keywords": [
         "files",
         "open",
@@ -94,6 +94,15 @@
                 "category": "BookmarkManager"
             },
             {
+                "command": "BookmarkManager.remove",
+                "title": "Remove Bookmark",
+                "category": "BookmarkManager",
+                "icon": {
+                    "dark": "resources/dark/remove.svg",
+                    "light": "resources/light/remove.svg"
+                }
+            },
+            {
                 "command": "BookmarkManager.showBookmarkInFile",
                 "title": "Show in the file",
                 "category": "BookmarkManager"
@@ -125,8 +134,8 @@
             },
             {
                 "command": "BookmarkManager.addBookmark",
-                "key": "Ctrl+B",
-                "mac": "Cmd+B",
+                "key": "Ctrl+M",
+                "mac": "Cmd+M",
                 "when": "textInputFocus && !editorReadonly"
             }
         ],
@@ -155,10 +164,6 @@
                 {
                     "id": "bookmark",
                     "name": "bookmark"
-                },
-                {
-                    "id": "file",
-                    "name": "file"
                 }
             ]
         },
@@ -196,6 +201,16 @@
                 {
                     "command": "ClipManager.history.remove",
                     "when": "viewItem =~ /^clipHistoryItem:/",
+                    "group": "inline"
+                },
+                {
+                    "command": "BookmarkManager.remove",
+                    "when": "viewItem =~ /^bookmarkItem:/",
+                    "group": "1_modification"
+                },
+                {
+                    "command": "BookmarkManager.remove",
+                    "when": "viewItem =~ /^bookmarkItem:/",
                     "group": "inline"
                 }
             ],

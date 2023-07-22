@@ -16,11 +16,12 @@ import { ClipboardManager } from "./manager/clipboardManager";
 import { ClipboardMonitor } from "./manager/clipboardMonitor";
 import { ClipboardTreeDataProvider } from "./tree/history";
 import { CopyToHistoryCommand } from "./commads/copyToHistory";
-import { AddBookmarkCommand } from "./commads/addBookmark";
 import { ShowAllOpenedFilesCommand } from "./commads/allOpenedFiles";
 import { QuickOpenCommand } from "./commads/quickOpen";
 import { InsertLineNumberCommand } from "./commads/insertLineNumber";
 
+import { AddBookmarkCommand } from "./commads/addBookmark";
+import { RemoveBookmark } from "./commads/removeBookmark";
 import { BookmarkTreeDataProvider } from "./tree/bookmark";
 import { BookmarkManager } from "./manager/bookmarkManager";
 import { setStoreFolder } from "./global";
@@ -83,6 +84,7 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable.push(new InsertLineNumberCommand());
 
     disposable.push(new AddBookmarkCommand(bookmarkManager));
+    disposable.push(new RemoveBookmark(bookmarkManager));
     disposable.push(new ShowBookmarkInFile(bookmarkManager));
 
     const completion = new ClipboardCompletion(manager);
