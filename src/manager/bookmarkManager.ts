@@ -2,11 +2,9 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-import { IClipboardTextChange, Monitor } from "./monitor";
-import { getStoreFolder } from "./util/util";
+import { getStoreFolder } from "../global";
 
-// 剪贴板项目
-export interface IClipboardItem {
+export interface IBookmarkItem {
     value: string;
     createdAt: number;
     lastUse?: number;
@@ -16,35 +14,33 @@ export interface IClipboardItem {
     createdLocation?: vscode.Location;
 }
 
-export class ClipboardManager implements vscode.Disposable {
+export interface IBookmarkTextChange {
+    value: string;
+    timestamp: number;
+    language?: string;
+    location?: vscode.Location;
+}
+
+export class BookmarkManager implements vscode.Disposable {
     protected _disposable: vscode.Disposable[] = [];
 
-    protected _clips: IClipboardItem[] = [];
-    get clips() {
-        return this._clips;
+    protected _bookmarks: IBookmarkItem[] = [];
+    get bookmarks() {
+        return this._bookmarks;
     }
 
     protected lastUpdate: number = 0;
 
-    // get clipboard() {
-    //   return this._clipboard;
-    // }
+    private _onDidBookmarkListChange = new vscode.EventEmitter<void>();
+    public readonly onDidChangeBookmarkList = this._onDidBookmarkListChange.event;
 
-    private _onDidClipListChange = new vscode.EventEmitter<void>();
-    public readonly onDidChangeClipList = this._onDidClipListChange.event;
-
-    constructor(
-        protected context: vscode.ExtensionContext,
-        protected _monitor: Monitor
-    ) {
-        this._monitor.onDidChangeText(this.updateClipList, this, this._disposable);
-
-        this.loadClips();
+    constructor( protected context: vscode.ExtensionContext) {
+        this.loadBookmarks();
 
         vscode.window.onDidChangeWindowState(
             state => {
                 if (state.focused) {
-                    this.checkClipsUpdate();
+                    this.checkBookmarksUpdate();
                 }
             },
             this,
@@ -52,19 +48,18 @@ export class ClipboardManager implements vscode.Disposable {
         );
 
         vscode.workspace.onDidChangeConfiguration(
-            e => e.affectsConfiguration("ClipManager") && this.saveClips()
+            e => e.affectsConfiguration("BookmarkManager") && this.saveBookmarks()
         );
     }
 
-    // 更新剪贴板列表
-    protected updateClipList(change: IClipboardTextChange) {
-        this.checkClipsUpdate();
+    public addBookmark(change: IBookmarkTextChange) {
+        this.checkBookmarksUpdate();
 
-        const config = vscode.workspace.getConfiguration("ClipManager");
-        const maxClips = config.get("maxClips", 100);
+        const config = vscode.workspace.getConfiguration("BookmarkManager");
+        const maxbookmarks = config.get("maxbookmarks", 100);
         const avoidDuplicates = config.get("avoidDuplicates", true);
 
-        let item: IClipboardItem = {
+        let item: IBookmarkItem = {
             value: change.value,
             createdAt: change.timestamp,
             copyCount: 1,
@@ -74,82 +69,76 @@ export class ClipboardManager implements vscode.Disposable {
         };
 
         if (avoidDuplicates) {
-            const index = this._clips.findIndex(c => c.value === change.value);
+            const index = this._bookmarks.findIndex(c => c.value === change.value);
 
-            // Remove same clips and move recent to top
+            // Remove same bookmarks and move recent to top
             if (index >= 0) {
-                this._clips[index].copyCount++;
-                item = this._clips[index];
-                this._clips = this._clips.filter(c => c.value !== change.value);
+                this._bookmarks[index].copyCount++;
+                item = this._bookmarks[index];
+                this._bookmarks = this._bookmarks.filter(c => c.value !== change.value);
             }
         }
 
         // Add to top
-        this._clips.unshift(item);
+        this._bookmarks.unshift(item);
 
-        // Max clips to store
-        if (maxClips > 0) {
-            this._clips = this._clips.slice(0, maxClips);
+        // Max bookmarks to store
+        if (maxbookmarks > 0) {
+            this._bookmarks = this._bookmarks.slice(0, maxbookmarks);
         }
 
-        this._onDidClipListChange.fire();
+        this._onDidBookmarkListChange.fire();
 
-        this.saveClips();
+        this.saveBookmarks();
     }
 
-    public async setClipboardValue(value: string) {
-        this.checkClipsUpdate();
+    public async setBookmarkValue(value: string) {
+        this.checkBookmarksUpdate();
 
-        const config = vscode.workspace.getConfiguration("ClipManager");
+        const config = vscode.workspace.getConfiguration("BookmarkManager");
         const moveToTop = config.get("moveToTop", true);
 
-        const index = this._clips.findIndex(c => c.value === value);
+        const index = this._bookmarks.findIndex(c => c.value === value);
 
         if (index >= 0) {
-            this._clips[index].useCount++;
+            this._bookmarks[index].useCount++;
 
             if (moveToTop) { // 移到头部
-                const clips = this.clips.splice(index, 1); // 删除index处一个元素，即将当前元素删除
-                this._clips.unshift(...clips); // 重新插入clips
-                this._onDidClipListChange.fire();
-                this.saveClips();
+                const bookmarks = this.bookmarks.splice(index, 1); // 删除index处一个元素，即将当前元素删除
+                this._bookmarks.unshift(...bookmarks); // 重新插入bookmarks
+                this._onDidBookmarkListChange.fire();
+                this.saveBookmarks();
             }
         }
-
-        return await this._monitor.clipboard.writeText(value);
     }
 
-    public removeClipboardValue(value: string) {
-        this.checkClipsUpdate();
+    public removeBookmarkValue(value: string) {
+        this.checkBookmarksUpdate();
 
-        const prevLength = this._clips.length;
+        const prevLength = this._bookmarks.length;
 
-        this._clips = this._clips.filter(c => c.value !== value);
-        this._onDidClipListChange.fire();
-        this.saveClips();
+        this._bookmarks = this._bookmarks.filter(c => c.value !== value);
+        this._onDidBookmarkListChange.fire();
+        this.saveBookmarks();
 
-        return prevLength !== this._clips.length;
+        return prevLength !== this._bookmarks.length;
     }
 
     public clearAll() {
-        this.checkClipsUpdate();
+        this.checkBookmarksUpdate();
 
-        this._clips = [];
-        this._onDidClipListChange.fire();
-        this.saveClips();
+        this._bookmarks = [];
+        this._onDidBookmarkListChange.fire();
+        this.saveBookmarks();
 
         return true;
     }
 
-    /**
-     * `clipboard.history.json`
-     */
     protected getStoreFile() {
-        let folder =  getStoreFolder(this.context)
-        
-        const filePath = path.join(folder, "clipboard.history.json");
+        let folder =  getStoreFolder()
+        const filePath = path.join(folder, ".bookmark.json");
 
-        const config = vscode.workspace.getConfiguration("ClipManager");
+        const config = vscode.workspace.getConfiguration("BookmarkManager");
         const saveTo = config.get<string | null | boolean>("saveTo");
 
         if (typeof saveTo === "string") {
@@ -179,7 +168,7 @@ export class ClipboardManager implements vscode.Disposable {
         return value;
     }
 
-    public saveClips() {
+    public saveBookmarks() {
         const file = this.getStoreFile();
         if (!file) {
             return;
@@ -190,7 +179,7 @@ export class ClipboardManager implements vscode.Disposable {
             json = JSON.stringify(
                 {
                     version: 2,
-                    clips: this._clips,
+                    bookmarks: this._bookmarks,
                 },
                 this.jsonReplacer,
                 2
@@ -224,7 +213,7 @@ export class ClipboardManager implements vscode.Disposable {
     /**
      * Check the clip history changed from another workspace
      */
-    public checkClipsUpdate() {
+    public checkBookmarksUpdate() {
         const file = this.getStoreFile();
 
         if (!file) {
@@ -239,25 +228,22 @@ export class ClipboardManager implements vscode.Disposable {
 
         if (this.lastUpdate < stat.mtimeMs) {
             this.lastUpdate = stat.mtimeMs;
-            this.loadClips();
+            this.loadBookmarks();
         }
     }
 
-    public loadClips() {
-        let json;
+    public loadBookmarks() {
+        let json:string = "";
 
         const file = this.getStoreFile();
 
         if (file && fs.existsSync(file)) {
             try {
-                json = fs.readFileSync(file);
+                json = fs.readFileSync(file).toString();
                 this.lastUpdate = fs.statSync(file).mtimeMs;
             } catch (error) {
                 // ignore
             }
-        } else {
-            // Read from old storage
-            json = this.context.globalState.get<any>("clips");
         }
 
         if (!json) {
@@ -273,14 +259,14 @@ export class ClipboardManager implements vscode.Disposable {
             return;
         }
 
-        if (!stored.version || !stored.clips) {
+        if (!stored.version || !stored.bookmarks) {
             return;
         }
 
-        let clips = stored.clips as any[];
+        let bookmarks = stored.bookmarks as any[];
 
         if (stored.version === 1) {
-            clips = clips.map(c => {
+            bookmarks = bookmarks.map(c => {
                 c.createdAt = c.timestamp;
                 c.copyCount = 1;
                 c.useCount = 0;
@@ -290,8 +276,8 @@ export class ClipboardManager implements vscode.Disposable {
             stored.version = 2;
         }
 
-        this._clips = clips.map(c => {
-            const clip: IClipboardItem = {
+        this._bookmarks = bookmarks.map(c => {
+            const bookmark: IBookmarkItem = {
                 value: c.value,
                 createdAt: c.createdAt,
                 copyCount: c.copyCount,
@@ -307,13 +293,13 @@ export class ClipboardManager implements vscode.Disposable {
                     c.createdLocation.range.end.line,
                     c.createdLocation.range.end.character
                 );
-                clip.createdLocation = new vscode.Location(uri, range);
+                bookmark.createdLocation = new vscode.Location(uri, range);
             }
 
-            return clip;
+            return bookmark;
         });
 
-        this._onDidClipListChange.fire();
+        this._onDidBookmarkListChange.fire();
     }
 
     public dispose() {

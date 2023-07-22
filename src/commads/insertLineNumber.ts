@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { commandList } from './common';
-import { InsertLineNumberConfig } from '../configuration';
+import { commandList } from "../global";
+import { InsertLineNumberConfig } from '../config/configuration';
 
 export class InsertLineNumberCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];

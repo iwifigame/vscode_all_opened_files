@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
-import { commandList } from "./common";
-import { Monitor } from "../monitor";
+import { commandList } from "../global";
+import { ClipboardMonitor } from "../manager/clipboardMonitor";
 
 export class CopyToHistoryCommand implements vscode.Disposable {
   private _disposable: vscode.Disposable[] = [];
 
-  constructor(protected monitor: Monitor) {
+  constructor(protected monitor: ClipboardMonitor) {
     this._disposable.push(
       vscode.commands.registerCommand(
         commandList.copyToHistory,

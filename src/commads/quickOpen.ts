@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-import { commandList } from './common';
+import { commandList } from "../global";
 
 export class QuickOpenCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];

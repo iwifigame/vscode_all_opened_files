@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { BaseClipboard } from "./clipboard";
-import { toDisposable } from "./util/util";
+import { toDisposable } from "../util/util";
 
 export interface IClipboardTextChange {
     value: string;
@@ -9,7 +9,8 @@ export interface IClipboardTextChange {
     location?: vscode.Location;
 }
 
-export class Monitor implements vscode.Disposable {
+// 监视器：每500ms监视剪贴板内容的改变
+export class ClipboardMonitor implements vscode.Disposable {
     protected _disposables: vscode.Disposable[] = [];
 
     protected _previousText: string = "";
@@ -18,8 +19,8 @@ export class Monitor implements vscode.Disposable {
 
     public onlyWindowFocused: boolean = true;
 
-    private _onDidChangeText = new vscode.EventEmitter<IClipboardTextChange>();
-    public readonly onDidChangeText = this._onDidChangeText.event;
+    private _onDidChangeText = new vscode.EventEmitter<IClipboardTextChange>(); // 事件发射器
+    public readonly onDidChangeText = this._onDidChangeText.event; // 事件发射器的事件，可添加回调处理函数
 
     protected _timer: NodeJS.Timer | undefined;
 
@@ -76,6 +77,7 @@ export class Monitor implements vscode.Disposable {
         );
     }
 
+    // 从剪贴板中读内容
     protected async readText(): Promise<string> {
         const text = await this.clipboard.readText();
         if (text.length > this.maxClipboardSize) {

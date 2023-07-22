@@ -1,6 +1,7 @@
 "use strict";
 import * as vscode from "vscode";
-import { defaultClipboard } from "./clipboard";
+import * as os from "os";
+import { defaultClipboard } from "./manager/clipboard";
 import { ApiGetMonitor } from "./commads/apiGetMonitor";
 import { ClearClipboardHistory } from "./commads/clearClipboardHistory";
 import { HistoryTreeDoubleClickCommand } from "./commads/historyTreeDoubleClick";
@@ -9,20 +10,29 @@ import { RingPasteCommand } from "./commads/ringPaste";
 import { RemoveClipboardHistory } from "./commads/removeClipboardHistory";
 import { SetClipboardValueCommand } from "./commads/setClipboardValue";
 import { ShowClipboardInFile } from "./commads/showClipboardInFile";
-import { ClipboardCompletion } from "./completion";
-import { ClipboardManager } from "./manager";
-import { Monitor } from "./monitor";
+import { ShowBookmarkInFile } from "./commads/showBookmarkInfile";
+import { ClipboardCompletion } from "./manager/clipboardCompletion";
+import { ClipboardManager } from "./manager/clipboardManager";
+import { ClipboardMonitor } from "./manager/clipboardMonitor";
 import { ClipboardTreeDataProvider } from "./tree/history";
 import { CopyToHistoryCommand } from "./commads/copyToHistory";
+import { AddBookmarkCommand } from "./commads/addBookmark";
 import { ShowAllOpenedFilesCommand } from "./commads/allOpenedFiles";
 import { QuickOpenCommand } from "./commads/quickOpen";
 import { InsertLineNumberCommand } from "./commads/insertLineNumber";
 
+import { BookmarkTreeDataProvider } from "./tree/bookmark";
+import { BookmarkManager } from "./manager/bookmarkManager";
+import { setStoreFolder } from "./global";
+
 let manager: ClipboardManager;
+let bookmarkManager: BookmarkManager;
 
 // this method is called when your extension is activated
 export async function activate(context: vscode.ExtensionContext) {
     const disposable: vscode.Disposable[] = [];
+
+    setExtensionStoreFolder(context);
 
     // Check the clipboard is working
     try {
@@ -47,11 +57,14 @@ export async function activate(context: vscode.ExtensionContext) {
     // Add to disposable list the default clipboard
     disposable.push(defaultClipboard);
 
-    const monitor = new Monitor(defaultClipboard);
+    const monitor = new ClipboardMonitor(defaultClipboard);
     disposable.push(monitor);
 
     manager = new ClipboardManager(context, monitor);
     disposable.push(manager);
+
+    bookmarkManager = new BookmarkManager(context);
+    disposable.push(bookmarkManager);
 
     // API Commands
     disposable.push(new ApiGetMonitor(monitor));
@@ -68,6 +81,9 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable.push(new ShowAllOpenedFilesCommand());
     disposable.push(new QuickOpenCommand());
     disposable.push(new InsertLineNumberCommand());
+
+    disposable.push(new AddBookmarkCommand(bookmarkManager));
+    disposable.push(new ShowBookmarkInFile(bookmarkManager));
 
     const completion = new ClipboardCompletion(manager);
     // disposable.push(completion);
@@ -94,11 +110,19 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const clipboardTreeDataProvider = new ClipboardTreeDataProvider(manager);
     disposable.push(clipboardTreeDataProvider);
-
     disposable.push(
         vscode.window.registerTreeDataProvider(
             "clipboardHistory",
             clipboardTreeDataProvider
+        )
+    );
+
+    const bookmarkTreeDataProvider = new BookmarkTreeDataProvider(bookmarkManager);
+    disposable.push(bookmarkTreeDataProvider);
+    disposable.push(
+        vscode.window.registerTreeDataProvider(
+            "bookmark",
+            bookmarkTreeDataProvider
         )
     );
 
@@ -121,6 +145,7 @@ export async function activate(context: vscode.ExtensionContext) {
     return {
         completion,
         manager,
+        bookmarkManager,
     };
 }
 
@@ -129,4 +154,21 @@ export function deactivate() {
     if (manager) {
         manager.saveClips();
     }
+    if (bookmarkManager) {
+        bookmarkManager.saveBookmarks();
+    }
+}
+
+function setExtensionStoreFolder(context:vscode.ExtensionContext) {
+    let folder = os.tmpdir(); // 得到操作系统临时目录
+    // let folder = os.homedir(); // 得到用户根目录
+
+    if (context.storagePath) {
+        const parts = context.storagePath.split(
+            /[\\/]workspaceStorage[\\/]/
+        );
+        folder = parts[0];
+    }
+
+    setStoreFolder(folder);
 }

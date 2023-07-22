@@ -1,8 +1,6 @@
 import * as vscode from "vscode";
-import { ClipboardManager, IClipboardItem } from "../manager";
-import { leftPad } from "../util/util";
-import { commandList } from "./common";
-import { ClipPickItem } from "./pickAndPaste";
+import { commandList } from "../global";
+import { ClipboardManager, IClipboardItem } from "../manager/clipboardManager";
 
 const Start_Index: number = 0;
 

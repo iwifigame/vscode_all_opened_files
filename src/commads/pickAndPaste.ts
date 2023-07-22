@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { ClipboardManager, IClipboardItem } from "../manager";
 import { leftPad } from "../util/util";
-import { commandList } from "./common";
+import { commandList } from "../global";
+import { ClipboardManager, IClipboardItem } from "../manager/clipboardManager";
 
 // 剪贴板快速选择项目
 export class ClipPickItem implements vscode.QuickPickItem {

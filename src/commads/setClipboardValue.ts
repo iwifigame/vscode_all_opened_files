@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { ClipboardManager } from "../manager";
-import { commandList } from "./common";
+import { commandList } from "../global";
+import { ClipboardManager } from "../manager/clipboardManager";
 
 export class SetClipboardValueCommand implements vscode.Disposable {
   private _disposable: vscode.Disposable[] = [];

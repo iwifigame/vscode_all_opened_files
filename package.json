@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.56",
+    "version": "3.0.58",
     "keywords": [
         "files",
         "open",
@@ -29,7 +29,8 @@
     ],
     "icon": "images/icon2.png",
     "activationEvents": [
-        "onStartupFinished"
+        "onStartupFinished",
+        "onView:bookmark"
     ],
     "main": "./out/extension.js",
     "contributes": {
@@ -86,6 +87,16 @@
                     "dark": "resources/dark/remove.svg",
                     "light": "resources/light/remove.svg"
                 }
+            },
+            {
+                "command": "BookmarkManager.addBookmark",
+                "title": "Add Bookmark",
+                "category": "BookmarkManager"
+            },
+            {
+                "command": "BookmarkManager.showBookmarkInFile",
+                "title": "Show in the file",
+                "category": "BookmarkManager"
             }
         ],
         "keybindings": [
@@ -111,6 +122,12 @@
                 "key": "Alt+P",
                 "mac": "Alt+P",
                 "when": "textInputFocus && !editorReadonly"
+            },
+            {
+                "command": "BookmarkManager.addBookmark",
+                "key": "Ctrl+B",
+                "mac": "Cmd+B",
+                "when": "textInputFocus && !editorReadonly"
             }
         ],
         "viewsContainers": {
@@ -118,7 +135,12 @@
                 {
                     "id": "ClipManager",
                     "title": "ClipManager",
-                    "icon": "images/clipboard.svg"
+                    "icon": "images/clipboard_activitybar.svg"
+                },
+                {
+                    "id": "BookmarkManager",
+                    "title": "BookmarkManager",
+                    "icon": "images/bookmark_activitybar.svg"
                 }
             ]
         },
@@ -127,6 +149,16 @@
                 {
                     "id": "clipboardHistory",
                     "name": "Clipboard History"
+                }
+            ],
+            "BookmarkManager": [
+                {
+                    "id": "bookmark",
+                    "name": "bookmark"
+                },
+                {
+                    "id": "file",
+                    "name": "file"
                 }
             ]
         },
@@ -293,6 +325,7 @@
         "vscode": "^1.1.25"
     },
     "dependencies": {
-        "clipboardy": "^2.3.0"
+        "clipboardy": "^2.3.0",
+        "vscode-ext-selection": "^1.0.0"
     }
 }
