@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import { leftPad } from "../util/util";
 import { commandList } from "../global";
-import { ClipboardManager, IClipboardItem } from "../manager/clipboardManager";
+import { ClipboardManager} from "../manager/clipboardManager";
+import { IFileTextItem } from "../manager/common";
 
 // 剪贴板快速选择项目
 export class ClipPickItem implements vscode.QuickPickItem {
@@ -14,7 +15,7 @@ export class ClipPickItem implements vscode.QuickPickItem {
         }
     }
 
-    constructor(readonly clip: IClipboardItem) {
+    constructor(readonly clip: IFileTextItem) {
         // 多个空格转成一个空格，并且删除首尾空格
         this.label = this.clip.value.replace('/\s+/g', " ").trim();
     }
@@ -38,7 +39,7 @@ export class PickAndPasteCommand implements vscode.Disposable {
         const preview = config.get("preview", true);
 
         // 得到所有剪贴板
-        const clips = this._manager.clips;
+        const clips = this._manager.fileTexts;
 
         const maxLength = `${clips.length}`.length; // 列表长度转成字符串，再取长度。即最大数字长度
 
@@ -129,7 +130,7 @@ export class PickAndPasteCommand implements vscode.Disposable {
         }
 
         // Update current clip in clipboard
-        await this._manager.setClipboardValue(pick.clip.value);
+        await this._manager.updateFileText(pick.clip.value);
 
         // If text changed, only need remove selecion
         // If a error occur on replace, run paste command for fallback

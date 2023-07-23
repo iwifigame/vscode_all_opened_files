@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { commandList } from "../global";
-import { ClipboardManager, IClipboardItem } from "../manager/clipboardManager";
+import { ClipboardManager} from "../manager/clipboardManager";
+import { IFileTextItem } from "../manager/common";
 
 const Start_Index: number = 0;
 
@@ -33,10 +34,10 @@ export class RingPasteCommand implements vscode.Disposable {
         this.lastPasteTime = Date.now();
 
         // 得到所有剪贴板
-        const picks = this._manager.clips;
+        const picks = this._manager.fileTexts;
 
         // 设置选择事件处理
-        let ringPasteFun = (selected: IClipboardItem) => {
+        let ringPasteFun = (selected: IFileTextItem) => {
             const editor = vscode.window.activeTextEditor;
             if (editor) {
                 // 定义替换成选择的剪贴板内容的方法

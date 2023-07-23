@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
-import { BookmarkManager, IBookmarkTextChange } from "../manager/bookmarkManager";
+import { BookmarkManager } from "../manager/bookmarkManager";
 import { commandList } from "../global";
-// import { selectWordAtCursorPosition } from "vscode-ext-selection";
+import { QuickBookmarkManager } from "../manager/quickBookmarkManager";
+import { getWordAtCursor } from "../util/util";
 
 export class AddBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
-    constructor(protected _manager: BookmarkManager) {
+    constructor(protected _manager: BookmarkManager, protected _quickManager: QuickBookmarkManager) {
         this._disposable.push(
             vscode.commands.registerCommand(
                 commandList.addBookmark,
@@ -16,57 +17,30 @@ export class AddBookmarkCommand implements vscode.Disposable {
         );
     }
 
-    protected async execute() {
+    protected async execute(mark: string) {
         const editor = vscode.window.activeTextEditor;
         if (editor == undefined) {
             return
         }
 
-        let text: string;
-        if (this.selectWordAtCursorPosition(editor)) {
-            text = editor.document.getText(editor.selection);
-        } else {
+        let text = getWordAtCursor(editor);
+        if (!text) {
             const cursorPosition = editor.selection.active;
             text = editor.document.lineAt(cursorPosition.line).text;
         }
 
-        const change: IBookmarkTextChange = {
-            value: text,
-            timestamp: Date.now(),
-        };
-
-        if (vscode.window.state.focused && editor && editor.document) {
-            // Set current language of copied clip
-            change.language = editor.document.languageId;
-
-            // Try get position of clip
-            if (editor.selection) {
-                const selection = editor.selection;
-                change.location = {
-                    range: new vscode.Range(selection.start, selection.end),
-                    uri: editor.document.uri,
-                };
-            }
+        if (mark) {
+            const change = this._quickManager.createChange(editor, text);
+            change.param = mark
+            this._quickManager.addFileText(change);
+        } else {
+            const change = this._manager.createChange(editor, text);
+            this._manager.addFileText(change);
         }
-
-        this._manager.addBookmark(change);
-
     }
 
     public dispose() {
         this._disposable.forEach(d => d.dispose());
     }
 
-    private selectWordAtCursorPosition(editor: vscode.TextEditor) {
-        if (!editor.selection.isEmpty) {
-            return true;
-        }
-        var cursorWordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
-        if (!cursorWordRange) {
-            return false;
-        }
-        var newSe = new vscode.Selection(cursorWordRange.start.line, cursorWordRange.start.character, cursorWordRange.end.line, cursorWordRange.end.character);
-        editor.selection = newSe;
-        return true;
-    }
 }

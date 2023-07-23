@@ -1,5 +1,3 @@
-export let AllOpenedFiles: Array<string> = [];
-
 let storeFolder: string;
 export function setStoreFolder(folder: string) {
     storeFolder = folder;

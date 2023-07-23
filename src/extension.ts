@@ -14,7 +14,7 @@ import { ShowBookmarkInFile } from "./commads/showBookmarkInfile";
 import { ClipboardCompletion } from "./manager/clipboardCompletion";
 import { ClipboardManager } from "./manager/clipboardManager";
 import { ClipboardMonitor } from "./manager/clipboardMonitor";
-import { ClipboardTreeDataProvider } from "./tree/history";
+import { ClipboardTreeDataProvider } from "./tree/clipboardTree";
 import { CopyToHistoryCommand } from "./commads/copyToHistory";
 import { ShowAllOpenedFilesCommand } from "./commads/allOpenedFiles";
 import { QuickOpenCommand } from "./commads/quickOpen";
@@ -22,12 +22,16 @@ import { InsertLineNumberCommand } from "./commads/insertLineNumber";
 
 import { AddBookmarkCommand } from "./commads/addBookmark";
 import { RemoveBookmark } from "./commads/removeBookmark";
-import { BookmarkTreeDataProvider } from "./tree/bookmark";
+import { BookmarkTreeDataProvider } from "./tree/bookmarkTree";
 import { BookmarkManager } from "./manager/bookmarkManager";
 import { setStoreFolder } from "./global";
+import { FileManager } from "./manager/fileManager";
+import { QuickBookmarkManager } from "./manager/quickBookmarkManager";
 
-let manager: ClipboardManager;
+let clipboardManager: ClipboardManager;
 let bookmarkManager: BookmarkManager;
+let quickBookmarkManager: QuickBookmarkManager;
+let fileManager: FileManager;
 
 // this method is called when your extension is activated
 export async function activate(context: vscode.ExtensionContext) {
@@ -61,33 +65,40 @@ export async function activate(context: vscode.ExtensionContext) {
     const monitor = new ClipboardMonitor(defaultClipboard);
     disposable.push(monitor);
 
-    manager = new ClipboardManager(context, monitor);
-    disposable.push(manager);
+    clipboardManager = new ClipboardManager(context, monitor);
+    disposable.push(clipboardManager);
 
     bookmarkManager = new BookmarkManager(context);
     disposable.push(bookmarkManager);
+
+    quickBookmarkManager = new QuickBookmarkManager(context);
+    disposable.push(quickBookmarkManager);
+
+    fileManager = new FileManager(context);
+    disposable.push(fileManager);
 
     // API Commands
     disposable.push(new ApiGetMonitor(monitor));
 
     // Commands
-    disposable.push(new PickAndPasteCommand(manager));
-    disposable.push(new RingPasteCommand(manager));
-    disposable.push(new HistoryTreeDoubleClickCommand(manager));
-    disposable.push(new SetClipboardValueCommand(manager));
-    disposable.push(new RemoveClipboardHistory(manager));
-    disposable.push(new ShowClipboardInFile(manager));
-    disposable.push(new ClearClipboardHistory(manager));
+    disposable.push(new PickAndPasteCommand(clipboardManager));
+    disposable.push(new HistoryTreeDoubleClickCommand(clipboardManager));
+    disposable.push(new SetClipboardValueCommand(clipboardManager));
+    disposable.push(new RemoveClipboardHistory(clipboardManager));
+    disposable.push(new ShowClipboardInFile(clipboardManager));
+    disposable.push(new ClearClipboardHistory(clipboardManager));
     disposable.push(new CopyToHistoryCommand(monitor));
-    disposable.push(new ShowAllOpenedFilesCommand());
+    disposable.push(new RingPasteCommand(clipboardManager));
+
+    disposable.push(new ShowAllOpenedFilesCommand(fileManager));
     disposable.push(new QuickOpenCommand());
     disposable.push(new InsertLineNumberCommand());
 
-    disposable.push(new AddBookmarkCommand(bookmarkManager));
-    disposable.push(new RemoveBookmark(bookmarkManager));
-    disposable.push(new ShowBookmarkInFile(bookmarkManager));
+    disposable.push(new AddBookmarkCommand(bookmarkManager, quickBookmarkManager));
+    disposable.push(new RemoveBookmark(bookmarkManager, quickBookmarkManager));
+    disposable.push(new ShowBookmarkInFile(bookmarkManager, quickBookmarkManager));
 
-    const completion = new ClipboardCompletion(manager);
+    const completion = new ClipboardCompletion(clipboardManager);
     // disposable.push(completion);
 
     // All files types
@@ -110,7 +121,7 @@ export async function activate(context: vscode.ExtensionContext) {
         )
     );
 
-    const clipboardTreeDataProvider = new ClipboardTreeDataProvider(manager);
+    const clipboardTreeDataProvider = new ClipboardTreeDataProvider(clipboardManager);
     disposable.push(clipboardTreeDataProvider);
     disposable.push(
         vscode.window.registerTreeDataProvider(
@@ -125,6 +136,15 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.window.registerTreeDataProvider(
             "bookmark",
             bookmarkTreeDataProvider
+        )
+    );
+
+    const quickBookmarkTreeDataProvider = new BookmarkTreeDataProvider(quickBookmarkManager);
+    disposable.push(quickBookmarkTreeDataProvider);
+    disposable.push(
+        vscode.window.registerTreeDataProvider(
+            "quick bookmark",
+            quickBookmarkTreeDataProvider
         )
     );
 
@@ -146,31 +166,38 @@ export async function activate(context: vscode.ExtensionContext) {
 
     return {
         completion,
-        manager,
+        manager: clipboardManager,
         bookmarkManager,
+        quickBookmarkManager,
     };
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-    if (manager) {
-        manager.saveClips();
+    if (clipboardManager) {
+        clipboardManager.savefileTexts();
     }
     if (bookmarkManager) {
-        bookmarkManager.saveBookmarks();
+        bookmarkManager.savefileTexts();
+    }
+    if (quickBookmarkManager) {
+        quickBookmarkManager.savefileTexts();
+    }
+    if (fileManager) {
+        fileManager.savefileTexts();
     }
 }
 
-function setExtensionStoreFolder(context:vscode.ExtensionContext) {
+function setExtensionStoreFolder(context: vscode.ExtensionContext) {
     let folder = os.tmpdir(); // 得到操作系统临时目录
     // let folder = os.homedir(); // 得到用户根目录
 
-    if (context.storagePath) {
-        const parts = context.storagePath.split(
-            /[\\/]workspaceStorage[\\/]/
-        );
-        folder = parts[0];
-    }
+    // if (context.storagePath) {
+    //     const parts = context.storagePath.split(
+    //         /[\\/]workspaceStorage[\\/]/
+    //     );
+    //     folder = parts[0];
+    // }
 
     setStoreFolder(folder);
 }

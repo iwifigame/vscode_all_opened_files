@@ -1,13 +1,7 @@
 import * as vscode from "vscode";
 import { BaseClipboard } from "./clipboard";
 import { toDisposable } from "../util/util";
-
-export interface IClipboardTextChange {
-    value: string;
-    timestamp: number;
-    language?: string;
-    location?: vscode.Location;
-}
+import { IFileTextChange } from "./common";
 
 // 监视器：每500ms监视剪贴板内容的改变
 export class ClipboardMonitor implements vscode.Disposable {
@@ -19,7 +13,7 @@ export class ClipboardMonitor implements vscode.Disposable {
 
     public onlyWindowFocused: boolean = true;
 
-    private _onDidChangeText = new vscode.EventEmitter<IClipboardTextChange>(); // 事件发射器
+    private _onDidChangeText = new vscode.EventEmitter<IFileTextChange>(); // 事件发射器
     public readonly onDidChangeText = this._onDidChangeText.event; // 事件发射器的事件，可添加回调处理函数
 
     protected _timer: NodeJS.Timer | undefined;
@@ -110,9 +104,9 @@ export class ClipboardMonitor implements vscode.Disposable {
         }
 
         // 创建剪贴板内容修改对象
-        const change: IClipboardTextChange = {
+        const change: IFileTextChange = {
             value: newText,
-            timestamp: Date.now(),
+            createdAt: Date.now(),
         };
 
         const editor = vscode.window.activeTextEditor;
@@ -124,7 +118,7 @@ export class ClipboardMonitor implements vscode.Disposable {
             // Try get position of clip
             if (editor.selection) {
                 const selection = editor.selection;
-                change.location = {
+                change.createdLocation = {
                     range: new vscode.Range(selection.start, selection.end),
                     uri: editor.document.uri,
                 };

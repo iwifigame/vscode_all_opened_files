@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.60",
+    "version": "3.0.68",
     "keywords": [
         "files",
         "open",
@@ -29,8 +29,7 @@
     ],
     "icon": "images/icon2.png",
     "activationEvents": [
-        "onStartupFinished",
-        "onView:bookmark"
+        "onStartupFinished"
     ],
     "main": "./out/extension.js",
     "contributes": {
@@ -104,7 +103,7 @@
             },
             {
                 "command": "BookmarkManager.showBookmarkInFile",
-                "title": "Show in the file",
+                "title": "Show Bookmark In The File",
                 "category": "BookmarkManager"
             }
         ],
@@ -164,6 +163,10 @@
                 {
                     "id": "bookmark",
                     "name": "bookmark"
+                },
+                {
+                    "id": "quick bookmark",
+                    "name": "quick bookmark"
                 }
             ]
         },
