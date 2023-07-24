@@ -91,7 +91,7 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable.push(new RingPasteCommand(clipboardManager));
 
     disposable.push(new ShowAllOpenedFilesCommand(fileManager));
-    disposable.push(new QuickOpenCommand());
+    disposable.push(new QuickOpenCommand(fileManager));
     disposable.push(new InsertLineNumberCommand());
 
     disposable.push(new AddBookmarkCommand(bookmarkManager, quickBookmarkManager));

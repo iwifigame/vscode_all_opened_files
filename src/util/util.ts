@@ -49,3 +49,30 @@ export function getWordAtCursor(editor: vscode.TextEditor) {
     }
     return editor.document.getText(cursorWordRange)
 }
+
+export function pathEqual(actual: string, expected: string): boolean {
+    return actual === expected || simplePath(actual) === simplePath(expected)
+}
+
+function simplePath(path: string): string {
+    const replace: [RegExp, string][] = [
+        // [/\\/g, '/'],
+        // [/(\w):/, '/$1'],
+        // [/(\w+)\/\.\.\/?/g, ''],
+        // [/^\.\//, ''],
+        // [/\/\.\//, '/'],
+        // [/\/\.$/, ''],
+        // [/\/$/, '']
+        [/\\/g, ''],
+        [/\//g, ''],
+        [/\./g, ''],
+    ]
+
+    replace.forEach(array => {
+        while (array[0].test(path)) {
+            path = path.replace(array[0], array[1])
+        }
+    })
+
+    return path
+}

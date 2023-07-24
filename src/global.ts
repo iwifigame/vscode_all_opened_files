@@ -20,10 +20,8 @@ export enum commandList {
     showClipboardInFile = "ClipManager.showClipboardInFile",
 
     historyTreeDoubleClick = "ClipManager.historyTree.doubleClick",
-
     clearClipboardHistory = "ClipManager.history.clear",
     removeClipboardHistory = "ClipManager.history.remove",
-
 
     addBookmark = "BookmarkManager.addBookmark",
     removeBookmark = "BookmarkManager.remove",

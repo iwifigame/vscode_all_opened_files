@@ -3,9 +3,13 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.68",
+    "version": "3.0.80",
     "keywords": [
-        "files",
+        "file",
+        "clipboard",
+        "bookmark",
+        "vim",
+        "mark",
         "open",
         "history"
     ],

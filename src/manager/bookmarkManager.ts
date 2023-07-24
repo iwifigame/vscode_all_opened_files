@@ -15,10 +15,10 @@ export class BookmarkManager extends AbstractManager {
         return false
     }
 
-    protected duplicatesCompare(item: IFileTextItem, change: IFileTextChange): boolean {
-        if (item.createdLocation?.uri.path == change.createdLocation?.uri.path) {
-            if (item.createdLocation?.range && change.createdLocation?.range) {
-                if (item.createdLocation?.range.isEqual(change.createdLocation?.range)) {
+    protected isFileTextItemEqual(a: IFileTextItem, b: IFileTextItem): boolean {
+        if (a.createdLocation?.uri.path == b.createdLocation?.uri.path) {
+            if (a.createdLocation?.range && b.createdLocation?.range) {
+                if (a.createdLocation?.range.isEqual(b.createdLocation?.range)) {
                     return true
                 }
             }

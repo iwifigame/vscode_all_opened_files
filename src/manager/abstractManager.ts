@@ -1,22 +1,45 @@
+import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import * as vscode from "vscode";
 import { getStoreFolder } from "../global";
-import { IFileTextChange, IFileTextItem } from "./common";
+import { IFileTextItem, IFileTextChange } from "./common";
 
 export abstract class AbstractManager implements vscode.Disposable {
     protected _disposable: vscode.Disposable[] = [];
 
     protected _fileTexts: IFileTextItem[] = [];
-    get fileTexts() {
-        return this._fileTexts;
-    }
     protected lastUpdate: number = 0;
-
     private _onDidFileTextListChange = new vscode.EventEmitter<void>();
     public readonly onDidChangeFileTextList = this._onDidFileTextListChange.event;
 
+    constructor(protected context: vscode.ExtensionContext) {
+        this.loadFileTexts();
+
+        vscode.window.onDidChangeWindowState(
+            state => {
+                if (state.focused) {
+                    this.checkFileTextsUpdate();
+                }
+            },
+            this,
+            this._disposable
+        );
+
+        vscode.workspace.onDidChangeConfiguration(
+            e => e.affectsConfiguration(this.getConfigName()) && this.savefileTexts()
+        );
+
+        this.init();
+    }
+
+    protected init() {
+    }
+
     public abstract getConfigName(): string;
+
+    public get fileTexts() {
+        return this._fileTexts;
+    }
 
     protected preSave(): void { };
 
@@ -35,26 +58,8 @@ export abstract class AbstractManager implements vscode.Disposable {
         return config.get("moveToTop", true);
     }
 
-    protected duplicatesCompare(item: IFileTextItem, change: IFileTextChange): boolean {
-        return item.value === change.value;
-    }
-
-    constructor(protected context: vscode.ExtensionContext) {
-        this.loadFileTexts();
-
-        vscode.window.onDidChangeWindowState(
-            state => {
-                if (state.focused) {
-                    this.checkFileTextsUpdate();
-                }
-            },
-            this,
-            this._disposable
-        );
-
-        vscode.workspace.onDidChangeConfiguration(
-            e => e.affectsConfiguration(this.getConfigName()) && this.savefileTexts()
-        );
+    protected isFileTextItemEqual(a: IFileTextItem, b: IFileTextItem): boolean {
+        return a.value === b.value;
     }
 
     public createChange(editor: vscode.TextEditor | undefined, value: string): IFileTextChange {
@@ -63,16 +68,14 @@ export abstract class AbstractManager implements vscode.Disposable {
             createdAt: Date.now(),
         };
 
-        let document = editor?.document
-        if (document == undefined) {
+        let doc = editor?.document
+        if (editor == undefined || doc == undefined) {
             return change
         }
 
-        if (vscode.window.state.focused && editor && editor.document) {
-            // Set current language of copied clip
-            change.language = editor.document.languageId;
+        if (vscode.window.state.focused) {
+            change.language = doc.languageId;
 
-            // Try get position of clip
             if (editor.selection) {
                 const selection = editor.selection;
                 change.createdLocation = {
@@ -90,7 +93,7 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         const config = vscode.workspace.getConfiguration(this.getConfigName());
 
-        let item: IFileTextItem = {
+        let newItem: IFileTextItem = {
             value: change.value,
             param: change.param,
             addCount: 1,
@@ -101,11 +104,11 @@ export abstract class AbstractManager implements vscode.Disposable {
         };
 
         if (this.avoidDuplicates) {
-            const index = this._fileTexts.findIndex(c => this.duplicatesCompare(c, change));
+            const index = this._fileTexts.findIndex(c => this.isFileTextItemEqual(c, newItem));
 
             // Remove same fileTexts and move recent to top
             if (index >= 0) {
-                item = this._fileTexts[index];
+                let item = this._fileTexts[index];
                 item.value = change.value
                 item.param = change.param
                 if (change.createdLocation) {
@@ -123,10 +126,10 @@ export abstract class AbstractManager implements vscode.Disposable {
                     }
                 }
             } else {
-                this._fileTexts.unshift(item);
+                this._fileTexts.unshift(newItem);
             }
         } else {
-            this._fileTexts.unshift(item);
+            this._fileTexts.unshift(newItem);
         }
 
         // Max fileTexts to store
@@ -159,7 +162,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         }
     }
 
-    public getFileText(value: string):IFileTextItem|null {
+    public getFileText(value: string): IFileTextItem | null {
         const index = this._fileTexts.findIndex(c => c.value === value);
         if (index < 0) {
             return null
@@ -167,7 +170,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         return this._fileTexts[index]
     }
 
-    public getFileTextByParam(value: string):IFileTextItem|null {
+    public getFileTextByParam(value: string): IFileTextItem | null {
         const index = this._fileTexts.findIndex(c => c.param === value);
         if (index < 0) {
             return null
@@ -248,6 +251,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         return value;
     }
 
+    // 保存文件
     public savefileTexts() {
         this.preSave();
 
@@ -292,7 +296,8 @@ export abstract class AbstractManager implements vscode.Disposable {
         }
     }
 
-    public checkFileTextsUpdate() {
+    // 检查保存file texts的文件是否有更新，有则说明有其它程序保存了新的内容。则加载
+    private checkFileTextsUpdate() {
         const file = this.getStoreFile();
 
         if (!file) {
@@ -303,19 +308,21 @@ export abstract class AbstractManager implements vscode.Disposable {
             return;
         }
 
+        // 检查修改时间。如果文件更新，则重新加载
         const stat = fs.statSync(file);
-
         if (this.lastUpdate < stat.mtimeMs) {
             this.lastUpdate = stat.mtimeMs;
             this.loadFileTexts();
         }
     }
 
+    // 从文件中，加载file text
     public loadFileTexts() {
+        console.info("loadFileTexts start", this.getConfigName());
+
         let json: string = "";
 
         const file = this.getStoreFile();
-
         if (file && fs.existsSync(file)) {
             try {
                 json = fs.readFileSync(file).toString();
@@ -330,7 +337,6 @@ export abstract class AbstractManager implements vscode.Disposable {
         }
 
         let stored: any = {};
-
         try {
             stored = JSON.parse(json);
         } catch (error) {

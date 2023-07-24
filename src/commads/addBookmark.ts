@@ -3,6 +3,7 @@ import { BookmarkManager } from "../manager/bookmarkManager";
 import { commandList } from "../global";
 import { QuickBookmarkManager } from "../manager/quickBookmarkManager";
 import { getWordAtCursor } from "../util/util";
+import { decoration } from "../util/decorationUtil";
 
 export class AddBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
@@ -33,6 +34,11 @@ export class AddBookmarkCommand implements vscode.Disposable {
             const change = this._quickManager.createChange(editor, text);
             change.param = mark
             this._quickManager.addFileText(change);
+
+            let m = decoration.getOrCreateMarkDecoration(mark);
+            if (change.createdLocation) {
+                editor.setDecorations(m, [change.createdLocation.range]);
+            }
         } else {
             const change = this._manager.createChange(editor, text);
             this._manager.addFileText(change);

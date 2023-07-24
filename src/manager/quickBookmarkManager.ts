@@ -1,17 +1,46 @@
+import * as vscode from 'vscode';
 import * as path from "path";
-import { IFileTextChange, IFileTextItem } from "./common";
+import { IFileTextItem } from "./common";
 import { BookmarkManager } from "./bookmarkManager";
+import { decoration } from '../util/decorationUtil';
+import { pathEqual } from '../util/util';
 
 export class QuickBookmarkManager extends BookmarkManager {
+    protected init() {
+        vscode.window.onDidChangeActiveTextEditor((editor) => {
+            if (!editor) {
+                return
+            }
+
+            let doc = editor.document
+            if (doc == undefined) {
+                return
+            }
+            this.fileTexts.forEach(
+                item => {
+                    if (!item.param || !item.createdLocation) {
+                        return
+                    }
+
+                    let pa = item.createdLocation.uri.path;
+                    let pb = doc.fileName;
+                    if (pathEqual(pa, pb)) {
+                        let m = decoration.getOrCreateMarkDecoration(item.param);
+                        if (item.createdLocation) {
+                            editor.setDecorations(m, [item.createdLocation.range]);
+                        }
+                    }
+                }
+            );
+        })
+    }
+
     public getConfigName(): string {
         return "QuickBookmarkManager";
     }
 
-    protected duplicatesCompare(item: IFileTextItem, change: IFileTextChange): boolean {
-        if (item.param == change.param) {
-            return true
-        }
-        return false
+    protected isFileTextItemEqual(a: IFileTextItem, b: IFileTextItem): boolean {
+        return a.param == b.param
     }
 
     protected sortBookmarks() {
