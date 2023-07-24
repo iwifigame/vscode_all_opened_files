@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.80",
+    "version": "3.0.82",
     "keywords": [
         "file",
         "clipboard",
@@ -347,7 +347,5 @@
         "vscode": "^1.1.25"
     },
     "dependencies": {
-        "clipboardy": "^2.3.0",
-        "vscode-ext-selection": "^1.0.0"
     }
 }
