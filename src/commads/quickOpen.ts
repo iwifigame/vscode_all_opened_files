@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-import { commandList } from './common';
+import { commandList } from "../global";
+import { FileManager } from '../manager/fileManager';
 
 export class QuickOpenCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
-    constructor() {
+    constructor(protected _manager: FileManager) {
         this._disposable.push(
             vscode.commands.registerCommand(
                 commandList.quickOpen,
@@ -21,22 +22,34 @@ export class QuickOpenCommand implements vscode.Disposable {
     private init() {
     }
 
-    protected async execute(filePath: string, line: Number = 0, character: Number = 0) {
+    protected async execute(filePath: string) {
         try {
             const activeTextEditor = vscode.window.activeTextEditor;
             if (activeTextEditor == undefined) {
                 return
             }
+
             if (activeTextEditor.document.fileName !== filePath) {
                 const homedir = require("os").homedir();
                 if (filePath.includes("~")) {
                     filePath = path.join(homedir, filePath.replace("~", ""));
                 }
+
                 const doc = await vscode.workspace.openTextDocument(
                     vscode.Uri.file(filePath)
                 );
                 const editor = await vscode.window.showTextDocument(doc);
-                this.revealEditorPosition(editor, line, character);
+
+                let t = this._manager.getFileText(filePath);
+                if (t && t.createdLocation) {
+                    const opts: vscode.TextDocumentShowOptions = {
+                        viewColumn: vscode.ViewColumn.Active,
+                    };
+                    opts.selection = t.createdLocation.range;
+                    await vscode.window.showTextDocument(doc, opts);
+                } else {
+                    this.revealEditorPosition(editor, 0, 0);
+                }
             }
         } catch (error) {
             console.error(`error:`, error);

@@ -3,9 +3,13 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.48",
+    "version": "3.0.80",
     "keywords": [
-        "files",
+        "file",
+        "clipboard",
+        "bookmark",
+        "vim",
+        "mark",
         "open",
         "history"
     ],
@@ -86,8 +90,145 @@
                     "dark": "resources/dark/remove.svg",
                     "light": "resources/light/remove.svg"
                 }
+            },
+            {
+                "command": "BookmarkManager.addBookmark",
+                "title": "Add Bookmark",
+                "category": "BookmarkManager"
+            },
+            {
+                "command": "BookmarkManager.remove",
+                "title": "Remove Bookmark",
+                "category": "BookmarkManager",
+                "icon": {
+                    "dark": "resources/dark/remove.svg",
+                    "light": "resources/light/remove.svg"
+                }
+            },
+            {
+                "command": "BookmarkManager.showBookmarkInFile",
+                "title": "Show Bookmark In The File",
+                "category": "BookmarkManager"
             }
         ],
+        "keybindings": [
+            {
+                "command": "AllOpenedFiles.showAllOpenedFiles",
+                "key": "alt+shift+o",
+                "mac": "alt+shift+o"
+            },
+            {
+                "command": "ClipManager.copyToHistory",
+                "key": "Ctrl+Shift+C",
+                "mac": "Cmd+Shift+C",
+                "when": "textInputFocus && !editorReadonly"
+            },
+            {
+                "command": "ClipManager.pickAndPaste",
+                "key": "Ctrl+Shift+V",
+                "mac": "Cmd+Shift+V",
+                "when": "textInputFocus && !editorReadonly"
+            },
+            {
+                "command": "ClipManager.ringPaste",
+                "key": "Alt+P",
+                "mac": "Alt+P",
+                "when": "textInputFocus && !editorReadonly"
+            },
+            {
+                "command": "BookmarkManager.addBookmark",
+                "key": "Ctrl+M",
+                "mac": "Cmd+M",
+                "when": "textInputFocus && !editorReadonly"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "ClipManager",
+                    "title": "ClipManager",
+                    "icon": "images/clipboard_activitybar.svg"
+                },
+                {
+                    "id": "BookmarkManager",
+                    "title": "BookmarkManager",
+                    "icon": "images/bookmark_activitybar.svg"
+                }
+            ]
+        },
+        "views": {
+            "ClipManager": [
+                {
+                    "id": "clipboardHistory",
+                    "name": "Clipboard History"
+                }
+            ],
+            "BookmarkManager": [
+                {
+                    "id": "bookmark",
+                    "name": "bookmark"
+                },
+                {
+                    "id": "quick bookmark",
+                    "name": "quick bookmark"
+                }
+            ]
+        },
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "ClipManager.pickAndPaste"
+                },
+                {
+                    "command": "ClipManager.ringPaste"
+                },
+                {
+                    "command": "ClipManager.showClipboardInFile",
+                    "when": "false"
+                },
+                {
+                    "command": "ClipManager.history.clear"
+                },
+                {
+                    "command": "ClipManager.history.remove",
+                    "when": "false"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "ClipManager.showClipboardInFile",
+                    "when": "viewItem =~ /^clipHistoryItem:file/",
+                    "group": "0_navigation"
+                },
+                {
+                    "command": "ClipManager.history.remove",
+                    "when": "viewItem =~ /^clipHistoryItem:/",
+                    "group": "1_modification"
+                },
+                {
+                    "command": "ClipManager.history.remove",
+                    "when": "viewItem =~ /^clipHistoryItem:/",
+                    "group": "inline"
+                },
+                {
+                    "command": "BookmarkManager.remove",
+                    "when": "viewItem =~ /^bookmarkItem:/",
+                    "group": "1_modification"
+                },
+                {
+                    "command": "BookmarkManager.remove",
+                    "when": "viewItem =~ /^bookmarkItem:/",
+                    "group": "inline"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "ClipManager.history.clear",
+                    "when": "view == clipboardHistory",
+                    "group": "navigation"
+                }
+            ]
+        },
         "configuration": [
             {
                 "title": "All Opened Files",
@@ -124,42 +265,42 @@
             {
                 "title": "Clip Manager",
                 "properties": {
-                    "clip-manager.avoidDuplicates": {
+                    "ClipManager.avoidDuplicates": {
                         "type": "boolean",
                         "default": true,
                         "description": "Avoid duplicate clips in the list"
                     },
-                    "clip-manager.checkInterval": {
+                    "ClipManager.checkInterval": {
                         "type": "integer",
                         "default": 500,
                         "description": "Time in milliseconds to check changes in clipboard. Set zero to disable."
                     },
-                    "clip-manager.maxClipboardSize": {
+                    "ClipManager.maxClipboardSize": {
                         "type": "integer",
                         "default": 1000000,
                         "description": "Maximum clipboard size in bytes."
                     },
-                    "clip-manager.maxClips": {
+                    "ClipManager.maxClips": {
                         "type": "integer",
                         "default": 100,
                         "description": "Maximum number of clips to save in clipboard"
                     },
-                    "clip-manager.moveToTop": {
+                    "ClipManager.moveToTop": {
                         "type": "boolean",
                         "default": true,
                         "description": "Move used clip to top in the list"
                     },
-                    "clip-manager.onlyWindowFocused": {
+                    "ClipManager.onlyWindowFocused": {
                         "type": "boolean",
                         "default": true,
                         "description": "Get clips only from VSCode"
                     },
-                    "clip-manager.preview": {
+                    "ClipManager.preview": {
                         "type": "boolean",
                         "default": true,
                         "description": "View a preview while you are choosing the clip"
                     },
-                    "clip-manager.saveTo": {
+                    "ClipManager.saveTo": {
                         "type": [
                             "string",
                             "null",
@@ -169,50 +310,25 @@
                         "description": "Set location to save the clipboard file, set false to disable",
                         "scope": "application"
                     },
-                    "clip-manager.snippet.enabled": {
+                    "ClipManager.snippet.enabled": {
                         "scope": "resource",
                         "type": "boolean",
                         "default": true,
                         "description": "Enable completion snippets"
                     },
-                    "clip-manager.snippet.max": {
+                    "ClipManager.snippet.max": {
                         "scope": "resource",
                         "type": "integer",
                         "default": 10,
                         "description": "Maximum number of clips to suggests in snippets (Zero for all)"
                     },
-                    "clip-manager.snippet.prefix": {
+                    "ClipManager.snippet.prefix": {
                         "scope": "resource",
                         "type": "string",
                         "default": "clip",
                         "description": "Default prefix for snippets completion (clip1, clip2, ...)"
                     }
                 }
-            }
-        ],
-        "keybindings": [
-            {
-                "command": "AllOpenedFiles.showAllOpenedFiles",
-                "key": "alt+shift+o",
-                "mac": "alt+shift+o"
-            },
-            {
-                "command": "ClipManager.copyToHistory",
-                "key": "Ctrl+Shift+C",
-                "mac": "Cmd+Shift+C",
-                "when": "textInputFocus && !editorReadonly"
-            },
-            {
-                "command": "ClipManager.pickAndPaste",
-                "key": "Ctrl+Shift+V",
-                "mac": "Cmd+Shift+V",
-                "when": "textInputFocus && !editorReadonly"
-            },
-            {
-                "command": "ClipManager.ringPaste",
-                "key": "Alt+P",
-                "mac": "Alt+P",
-                "when": "textInputFocus && !editorReadonly"
             }
         ]
     },
@@ -231,6 +347,7 @@
         "vscode": "^1.1.25"
     },
     "dependencies": {
-        "clipboardy": "^2.3.0"
+        "clipboardy": "^2.3.0",
+        "vscode-ext-selection": "^1.0.0"
     }
 }

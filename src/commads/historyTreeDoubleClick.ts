@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { ClipboardManager } from "../manager";
-import { IClipboardTextChange } from "../monitor";
-import { commandList } from "./common";
+import { commandList } from "../global";
+import { ClipboardManager } from "../manager/clipboardManager";
+import { IFileTextChange } from "../manager/common";
 
 /**
  * Command to paste from double click on history item
@@ -9,7 +9,7 @@ import { commandList } from "./common";
 export class HistoryTreeDoubleClickCommand implements vscode.Disposable {
   private _disposable: vscode.Disposable[] = [];
 
-  private prevClip: IClipboardTextChange | undefined;
+  private prevClip: IFileTextChange | undefined;
   private prevTime = Date.now();
 
   constructor(protected _manager: ClipboardManager) {
@@ -26,7 +26,7 @@ export class HistoryTreeDoubleClickCommand implements vscode.Disposable {
    * Emulate double click on tree view history
    * @param clip
    */
-  protected async execute(clip: IClipboardTextChange) {
+  protected async execute(clip: IFileTextChange) {
     const now = Date.now();
     if (this.prevClip !== clip) {
       this.prevClip = clip;
@@ -45,7 +45,7 @@ export class HistoryTreeDoubleClickCommand implements vscode.Disposable {
     this.prevClip = undefined;
 
     // Update current clip in clipboard
-    await this._manager.setClipboardValue(clip.value);
+    await this._manager.updateFileText(clip.value);
 
     // Force to focus on editor to paste command works
     await vscode.commands.executeCommand(

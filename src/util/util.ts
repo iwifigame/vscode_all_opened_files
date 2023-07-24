@@ -1,6 +1,3 @@
-import * as fs from "fs";
-import * as os from "os";
-import * as path from "path";
 import * as vscode from "vscode";
 
 export interface IDisposable {
@@ -27,15 +24,55 @@ export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function getStoreFolder(context:vscode.ExtensionContext) {
-    let folder = os.tmpdir(); // 得到操作系统临时目录
-
-    if (context.storagePath) {
-        const parts = context.storagePath.split(
-            /[\\/]workspaceStorage[\\/]/
-        );
-        folder = parts[0];
+// 选择光标所在的单词
+export function selectWordAtCursor(editor: vscode.TextEditor) {
+    if (!editor.selection.isEmpty) {
+        return true;
     }
+    var cursorWordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
+    if (!cursorWordRange) {
+        return false;
+    }
+    var newSe = new vscode.Selection(cursorWordRange.start.line, cursorWordRange.start.character, cursorWordRange.end.line, cursorWordRange.end.character);
+    editor.selection = newSe;
+    return true;
+}
 
-    return folder;
+// 得到光标所在的单词
+export function getWordAtCursor(editor: vscode.TextEditor) {
+    if (!editor.selection.isEmpty) {
+        return;
+    }
+    var cursorWordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
+    if (!cursorWordRange) {
+        return;
+    }
+    return editor.document.getText(cursorWordRange)
+}
+
+export function pathEqual(actual: string, expected: string): boolean {
+    return actual === expected || simplePath(actual) === simplePath(expected)
+}
+
+function simplePath(path: string): string {
+    const replace: [RegExp, string][] = [
+        // [/\\/g, '/'],
+        // [/(\w):/, '/$1'],
+        // [/(\w+)\/\.\.\/?/g, ''],
+        // [/^\.\//, ''],
+        // [/\/\.\//, '/'],
+        // [/\/\.$/, ''],
+        // [/\/$/, '']
+        [/\\/g, ''],
+        [/\//g, ''],
+        [/\./g, ''],
+    ]
+
+    replace.forEach(array => {
+        while (array[0].test(path)) {
+            path = path.replace(array[0], array[1])
+        }
+    })
+
+    return path
 }
