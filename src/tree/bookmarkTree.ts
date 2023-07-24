@@ -1,5 +1,5 @@
-import * as path from "path";
 import * as vscode from "vscode";
+import * as path from "path";
 import { commandList } from "../global";
 import { BookmarkManager } from "../manager/bookmarkManager";
 import { leftPad } from "../util/util";

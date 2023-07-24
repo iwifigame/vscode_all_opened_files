@@ -1,7 +1,18 @@
 "use strict";
 import * as vscode from "vscode";
 import * as os from "os";
+import { setStoreFolder } from "./global";
 import { defaultClipboard } from "./manager/clipboard";
+
+import { FileManager } from "./manager/fileManager";
+import { ShowAllOpenedFilesCommand } from "./commads/allOpenedFiles";
+import { QuickOpenCommand } from "./commads/quickOpen";
+import { InsertLineNumberCommand } from "./commads/insertLineNumber";
+
+import { ClipboardManager } from "./manager/clipboardManager";
+import { ClipboardMonitor } from "./manager/clipboardMonitor";
+import { ClipboardCompletion } from "./manager/clipboardCompletion";
+import { ClipboardTreeDataProvider } from "./tree/clipboardTree";
 import { ApiGetMonitor } from "./commads/apiGetMonitor";
 import { ClearClipboardHistory } from "./commads/clearClipboardHistory";
 import { HistoryTreeDoubleClickCommand } from "./commads/historyTreeDoubleClick";
@@ -10,32 +21,30 @@ import { RingPasteCommand } from "./commads/ringPaste";
 import { RemoveClipboardHistory } from "./commads/removeClipboardHistory";
 import { SetClipboardValueCommand } from "./commads/setClipboardValue";
 import { ShowClipboardInFile } from "./commads/showClipboardInFile";
-import { ShowBookmarkInFile } from "./commads/showBookmarkInfile";
-import { ClipboardCompletion } from "./manager/clipboardCompletion";
-import { ClipboardManager } from "./manager/clipboardManager";
-import { ClipboardMonitor } from "./manager/clipboardMonitor";
-import { ClipboardTreeDataProvider } from "./tree/clipboardTree";
 import { CopyToHistoryCommand } from "./commads/copyToHistory";
-import { ShowAllOpenedFilesCommand } from "./commads/allOpenedFiles";
-import { QuickOpenCommand } from "./commads/quickOpen";
-import { InsertLineNumberCommand } from "./commads/insertLineNumber";
 
+import { BookmarkManager } from "./manager/bookmarkManager";
+import { QuickBookmarkManager } from "./manager/quickBookmarkManager";
+import { BookmarkTreeDataProvider } from "./tree/bookmarkTree";
 import { AddBookmarkCommand } from "./commads/addBookmark";
 import { RemoveBookmark } from "./commads/removeBookmark";
-import { BookmarkTreeDataProvider } from "./tree/bookmarkTree";
-import { BookmarkManager } from "./manager/bookmarkManager";
-import { setStoreFolder } from "./global";
-import { FileManager } from "./manager/fileManager";
-import { QuickBookmarkManager } from "./manager/quickBookmarkManager";
+import { ShowBookmarkInFile } from "./commads/showBookmarkInfile";
 
+let fileManager: FileManager;
 let clipboardManager: ClipboardManager;
 let bookmarkManager: BookmarkManager;
 let quickBookmarkManager: QuickBookmarkManager;
-let fileManager: FileManager;
 
 // this method is called when your extension is activated
 export async function activate(context: vscode.ExtensionContext) {
     const disposable: vscode.Disposable[] = [];
+
+    // console.log(getCallerFileNameAndLine())
+    // console.log(getCallerFileNameAndLine())
+    // console.log(getCallerFileNameAndLine())
+
+    // lineLogger(1111111)
+    // lineLogger(2222222)
 
     setExtensionStoreFolder(context);
 
