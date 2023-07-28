@@ -4,7 +4,7 @@ import { commandList } from "../global";
 import { BookmarkManager } from "../manager/bookmarkManager";
 import { QuickBookmarkManager } from "../manager/quickBookmarkManager";
 
-export class RemoveBookmark implements vscode.Disposable {
+export class RemoveBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
     constructor(protected _manager: BookmarkManager, protected _quickManager: QuickBookmarkManager) {

@@ -1,11 +1,11 @@
-"use strict";
+// "use strict";
 import * as vscode from "vscode";
 import * as os from "os";
 import { setStoreFolder } from "./global";
 import { defaultClipboard } from "./manager/clipboard";
 
 import { FileManager } from "./manager/fileManager";
-import { ShowAllOpenedFilesCommand } from "./commads/allOpenedFiles";
+import { ShowAllOpenedFilesCommand } from "./commads/showAllOpenedFiles";
 import { QuickOpenCommand } from "./commads/quickOpen";
 import { InsertLineNumberCommand } from "./commads/insertLineNumber";
 
@@ -14,21 +14,22 @@ import { ClipboardMonitor } from "./manager/clipboardMonitor";
 import { ClipboardCompletion } from "./manager/clipboardCompletion";
 import { ClipboardTreeDataProvider } from "./tree/clipboardTree";
 import { ApiGetMonitor } from "./commads/apiGetMonitor";
-import { ClearClipboardHistory } from "./commads/clearClipboardHistory";
+import { ClearClipboardHistoryCommand } from "./commads/clearClipboardHistory";
 import { HistoryTreeDoubleClickCommand } from "./commads/historyTreeDoubleClick";
 import { PickAndPasteCommand } from "./commads/pickAndPaste";
 import { RingPasteCommand } from "./commads/ringPaste";
-import { RemoveClipboardHistory } from "./commads/removeClipboardHistory";
+import { RemoveClipboardHistoryCommand } from "./commads/removeClipboardHistory";
 import { SetClipboardValueCommand } from "./commads/setClipboardValue";
-import { ShowClipboardInFile } from "./commads/showClipboardInFile";
+import { ShowClipboardInFileCommand } from "./commads/showClipboardInFile";
 import { CopyToHistoryCommand } from "./commads/copyToHistory";
 
 import { BookmarkManager } from "./manager/bookmarkManager";
 import { QuickBookmarkManager } from "./manager/quickBookmarkManager";
 import { BookmarkTreeDataProvider } from "./tree/bookmarkTree";
 import { AddBookmarkCommand } from "./commads/addBookmark";
-import { RemoveBookmark } from "./commads/removeBookmark";
-import { ShowBookmarkInFile } from "./commads/showBookmarkInfile";
+import { RemoveBookmarkCommand } from "./commads/removeBookmark";
+import { ShowBookmarksCommand } from "./commads/showBookmarks";
+import { ShowBookmarkInFileCommand } from "./commads/showBookmarkInfile";
 
 let fileManager: FileManager;
 let clipboardManager: ClipboardManager;
@@ -48,25 +49,22 @@ export async function activate(context: vscode.ExtensionContext) {
 
     setExtensionStoreFolder(context);
 
-    // Check the clipboard is working
-    try {
-        await defaultClipboard.readText(); // Read test
-    } catch (error) {
+    defaultClipboard.readText().then((s: string) => {
+    }, (error: Error) => {
         console.log(error);
         // Small delay to force show error
-        // setTimeout(() => {
-        //     if (error.message) {
-        //         vscode.window.showErrorMessage(error.message);
-        //     } else {
-        //         vscode.window.showErrorMessage(
-        //             "Failed to read value from clipboard, check the console log"
-        //         );
-        //     }
-        // }, 2000);
+        setTimeout(() => {
+            if (error.message) {
+                vscode.window.showErrorMessage(error.message);
+            } else {
+                vscode.window.showErrorMessage(
+                    "Failed to read value from clipboard, check the console log"
+                );
+            }
+        }, 2000);
         // Disable clipboard listening
         defaultClipboard.dispose();
-        return;
-    }
+    });
 
     // Add to disposable list the default clipboard
     disposable.push(defaultClipboard);
@@ -74,16 +72,16 @@ export async function activate(context: vscode.ExtensionContext) {
     const monitor = new ClipboardMonitor(defaultClipboard);
     disposable.push(monitor);
 
-    clipboardManager = new ClipboardManager(context, monitor);
+    clipboardManager = new ClipboardManager(monitor);
     disposable.push(clipboardManager);
 
-    bookmarkManager = new BookmarkManager(context);
+    bookmarkManager = new BookmarkManager();
     disposable.push(bookmarkManager);
 
-    quickBookmarkManager = new QuickBookmarkManager(context);
+    quickBookmarkManager = new QuickBookmarkManager();
     disposable.push(quickBookmarkManager);
 
-    fileManager = new FileManager(context);
+    fileManager = new FileManager();
     disposable.push(fileManager);
 
     // API Commands
@@ -93,9 +91,9 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable.push(new PickAndPasteCommand(clipboardManager));
     disposable.push(new HistoryTreeDoubleClickCommand(clipboardManager));
     disposable.push(new SetClipboardValueCommand(clipboardManager));
-    disposable.push(new RemoveClipboardHistory(clipboardManager));
-    disposable.push(new ShowClipboardInFile(clipboardManager));
-    disposable.push(new ClearClipboardHistory(clipboardManager));
+    disposable.push(new RemoveClipboardHistoryCommand(clipboardManager));
+    disposable.push(new ShowClipboardInFileCommand(clipboardManager));
+    disposable.push(new ClearClipboardHistoryCommand(clipboardManager));
     disposable.push(new CopyToHistoryCommand(monitor));
     disposable.push(new RingPasteCommand(clipboardManager));
 
@@ -104,8 +102,9 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable.push(new InsertLineNumberCommand());
 
     disposable.push(new AddBookmarkCommand(bookmarkManager, quickBookmarkManager));
-    disposable.push(new RemoveBookmark(bookmarkManager, quickBookmarkManager));
-    disposable.push(new ShowBookmarkInFile(bookmarkManager, quickBookmarkManager));
+    disposable.push(new RemoveBookmarkCommand(bookmarkManager, quickBookmarkManager));
+    disposable.push(new ShowBookmarksCommand(bookmarkManager));
+    disposable.push(new ShowBookmarkInFileCommand(bookmarkManager, quickBookmarkManager));
 
     const completion = new ClipboardCompletion(clipboardManager);
     // disposable.push(completion);

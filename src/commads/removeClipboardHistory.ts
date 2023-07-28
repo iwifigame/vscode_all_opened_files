@@ -3,7 +3,7 @@ import { ClipHistoryItem } from "../tree/clipboardTree";
 import { commandList } from "../global";
 import { ClipboardManager } from "../manager/clipboardManager";
 
-export class RemoveClipboardHistory implements vscode.Disposable {
+export class RemoveClipboardHistoryCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
     constructor(protected _manager: ClipboardManager) {

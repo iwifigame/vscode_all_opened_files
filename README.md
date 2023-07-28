@@ -14,4 +14,4 @@ And other: clipboard manager; bookmark manager.
 ```
 * clipboard manager
 * bookmark manager
-* similar vim mark, but can jump cross files
+* similar vim mark, but can jump cross files use small case, and save.

@@ -41,6 +41,7 @@ export class VSCodeClipboard extends BaseClipboard {
     protected readTextInternal(): Thenable<string> {
         return vscode.env.clipboard.readText();
     }
+
     protected writeTextInternal(value: string): Thenable<void> {
         return vscode.env.clipboard.writeText(value);
     }

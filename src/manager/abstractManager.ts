@@ -12,7 +12,7 @@ export abstract class AbstractManager implements vscode.Disposable {
     private _onDidFileTextListChange = new vscode.EventEmitter<void>();
     public readonly onDidChangeFileTextList = this._onDidFileTextListChange.event;
 
-    constructor(protected context: vscode.ExtensionContext) {
+    constructor() {
         this.loadFileTexts();
 
         vscode.window.onDidChangeWindowState(
@@ -35,7 +35,7 @@ export abstract class AbstractManager implements vscode.Disposable {
     protected init() {
     }
 
-    public abstract getConfigName(): string;
+    protected abstract getConfigName(): string;
 
     public get fileTexts() {
         return this._fileTexts;
@@ -60,32 +60,6 @@ export abstract class AbstractManager implements vscode.Disposable {
 
     protected isFileTextItemEqual(a: IFileTextItem, b: IFileTextItem): boolean {
         return a.value === b.value;
-    }
-
-    public createChange(editor: vscode.TextEditor | undefined, value: string): IFileTextChange {
-        const change: IFileTextChange = {
-            value: value,
-            createdAt: Date.now(),
-        };
-
-        let doc = editor?.document
-        if (editor == undefined || doc == undefined) {
-            return change
-        }
-
-        if (vscode.window.state.focused) {
-            change.language = doc.languageId;
-
-            if (editor.selection) {
-                const selection = editor.selection;
-                change.createdLocation = {
-                    range: new vscode.Range(selection.start, selection.end),
-                    uri: editor.document.uri,
-                };
-            }
-        }
-
-        return change
     }
 
     public addFileText(change: IFileTextChange) {
@@ -162,6 +136,26 @@ export abstract class AbstractManager implements vscode.Disposable {
         }
     }
 
+    public async updateFileTextByItem(item: IFileTextItem) {
+        this.checkFileTextsUpdate();
+
+        const config = vscode.workspace.getConfiguration(this.getConfigName());
+
+        item.updateCount++;
+
+        if (this.moveToTop) { // 移到头部:先删除，再插入
+            const index = this._fileTexts.findIndex(c => this.isFileTextItemEqual(c, item));
+            if (index < 0) {
+                return
+            }
+            const deleted = this.fileTexts.splice(index, 1); // 删除index处一个元素，即将当前元素删除
+            this._fileTexts.unshift(...deleted); // 重新插入
+            this.savefileTexts();
+        }
+
+        this._onDidFileTextListChange.fire();
+    }
+
     public getFileText(value: string): IFileTextItem | null {
         const index = this._fileTexts.findIndex(c => c.value === value);
         if (index < 0) {
@@ -178,18 +172,13 @@ export abstract class AbstractManager implements vscode.Disposable {
         return this._fileTexts[index]
     }
 
-
     public removeFileText(value: string) {
         this.checkFileTextsUpdate();
-
-        const index = this._fileTexts.findIndex(c => c.value === value);
-        if (index < 0) {
+        let t = this.getFileText(value)
+        if (t == null) {
             return false
         }
-        this.fileTexts.splice(index, 1);
-        this._onDidFileTextListChange.fire();
-        this.savefileTexts();
-        return true
+        return this.remove(t);
     }
 
     public remove(value: IFileTextItem) {
@@ -205,7 +194,6 @@ export abstract class AbstractManager implements vscode.Disposable {
         return true
     }
 
-
     public clearAll() {
         this.checkFileTextsUpdate();
 
@@ -216,7 +204,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         return true;
     }
 
-    protected getStoreFile() {
+    private getStoreFile() {
         let folder = getStoreFolder();
 
         const filePath = path.join(folder, "." + this.getConfigName() + ".json");
@@ -235,7 +223,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         return filePath;
     }
 
-    protected jsonReplacer(key: string, value: any) {
+    private jsonReplacer(key: string, value: any) {
         if (key === "createdLocation" && value) {
             value = {
                 range: {
@@ -275,25 +263,52 @@ export abstract class AbstractManager implements vscode.Disposable {
             return;
         }
 
+        fs.writeFile(file, json, (error) => {
+            if (!error) {
+                this.lastUpdate = fs.statSync(file).mtimeMs;
+                return
+            }
+
+            switch (error.code) {
+                case "EPERM":
+                    vscode.window.showErrorMessage(
+                        `Not permitted to save file on "${file}"`
+                    );
+                    break;
+                case "EISDIR":
+                    vscode.window.showErrorMessage(
+                        `Failed to save file on "${file}", because the path is a directory`
+                    );
+                    break;
+                default:
+                    console.error(error);
+            }
+        });
+
+        /*
         try {
             fs.writeFileSync(file, json);
             this.lastUpdate = fs.statSync(file).mtimeMs;
         } catch (error) {
+            vscode.window.showErrorMessage(
+                `Failed to save file:"${file}". error:${error}`
+            );
             // switch (error.code) {
-            //   case "EPERM":
-            //     vscode.window.showErrorMessage(
-            //       `Not permitted to save clipboards on "${file}"`
-            //     );
-            //     break;
-            //   case "EISDIR":
-            //     vscode.window.showErrorMessage(
-            //       `Failed to save clipboards on "${file}", because the path is a directory`
-            //     );
-            //     break;
-            //   default:
-            //     console.error(error);
+            //     case "EPERM":
+            //         vscode.window.showErrorMessage(
+            //             `Not permitted to save file on "${file}"`
+            //         );
+            //         break;
+            //     case "EISDIR":
+            //         vscode.window.showErrorMessage(
+            //             `Failed to save file on "${file}", because the path is a directory`
+            //         );
+            //         break;
+            //     default:
+            //         console.error(error);
             // }
         }
+        */
     }
 
     // 检查保存file texts的文件是否有更新，有则说明有其它程序保存了新的内容。则加载
@@ -317,7 +332,7 @@ export abstract class AbstractManager implements vscode.Disposable {
     }
 
     // 从文件中，加载file text
-    public loadFileTexts() {
+    private loadFileTexts() {
         console.info("loadFileTexts start", this.getConfigName());
 
         let json: string = "";

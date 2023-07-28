@@ -1,13 +1,12 @@
-import * as os from "os";
 import * as vscode from 'vscode';
+import * as os from "os";
 import * as path from 'path';
 import { commandList, getStoreFolder } from '../global';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
+import { IFileTextItem, createChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
-import { IFileTextItem } from '../manager/common';
 
-let AllOpenedFiles: Array<string> = [];
-
+// todo: 自动获取宽度
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
 
 interface FileQuickPickItem extends vscode.QuickPickItem {
@@ -17,11 +16,7 @@ interface FileQuickPickItem extends vscode.QuickPickItem {
 export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
-    private fileSections = new Map();
-
-    private oldAllOpenedFilesPath = path.join(os.homedir(), ".allOpenedFiles.txt");
-    private allOpenedFilesPath = path.join(getStoreFolder(), ".allOpenedFiles.txt");
-
+    private fileSections = new Map(); // 文件光标位置.以便下次打开时，直接跳到该位置
 
     constructor(protected _manager: FileManager) {
         this._disposable.push(
@@ -41,37 +36,6 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
         })
 
         this.watchFileOpen();
-        this.readAllOpenedFiles();
-    }
-
-    private readAllOpenedFiles() {
-        this.updateAllOpenedFilesFromFile(this.oldAllOpenedFilesPath)
-        this.updateAllOpenedFilesFromFile(this.allOpenedFilesPath)
-    }
-
-    private updateAllOpenedFilesFromFile(filePath: string) {
-        vscode.workspace.openTextDocument(filePath)
-            .then((doc: vscode.TextDocument) => {
-                let content = doc.getText();
-                let files = content.split("\n") // 以换行号分割内容，并返回数组
-                AllOpenedFiles.splice(0, 0, ...files); // 合并到全局打开文件数组中
-
-                // 用Set去重
-                let fileNameSet = new Set(AllOpenedFiles)
-                AllOpenedFiles.length = 0
-                AllOpenedFiles.push(...Array.from(fileNameSet))
-
-                for (var i = AllOpenedFiles.length - 1; i >= 0; i--) {
-                    let c = AllOpenedFiles[i];
-                    const change = this._manager.createChange(undefined, c);
-                    change.isJustChangeLocation = true
-                    this._manager.addFileText(change);
-                }
-            }, (err: Error) => {
-                console.error(`readAllOpenedFiles error ${filePath} error, ${err}.`);
-            }).then(undefined, (err: Error) => {
-                console.error(`readAllOpenedFiles error undefined ${filePath} error, ${err}.`);
-            })
     }
 
     protected async execute() {
@@ -82,19 +46,14 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
         }).then(item => {
             if (item) {
                 // console.log(`execshowAllOpenedFiles: ${item.fileName}`);
-                // insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
-                // const path = '/Users/somefile.txt';
                 const path = item.fileTextItem.value;
                 const options = {
-                    // 选中第3行第9列到第3行第17列
-                    // selection: new vscode.Range(new vscode.Position(2, 8), new vscode.Position(2, 16)),
                     selection: item.fileTextItem.createdLocation?.range,
                     // 是否预览，默认true，预览的意思是下次再打开文件是否会替换当前文件
                     // preview: false,
                     // 显示在第二个编辑器
                     // viewColumn: vscode.ViewColumn.Two
                 };
-                // vscode.window.open(vscode.Uri.file(path), options);
                 vscode.window.showTextDocument(vscode.Uri.file(path), options).then((editor) => {
                     this._manager.updateFileText(path);
                 }, (err) => {
@@ -102,7 +61,6 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
                 });
             }
         });
-
     }
 
     private setupConfg() {
@@ -135,7 +93,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
                 return
             }
 
-            const change = this._manager.createChange(editor, document.fileName);
+            const change = createChange(editor, document.fileName);
             change.ignoreAddCount = true;
             this._manager.addFileText(change);
         })
@@ -144,20 +102,15 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             let filePath = doc.fileName;
             let extname = path.extname(filePath)
             if (extname = "git") {
-                // console.log("", filePath)
                 filePath = filePath.slice(0, -4)
             }
-            // console.log("onDidCloseTextDocument", filePath)
 
             const selection = this.fileSections.get(filePath);
             if (!selection) {
-                // console.log("onDidCloseTextDocument --------------", filePath)
                 return
             }
 
-            // console.log("onDidCloseTextDocument !!!!!!!!!!!!!!!!", filePath)
-
-            const change = this._manager.createChange(undefined, filePath);
+            const change = createChange(undefined, filePath);
             change.isJustChangeLocation = true;
             change.createdLocation = {
                 range: new vscode.Range(selection.start, selection.end),
@@ -183,14 +136,12 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
 
     private buildFileQuickPickItems(fileTexts: Array<IFileTextItem>): FileQuickPickItem[] {
         let count = fileTexts.length
-        // const number = 1234;
-        // const width = Math.floor(Math.log10(number));
 
         const items = fileTexts.map((fileText, i) => {
-            let dirName = path.dirname(fileText.value)
-            let baseName = path.basename(fileText.value)
+            const dirName = path.dirname(fileText.value)
+            const baseName = path.basename(fileText.value)
 
-            let label = i.toString() + ") " + baseName;
+            const label = i.toString() + ") " + baseName;
             let description = dirName;
 
             // 调整宽度与显示
@@ -205,7 +156,6 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
                     description = prefix
                 }
             }
-            // console.log(i, label.length, description.length, label.length + description.length)
 
             let item = {
                 fileTextItem: fileText,
@@ -221,5 +171,4 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     public dispose() {
         this._disposable.forEach(d => d.dispose());
     }
-
 }

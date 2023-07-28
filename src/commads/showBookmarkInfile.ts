@@ -4,7 +4,7 @@ import { commandList } from "../global";
 import { IFileTextItem } from "../manager/common";
 import { QuickBookmarkManager } from "../manager/quickBookmarkManager";
 
-export class ShowBookmarkInFile implements vscode.Disposable {
+export class ShowBookmarkInFileCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
     constructor(protected _manager: BookmarkManager, protected _quickManager: QuickBookmarkManager) {
@@ -29,6 +29,8 @@ export class ShowBookmarkInFile implements vscode.Disposable {
         if (!bookmark.createdLocation) {
             return;
         }
+
+        this._manager.updateFileTextByItem(bookmark);
 
         const uri = bookmark.createdLocation.uri;
         const document = await vscode.workspace.openTextDocument(uri);

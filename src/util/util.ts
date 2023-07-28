@@ -40,7 +40,7 @@ export function selectWordAtCursor(editor: vscode.TextEditor) {
 }
 
 // 得到光标所在的单词
-export function getWordAtCursor(editor: vscode.TextEditor):string {
+export function getWordAtCursor(editor: vscode.TextEditor): string {
     if (!editor.selection.isEmpty) {
         return "";
     }
@@ -105,7 +105,7 @@ export function lineLogger(...log: any) {
 
     try {
         throw new Error();
-    } catch (error:any) {
+    } catch (error: any) {
         err = error;
     }
 
@@ -118,18 +118,18 @@ export function lineLogger(...log: any) {
 
         console.log(`[${line}]`, ...log);
     } catch (err) {
-        console.log( ...log);
+        console.log(...log);
     }
 }
 
 // lineLogger.call(console.log, 'foobar');
 // lineLogger.call(console.error, 42);
 
-export function getCallerFileNameAndLine(){
-    function getException():Error {
+export function getCallerFileNameAndLine() {
+    function getException(): Error {
         try {
             throw Error('');
-        } catch (err:any) {
+        } catch (err: any) {
             return err;
         }
     }

@@ -24,7 +24,7 @@ export class BookmarkItem extends vscode.TreeItem {
             this.resourceUri = this.bookmark.createdLocation.uri; // 会自动根据后缀设置前面的图标
             this.contextValue += "file";
             this.tooltip = `File: ${this.resourceUri.fsPath}\nValue: ${this.tooltip}\n`;
-            this.description = path.basename(this.resourceUri.path);
+            this.description = path.basename(this.resourceUri.path) + "---" + bookmark.updateCount;
         } else {
             // 设置项目前面的图标
             const basePath = path.join(__filename, "..", "..", "..", "resources");

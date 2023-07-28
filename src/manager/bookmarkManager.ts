@@ -18,8 +18,10 @@ export class BookmarkManager extends AbstractManager {
     protected isFileTextItemEqual(a: IFileTextItem, b: IFileTextItem): boolean {
         if (a.createdLocation?.uri.path == b.createdLocation?.uri.path) {
             if (a.createdLocation?.range && b.createdLocation?.range) {
-                if (a.createdLocation?.range.isEqual(b.createdLocation?.range)) {
-                    return true
+                if (a.createdLocation?.range.start.line == b.createdLocation?.range.start.line) {
+                    if (a.value == b.value) {
+                        return true
+                    }
                 }
             }
         }
@@ -39,8 +41,8 @@ export class BookmarkManager extends AbstractManager {
                 return 1;
             }
 
-            let ua = path.basename(ta);
-            let ub = path.basename(tb);
+            let ua = path.basename(ta).toLowerCase();
+            let ub = path.basename(tb).toLowerCase();
 
             if (ua > ub) {
                 return 1;
