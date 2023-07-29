@@ -3,11 +3,11 @@ import * as vscode from "vscode";
 export interface IFileTextItem {
     value: string;
     param?: string;
-    // lastUse?: number;
     addCount: number;
     updateCount: number;
     language?: string;
-    createdAt: number; // 创建时间
+    createdAtString: string;
+    updatedAtString: string;
     createdLocation?: vscode.Location;
 }
 
@@ -15,17 +15,14 @@ export interface IFileTextChange {
     value: string;
     param?: string;
     language?: string;
-    createdAt: number;
+    createdAtString: string;
     createdLocation?: vscode.Location;
-
-    isJustChangeLocation?: boolean;
-    ignoreAddCount?: boolean;
 }
 
 export function createChange(editor: vscode.TextEditor | undefined, value: string): IFileTextChange {
     const change: IFileTextChange = {
         value: value,
-        createdAt: Date.now(),
+        createdAtString: new Date().toLocaleString(),
     };
 
     let doc = editor?.document

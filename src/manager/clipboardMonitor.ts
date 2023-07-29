@@ -106,7 +106,7 @@ export class ClipboardMonitor implements vscode.Disposable {
         // 创建剪贴板内容修改对象
         const change: IFileTextChange = {
             value: newText,
-            createdAt: Date.now(),
+            createdAtString: new Date().toLocaleString(),
         };
 
         const editor = vscode.window.activeTextEditor;

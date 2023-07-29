@@ -9,9 +9,8 @@ export class ClipPickItem implements vscode.QuickPickItem {
     public label: string;
 
     get description() {
-        if (this.clip.createdAt) {
-            const date = new Date(this.clip.createdAt);
-            return date.toLocaleString();
+        if (this.clip.updatedAtString) {
+            return this.clip.updatedAtString;
         }
     }
 

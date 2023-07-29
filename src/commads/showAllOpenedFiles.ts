@@ -1,10 +1,12 @@
 import * as vscode from 'vscode';
-import * as os from "os";
+import * as fs from "fs";
 import * as path from 'path';
 import { commandList, getStoreFolder } from '../global';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
 import { IFileTextItem, createChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
+
+const GIT_EXT = ".git"
 
 // todo: 自动获取宽度
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
@@ -55,7 +57,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
                     // viewColumn: vscode.ViewColumn.Two
                 };
                 vscode.window.showTextDocument(vscode.Uri.file(path), options).then((editor) => {
-                    this._manager.updateFileText(path);
+                    // this._manager.updateFileText(path);
                 }, (err) => {
                     this._manager.removeFileText(path)
                 });
@@ -72,51 +74,86 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     }
 
     private watchFileOpen() {
-        // 不使用这个方法，打开文件时，会多很多git等没有打开的文件
-        // vscode.workspace.onDidOpenTextDocument((document: TextDocument) => {
-        //     console.log(`onDidOpenTextDocument  ${document.uri.fsPath}`);
-        //     // const editor = vscode.window.activeTextEditor
-        //     try {
-        //         updateFileNameArr(fileNameArr, document.fileName)
-        //     } catch (err) {
-        //         handleError.showErrorMessage('fileHeader: watchSaveFn', err)
-        //     }
-        // })
+        vscode.workspace.onDidOpenTextDocument((doc: vscode.TextDocument) => {
+            let filePath = doc.fileName;
+            // console.log(`onDidOpenTextDocument  ${filePath}`);
 
+            // 无效路径不处理，如git等文件
+            if (!fs.existsSync(filePath)) {
+                return;
+            }
+
+            // console.log(`onDidOpenTextDocument2  ${filePath}`);
+
+            let extname = path.extname(filePath)
+            if (GIT_EXT == extname) {
+                return
+            }
+
+            let item = this._manager.getFileText(filePath);
+            if (item) {
+                this._manager.updateFileText(filePath);
+            } else {
+                const editor = vscode.window.activeTextEditor
+                const change = createChange(editor, filePath);
+                this._manager.addFileText(change);
+            }
+        })
+
+        /*
+        // 当编辑器更改时触发。切换已打开的文件也会触发
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             if (!editor) {
                 return
             }
 
-            let document = editor.document
-            if (document == undefined) {
+            let doc = editor.document
+            if (doc == undefined) {
                 return
             }
 
-            const change = createChange(editor, document.fileName);
-            change.ignoreAddCount = true;
-            this._manager.addFileText(change);
+            let item = this._manager.getFileText(doc.fileName);
+            if (item) {
+                this._manager.updateFileText(doc.fileName);
+            } else {
+                const change = createChange(editor, doc.fileName);
+                this._manager.addFileText(change);
+            }
         })
+        */
 
         vscode.workspace.onDidCloseTextDocument((doc) => {
             let filePath = doc.fileName;
+            // console.log(`onDidCloseTextDocument  ${filePath}`);
+
             let extname = path.extname(filePath)
-            if (extname = "git") {
-                filePath = filePath.slice(0, -4)
+            if (GIT_EXT == extname) {
+                filePath = filePath.slice(0, -GIT_EXT.length)
+                // return
             }
+
+            // console.log(`onDidCloseTextDocument 2  ${filePath}`);
 
             const selection = this.fileSections.get(filePath);
             if (!selection) {
                 return
             }
 
-            const change = createChange(undefined, filePath);
-            change.isJustChangeLocation = true;
-            change.createdLocation = {
-                range: new vscode.Range(selection.start, selection.end),
-                uri: doc.uri,
-            };
-            this._manager.addFileText(change);
+            let item = this._manager.getFileText(filePath);
+            if (!item) {
+                return
+            }
+
+            if (!item.createdLocation) {
+                item.createdLocation = {
+                    range: new vscode.Range(selection.start, selection.end),
+                    uri: vscode.Uri.file(filePath),
+                };
+            } else {
+                item.createdLocation.range = new vscode.Range(selection.start, selection.end)
+            }
+
+            this._manager.updateFileTextByItem(item);
         })
 
         vscode.window.onDidChangeTextEditorSelection((e) => {
@@ -143,18 +180,22 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
 
             const label = i.toString() + ") " + baseName;
             let description = dirName;
+            let updateCountStr = "  " + fileText.updateCount.toString();
 
             // 调整宽度与显示
-            const itemWidth = config.itemWidth;
+            const cfgWidth = config.itemWidth;
             const prefix = "   ...";
-            const wholeWidth = label.length + description.length + prefix.length
-            if (wholeWidth > itemWidth) {
-                let tle = itemWidth - label.length - prefix.length
+            const tmpWidth = label.length + description.length + updateCountStr.length
+            if (tmpWidth > cfgWidth) {
+                const wholeWidth = label.length + description.length + prefix.length + updateCountStr.length
+                let tle = cfgWidth - label.length - prefix.length - updateCountStr.length
                 if (tle > 0) {
-                    description = prefix + description.slice(-tle);
+                    description = prefix + description.slice(-tle) + updateCountStr;
                 } else {
-                    description = prefix
+                    description = prefix + description + updateCountStr
                 }
+            } else {
+                description = description + updateCountStr
             }
 
             let item = {
