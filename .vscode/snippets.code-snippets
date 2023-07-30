@@ -30,5 +30,13 @@
 			"undefined",
 		],
 		"description": "undefined"
-	}
+	},
+	"return": {
+		"scope": "javascript,typescript",
+		"prefix": "return",
+		"body": [
+			"return",
+		],
+		"description": "return"
+	},
 }

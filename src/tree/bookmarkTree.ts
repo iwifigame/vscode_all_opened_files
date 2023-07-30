@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
 import * as path from "path";
-import { commandList } from "../global";
+import { GIT_EXT, commandList } from "../global";
 import { BookmarkManager } from "../manager/bookmarkManager";
-import { leftPad } from "../util/util";
+import { leftPad, pathEqual } from "../util/util";
 import { IFileTextItem } from "../manager/common";
 
 export class BookmarkItem extends vscode.TreeItem {
@@ -43,11 +44,73 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
     private _onDidChangeTreeData: vscode.EventEmitter<BookmarkItem | null> = new vscode.EventEmitter<BookmarkItem | null>();
     public readonly onDidChangeTreeData: vscode.Event<BookmarkItem | null> = this._onDidChangeTreeData.event;
 
+    private tree: vscode.TreeView<BookmarkItem> | undefined;
+    private data: BookmarkItem[] = [];
+
     constructor(private _manager: BookmarkManager) {
         this._manager.onDidChangeFileTextList(() => {
             // 通知树修改
             this._onDidChangeTreeData.fire(null); // manager的事件修改了，这里也派发事件
         });
+
+        vscode.window.onDidChangeActiveTextEditor((editor) => {
+            if (!editor) {
+                return
+            }
+
+            let doc = editor.document
+            if (doc == undefined) {
+                return
+            }
+
+            let filePath = doc.fileName;
+            if (!fs.existsSync(filePath)) {
+                return;
+            }
+
+            let extname = path.extname(filePath)
+            if (GIT_EXT == extname) {
+                return
+            }
+
+            this.autoSelectCurrentFileItems(filePath)
+        })
+    }
+
+    public setTreeView(t: vscode.TreeView<BookmarkItem>) {
+        this.tree = t;
+    }
+
+    private autoSelectCurrentFileItems(filePath: string) {
+        if (!this.tree) {
+            return
+        }
+
+        if (this.tree.selection.length > 0) {
+            let cur = this.tree.selection[0];
+            if (pathEqual(cur.bookmark.createdLocation?.uri.path, filePath)) {
+                return
+            }
+        }
+
+        const item = this.getOneTreeItemByPath(filePath);
+        if (!item) {
+            return
+        }
+        this.tree.reveal(item, { focus: false, select: true });
+    }
+
+    private getOneTreeItemByPath(filePath: string) {
+        let tmp = this.data.find((x: BookmarkItem) => {
+            if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
+                return x;
+            }
+        });
+        return tmp;
+    }
+
+    getParent(element: BookmarkItem): vscode.ProviderResult<BookmarkItem> {
+        return undefined;
     }
 
     public getTreeItem(element: BookmarkItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -74,6 +137,8 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
 
             return item;
         });
+
+        this.data = childs;
 
         return childs;
     }

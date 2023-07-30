@@ -140,12 +140,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const bookmarkTreeDataProvider = new BookmarkTreeDataProvider(bookmarkManager);
     disposable.push(bookmarkTreeDataProvider);
-    disposable.push(
-        vscode.window.registerTreeDataProvider(
-            "bookmark",
-            bookmarkTreeDataProvider
-        )
-    );
+    const treeView = vscode.window.createTreeView("bookmark", { treeDataProvider: bookmarkTreeDataProvider });
+    disposable.push(treeView);
+    bookmarkTreeDataProvider.setTreeView(treeView);
 
     const quickBookmarkTreeDataProvider = new BookmarkTreeDataProvider(quickBookmarkManager);
     disposable.push(quickBookmarkTreeDataProvider);

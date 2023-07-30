@@ -51,8 +51,11 @@ export function getWordAtCursor(editor: vscode.TextEditor): string {
     return editor.document.getText(cursorWordRange)
 }
 
-export function pathEqual(actual: string, expected: string): boolean {
-    return actual === expected || simplePath(actual) === simplePath(expected)
+export function pathEqual(a: string|undefined, b: string|undefined): boolean {
+    if(!a || !b) {
+        return false
+    }
+    return a === b || simplePath(a) === simplePath(b)
 }
 
 function simplePath(path: string): string {

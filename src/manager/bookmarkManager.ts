@@ -1,6 +1,6 @@
 import * as path from "path";
 import { AbstractManager as AbstractManager } from "./abstractManager";
-import { IFileTextChange, IFileTextItem } from "./common";
+import { IFileTextItem } from "./common";
 
 export class BookmarkManager extends AbstractManager {
     public getConfigName(): string {

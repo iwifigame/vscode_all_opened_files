@@ -28,3 +28,5 @@ export enum commandList {
     showBookmarks = "BookmarkManager.showBookmarks",
     showBookmarkInFile = "BookmarkManager.showBookmarkInFile",
 }
+
+export const GIT_EXT = ".git"

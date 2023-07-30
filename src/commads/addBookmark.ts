@@ -27,15 +27,16 @@ export class AddBookmarkCommand implements vscode.Disposable {
             return
         }
 
-        let change = this.getBookmarkChange(editor);
+        let change = this.createBookmarkChange(editor);
         if (mark) {// 有标签，则添加到快捷标签列表中
             this.addQuickBookmark(change, mark, editor);
         } else {
             this._manager.addFileText(change);
         }
+
     }
 
-    private getBookmarkChange(editor: vscode.TextEditor) {
+    private createBookmarkChange(editor: vscode.TextEditor) {
         let text = editor.document.getText(editor.selection);
         if (!text) {
             text = getWordAtCursor(editor);

@@ -1,12 +1,10 @@
 import * as vscode from 'vscode';
 import * as fs from "fs";
 import * as path from 'path';
-import { commandList, getStoreFolder } from '../global';
+import { GIT_EXT, commandList, getStoreFolder } from '../global';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
 import { IFileTextItem, createChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
-
-const GIT_EXT = ".git"
 
 // todo: 自动获取宽度
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
