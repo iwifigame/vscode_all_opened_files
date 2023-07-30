@@ -125,7 +125,7 @@ export class ClipboardMonitor implements vscode.Disposable {
             }
         }
 
-        this._onDidChangeText.fire(change); // 派发修改事件
+        this._onDidChangeText.fire(change); // 派发当前剪贴板内容修改事件
         this._previousText = newText;
     }
 

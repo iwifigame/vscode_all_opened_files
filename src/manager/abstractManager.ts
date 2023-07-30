@@ -12,7 +12,7 @@ export abstract class AbstractManager implements vscode.Disposable {
 
     protected _fileTexts: IFileTextItem[] = [];
     protected lastUpdate: number = 0;
-    private _onDidFileTextListChange = new vscode.EventEmitter<void>();
+    private _onDidFileTextListChange = new vscode.EventEmitter<IFileTextItem>();
     public readonly onDidChangeFileTextList = this._onDidFileTextListChange.event;
 
     private _timer: NodeJS.Timer | undefined;
@@ -112,7 +112,7 @@ export abstract class AbstractManager implements vscode.Disposable {
             this._fileTexts = this._fileTexts.slice(0, this.maxfileTexts);
         }
 
-        this.fireAndSave()
+        this.fireAndSave(newItem)
     }
 
     private hdlMoveIndexToTop(index: number) {
@@ -145,7 +145,7 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         this.hdlMoveIndexToTop(index)
 
-        this.fireAndSave()
+        this.fireAndSave(item)
     }
 
     public getFileText(value: string): IFileTextItem | null {
@@ -182,7 +182,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         }
         this.fileTexts.splice(index, 1);
 
-        this.fireAndSave()
+        this.fireAndSave(undefined)
 
         return true
     }
@@ -192,7 +192,7 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         this._fileTexts = [];
 
-        this.fireAndSave()
+        this.fireAndSave(undefined)
 
         return true;
     }
@@ -232,9 +232,9 @@ export abstract class AbstractManager implements vscode.Disposable {
         return value;
     }
 
-    private fireAndSave() {
+    private fireAndSave(item:IFileTextItem|undefined) {
         this.isFileDirty = true;
-        this._onDidFileTextListChange.fire();
+        this._onDidFileTextListChange.fire(item);
     }
 
     private saveFileLoop() {
@@ -261,6 +261,7 @@ export abstract class AbstractManager implements vscode.Disposable {
             json = JSON.stringify(
                 {
                     version: CUR_VERSION,
+                    count:this._fileTexts.length,
                     fileTexts: this._fileTexts,
                 },
                 this.jsonReplacer,
@@ -271,6 +272,7 @@ export abstract class AbstractManager implements vscode.Disposable {
             return;
         }
 
+        /*
         fs.writeFile(file, json, (error) => {
             if (!error) {
                 this.lastUpdate = fs.statSync(file).mtimeMs;
@@ -293,8 +295,8 @@ export abstract class AbstractManager implements vscode.Disposable {
                     console.error(error);
             }
         });
+        */
 
-        /*
         try {
             fs.writeFileSync(file, json);
             this.lastUpdate = fs.statSync(file).mtimeMs;
@@ -317,7 +319,6 @@ export abstract class AbstractManager implements vscode.Disposable {
             //         console.error(error);
             // }
         }
-        */
     }
 
     // 检查保存file texts的文件是否有更新，有则说明有其它程序保存了新的内容。则加载
