@@ -49,8 +49,6 @@ export abstract class AbstractManager implements vscode.Disposable {
         return this._fileTexts;
     }
 
-    protected preSave(): void { };
-
     protected get avoidDuplicates(): boolean {
         const config = vscode.workspace.getConfiguration(this.getConfigName());
         return config.get("avoidDuplicates", true);
@@ -232,7 +230,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         return value;
     }
 
-    private fireAndSave(item:IFileTextItem|undefined) {
+    protected fireAndSave(item:IFileTextItem|undefined) {
         this.isFileDirty = true;
         this._onDidFileTextListChange.fire(item);
     }
@@ -249,8 +247,6 @@ export abstract class AbstractManager implements vscode.Disposable {
 
     // 保存文件
     public savefileTexts() {
-        this.preSave();
-
         const file = this.getStoreFile();
         if (!file) {
             return;
@@ -322,7 +318,7 @@ export abstract class AbstractManager implements vscode.Disposable {
     }
 
     // 检查保存file texts的文件是否有更新，有则说明有其它程序保存了新的内容。则加载
-    private checkFileTextsUpdate() {
+    protected checkFileTextsUpdate() {
         const file = this.getStoreFile();
 
         if (!file) {

@@ -33,7 +33,6 @@ export class AddBookmarkCommand implements vscode.Disposable {
         } else {
             this._manager.addFileText(change);
         }
-
     }
 
     private createBookmarkChange(editor: vscode.TextEditor) {

@@ -1,12 +1,15 @@
 import * as vscode from 'vscode';
-import * as path from "path";
 import { IFileTextItem } from "./common";
-import { BookmarkManager } from "./bookmarkManager";
 import { decoration } from '../util/decorationUtil';
 import { pathEqual } from '../util/util';
+import { AbstractManager } from './abstractManager';
 
-export class QuickBookmarkManager extends BookmarkManager {
+export class QuickBookmarkManager extends AbstractManager {
     protected init() {
+        this.onDidChangeFileTextList((item: IFileTextItem) => {
+            this.sortBookmarks();
+        });
+
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             if (!editor) {
                 return
@@ -39,11 +42,27 @@ export class QuickBookmarkManager extends BookmarkManager {
         return "QuickBookmarkManager";
     }
 
+    protected get moveToTop(): boolean {
+        return false
+    }
+
+    public removeAllByParam(param: string) {
+        this.checkFileTextsUpdate();
+        this._fileTexts = this._fileTexts.filter(item => item.param != param)
+        this.fireAndSave(undefined)
+
+        return true
+    }
+
     protected isFileTextItemEqual(a: IFileTextItem, b: IFileTextItem): boolean {
+        if (a.param == "t" || b.param == "t") { // t用来快速添加可重复的临时标签，可用来作为添加todo等用途
+            return false
+        }
+
         return a.param == b.param
     }
 
-    protected sortBookmarks() {
+    private sortBookmarks() {
         this._fileTexts.sort((a: IFileTextItem, b: IFileTextItem) => {
             if (!a.param) {
                 return -1;

@@ -3,13 +3,15 @@ import { AbstractManager as AbstractManager } from "./abstractManager";
 import { IFileTextItem } from "./common";
 
 export class BookmarkManager extends AbstractManager {
+    protected init() {
+        this.onDidChangeFileTextList((item: IFileTextItem) => {
+            this.sortBookmarks();
+        });
+    }
+
     public getConfigName(): string {
         return "BookmarkManager";
     }
-
-    protected preSave(): void {
-        this.sortBookmarks();
-    };
 
     protected get moveToTop(): boolean {
         return false
@@ -28,7 +30,7 @@ export class BookmarkManager extends AbstractManager {
         return false
     }
 
-    protected sortBookmarks() {
+    private sortBookmarks() {
         this._fileTexts.sort((a: IFileTextItem, b: IFileTextItem) => {
             let ta = a.createdLocation?.uri.path;
             let tb = b.createdLocation?.uri.path;
