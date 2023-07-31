@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
 import * as path from "path";
+import { GIT_EXT } from "../global";
 
 export interface IDisposable {
     dispose(): void;
@@ -51,8 +53,8 @@ export function getWordAtCursor(editor: vscode.TextEditor): string {
     return editor.document.getText(cursorWordRange)
 }
 
-export function pathEqual(a: string|undefined, b: string|undefined): boolean {
-    if(!a || !b) {
+export function pathEqual(a: string | undefined, b: string | undefined): boolean {
+    if (!a || !b) {
         return false
     }
     return a === b || simplePath(a) === simplePath(b)
@@ -81,82 +83,17 @@ function simplePath(path: string): string {
     return path
 }
 
-// var getStackTrace = function () {
-//     let obj: Object = {};
-//     Error.captureStackTrace(obj, getStackTrace);
-//     return obj.stack;
-// };
-// var log = console.log;
-// console.log = function () {
-//     var stack = getStackTrace() || ""
-//     var matchResult = stack.match(/\(.*?\)/g) || []
-//     var line = matchResult[1] || ""
-//     for (var i in arguments) {
-//         if (typeof arguments[i] == 'object') {
-//             arguments[i] = JSON.stringify(arguments[i])
-//         }
-//         arguments[i] += '----' + line.replace("(", "").replace(")", "")
-//     }
-//     log.apply(console, arguments)
-// };
-
-/*
-const STACK_LINE_REGEX = /(\d+):(\d+)\)?$/;
-
-export function lineLogger(...log: any) {
-    let err: Error;
-
-    try {
-        throw new Error();
-    } catch (error: any) {
-        err = error;
+export function isOpenPathlegal(filePath: string): boolean {
+    let extname = path.extname(filePath)
+    // 打开文件时，vscode会打开.git同名的后缀文件
+    if (GIT_EXT == extname) {
+        return false;
     }
 
-    try {
-        if (err.stack == undefined) {
-            return
-        }
-        const stacks = err.stack.split('\\n');
-        const line = STACK_LINE_REGEX.exec(stacks[2]);
-
-        console.log(`[${line}]`, ...log);
-    } catch (err) {
-        console.log(...log);
+    // 打开文件时，vscode会打开extension等其它文件
+    if (!fs.existsSync(filePath)) {
+        return false;
     }
+
+    return true
 }
-
-// lineLogger.call(console.log, 'foobar');
-// lineLogger.call(console.error, 42);
-
-export function getCallerFileNameAndLine() {
-    function getException(): Error {
-        try {
-            throw Error('');
-        } catch (err: any) {
-            return err;
-        }
-    }
-
-    const err = getException();
-
-    let stack = err.stack;
-    if (stack == undefined) {
-        stack = "";
-    }
-    const stackArr = stack.split('\n');
-    let callerLogIndex = 0;
-    for (let i = 0; i < stackArr.length; i++) {
-        if (stackArr[i].indexOf('Map.Logger') > 0 && i + 1 < stackArr.length) {
-            callerLogIndex = i + 1;
-            break;
-        }
-    }
-
-    if (callerLogIndex !== 0) {
-        const callerStackLine = stackArr[callerLogIndex];
-        return `[${callerStackLine.substring(callerStackLine.lastIndexOf(path.sep) + 1, callerStackLine.lastIndexOf(':'))}]`;
-    } else {
-        return '[-]';
-    }
-}
-*/

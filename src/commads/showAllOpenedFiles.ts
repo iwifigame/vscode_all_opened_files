@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import * as fs from "fs";
 import * as path from 'path';
 import { GIT_EXT, commandList, getStoreFolder } from '../global';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
 import { IFileTextItem, createChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
+import { isOpenPathlegal } from '../util/util';
 
 // todo: 自动获取宽度
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
@@ -76,15 +76,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             let filePath = doc.fileName;
             // console.log(`onDidOpenTextDocument  ${filePath}`);
 
-            // 无效路径不处理，如git等文件
-            if (!fs.existsSync(filePath)) {
-                return;
-            }
-
-            // console.log(`onDidOpenTextDocument2  ${filePath}`);
-
-            let extname = path.extname(filePath)
-            if (GIT_EXT == extname) {
+            if (!isOpenPathlegal(filePath)) {
                 return
             }
 

@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as path from "path";
 
 export interface IFileTextItem {
     value: string;
@@ -43,4 +44,39 @@ export function createChange(editor: vscode.TextEditor | undefined, value: strin
     }
 
     return change
+}
+
+export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
+    let ta = a.createdLocation?.uri.path;
+    let tb = b.createdLocation?.uri.path;
+
+    if (!ta) {
+        return -1;
+    }
+
+    if (!tb) {
+        return 1;
+    }
+
+    let ua = path.basename(ta).toLowerCase();
+    let ub = path.basename(tb).toLowerCase();
+
+    if (ua > ub) {
+        return 1;
+    } else if (ua < ub) {
+        return -1;
+    } else {
+        let pa = a.createdLocation?.range.start;
+        let pb = b.createdLocation?.range.start;
+
+        if (!pa) {
+            return -1;
+        }
+
+        if (!pb) {
+            return 1;
+        }
+
+        return pa.line - pb.line;
+    }
 }

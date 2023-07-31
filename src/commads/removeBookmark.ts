@@ -19,7 +19,8 @@ export class RemoveBookmarkCommand implements vscode.Disposable {
 
     protected execute(item: BookmarkItem) {
         if (item.bookmark.param) {
-            this._quickManager.removeAllByParam(item.bookmark.param);
+            // this._quickManager.removeAllByParam(item.bookmark.param);
+            this._quickManager.remove(item.bookmark);
         } else {
             this._manager.remove(item.bookmark);
         }

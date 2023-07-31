@@ -26,7 +26,7 @@ export class ShowBookmarkInFileCommand implements vscode.Disposable {
             }
         }
 
-        if (!bookmark.createdLocation) {
+        if (!bookmark || !bookmark.createdLocation) {
             return;
         }
 

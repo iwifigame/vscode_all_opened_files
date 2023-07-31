@@ -154,14 +154,6 @@ export abstract class AbstractManager implements vscode.Disposable {
         return this._fileTexts[index]
     }
 
-    public getFileTextByParam(value: string): IFileTextItem | null {
-        const index = this._fileTexts.findIndex(c => c.param === value);
-        if (index < 0) {
-            return null
-        }
-        return this._fileTexts[index]
-    }
-
     public removeFileText(value: string) {
         this.checkFileTextsUpdate();
         let t = this.getFileText(value)

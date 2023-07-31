@@ -1,10 +1,9 @@
 import * as vscode from "vscode";
-import * as fs from "fs";
 import * as path from "path";
-import { GIT_EXT, commandList } from "../global";
-import { BookmarkManager } from "../manager/bookmarkManager";
+import { commandList } from "../global";
 import { leftPad, pathEqual } from "../util/util";
 import { IFileTextItem } from "../manager/common";
+import { AbstractManager } from "../manager/abstractManager";
 
 export class BookmarkItem extends vscode.TreeItem {
     constructor(readonly bookmark: IFileTextItem) {
@@ -47,13 +46,17 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
     private tree: vscode.TreeView<BookmarkItem> | undefined;
     private data: BookmarkItem[] = [];
 
-    constructor(private _manager: BookmarkManager) {
+    constructor(private _manager: AbstractManager) {
         this._manager.onDidChangeFileTextList(() => {
             // 通知树修改
             this._onDidChangeTreeData.fire(null); // manager的事件修改了，这里也派发事件
         });
 
         vscode.window.onDidChangeActiveTextEditor((editor) => {
+            if (!this.tree || !this.tree.visible) {
+                return
+            }
+
             if (!editor) {
                 return
             }
@@ -64,15 +67,6 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
             }
 
             let filePath = doc.fileName;
-            if (!fs.existsSync(filePath)) {
-                return;
-            }
-
-            let extname = path.extname(filePath)
-            if (GIT_EXT == extname) {
-                return
-            }
-
             this.autoSelectCurrentFileItems(filePath)
         })
     }
@@ -82,10 +76,11 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
     }
 
     private autoSelectCurrentFileItems(filePath: string) {
-        if (!this.tree) {
+        if (!this.tree || !this.tree.visible) {
             return
         }
 
+        // 如果当前树中选择的路径和指定路径相同，则不处理
         if (this.tree.selection.length > 0) {
             let cur = this.tree.selection[0];
             if (pathEqual(cur.bookmark.createdLocation?.uri.path, filePath)) {
@@ -93,6 +88,7 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
             }
         }
 
+        // 高亮显示当前文件中的标签
         const item = this.getOneTreeItemByPath(filePath);
         if (!item) {
             return

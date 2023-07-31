@@ -1,6 +1,6 @@
 import * as path from "path";
 import { AbstractManager as AbstractManager } from "./abstractManager";
-import { IFileTextItem } from "./common";
+import { IFileTextItem, fileTextLocationCompare } from "./common";
 
 export class BookmarkManager extends AbstractManager {
     protected init() {
@@ -32,35 +32,7 @@ export class BookmarkManager extends AbstractManager {
 
     private sortBookmarks() {
         this._fileTexts.sort((a: IFileTextItem, b: IFileTextItem) => {
-            let ta = a.createdLocation?.uri.path;
-            let tb = b.createdLocation?.uri.path;
-
-            if (!ta) {
-                return -1;
-            }
-
-            if (!tb) {
-                return 1;
-            }
-
-            let ua = path.basename(ta).toLowerCase();
-            let ub = path.basename(tb).toLowerCase();
-
-            if (ua > ub) {
-                return 1;
-            } else if (ua < ub) {
-                return -1;
-            } else {
-                let va = a.value;
-                let vb = a.value;
-                if (va > vb) {
-                    return -1;
-                } else if (va < vb) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
+            return fileTextLocationCompare(a, b)
         });
     }
 }

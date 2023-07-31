@@ -146,12 +146,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const quickBookmarkTreeDataProvider = new BookmarkTreeDataProvider(quickBookmarkManager);
     disposable.push(quickBookmarkTreeDataProvider);
-    disposable.push(
-        vscode.window.registerTreeDataProvider(
-            "quick bookmark",
-            quickBookmarkTreeDataProvider
-        )
-    );
+    const quickTreeView = vscode.window.createTreeView("quick bookmark", { treeDataProvider: quickBookmarkTreeDataProvider });
+    disposable.push(quickTreeView);
+    quickBookmarkTreeDataProvider.setTreeView(quickTreeView);
 
     const updateConfig = () => {
         const config = vscode.workspace.getConfiguration("ClipManager");
