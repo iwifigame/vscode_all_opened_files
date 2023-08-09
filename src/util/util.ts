@@ -44,11 +44,11 @@ export function selectWordAtCursor(editor: vscode.TextEditor) {
 // 得到光标所在的单词
 export function getWordAtCursor(editor: vscode.TextEditor): string {
     if (!editor.selection.isEmpty) {
-        return "";
+        return '';
     }
     var cursorWordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
     if (!cursorWordRange) {
-        return "";
+        return '';
     }
     return editor.document.getText(cursorWordRange)
 }

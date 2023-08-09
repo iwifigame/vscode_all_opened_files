@@ -37,14 +37,21 @@ export class AddBookmarkCommand implements vscode.Disposable {
 
     private createBookmarkChange(editor: vscode.TextEditor) {
         let text = editor.document.getText(editor.selection);
+        let range: vscode.Range | undefined;
         if (!text) {
             text = getWordAtCursor(editor);
             if (!text) {
                 const cursorPosition = editor.selection.active;
                 text = editor.document.lineAt(cursorPosition.line).text;
             }
+            range = editor.document.getWordRangeAtPosition(editor.selection.active);
         }
+
         const change = createChange(editor, text);
+        if (range && change.createdLocation) {
+            change.createdLocation.range = range
+        }
+
         return change;
     }
 

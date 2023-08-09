@@ -134,15 +134,12 @@ export abstract class AbstractManager implements vscode.Disposable {
         if (index < 0) {
             return
         }
+
         item = this._fileTexts[index]
-
-        const config = vscode.workspace.getConfiguration(this.getConfigName());
-
         item.updateCount++;
         item.updatedAtString = new Date().toLocaleString()
 
         this.hdlMoveIndexToTop(index)
-
         this.fireAndSave(item)
     }
 

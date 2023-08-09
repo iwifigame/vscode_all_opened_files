@@ -24,7 +24,6 @@ export class ShowClipboardInFileCommand implements vscode.Disposable {
         }
 
         const uri = clip.createdLocation.uri;
-
         const document = await vscode.workspace.openTextDocument(uri);
 
         const opts: vscode.TextDocumentShowOptions = {
