@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { BookmarkManager } from "../manager/bookmarkManager";
-import { commandList } from "../global";
-import { IFileTextItem } from "../manager/common";
-import { QuickBookmarkManager } from "../manager/quickBookmarkManager";
+import { BookmarkManager } from "../../manager/bookmarkManager";
+import { commandList } from "../../global";
+import { IFileTextItem } from "../../manager/common";
+import { QuickBookmarkManager } from "../../manager/quickBookmarkManager";
 
 export class ShowBookmarkInFileCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];

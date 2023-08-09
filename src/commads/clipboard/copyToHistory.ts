@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
-import { commandList } from "../global";
-import { ClipboardMonitor } from "../manager/clipboardMonitor";
+import { commandList } from "../../global";
+import { ClipboardMonitor } from "../../manager/clipboardMonitor";
 
-export class ApiGetMonitor implements vscode.Disposable {
+export class CopyToHistoryCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
     constructor(protected monitor: ClipboardMonitor) {
         this._disposable.push(
             vscode.commands.registerCommand(
-                commandList.apiGetMonitor,
+                commandList.copyToHistory,
                 this.execute,
                 this
             )
@@ -16,7 +16,8 @@ export class ApiGetMonitor implements vscode.Disposable {
     }
 
     protected async execute() {
-        return this.monitor;
+        await vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+        await this.monitor.checkChangeText();
     }
 
     public dispose() {

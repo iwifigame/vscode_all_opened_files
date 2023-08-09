@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { commandList } from "../global";
-import { ClipboardManager } from "../manager/clipboardManager";
-import { IFileTextChange } from "../manager/common";
+import { commandList } from "../../global";
+import { ClipboardManager } from "../../manager/clipboardManager";
+import { IFileTextChange } from "../../manager/common";
 
 /**
  * Command to paste from double click on history item

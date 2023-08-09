@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { BookmarkItem } from "../tree/bookmarkTree";
-import { commandList } from "../global";
-import { BookmarkManager } from "../manager/bookmarkManager";
-import { QuickBookmarkManager } from "../manager/quickBookmarkManager";
+import { BookmarkItem } from "../../tree/bookmarkTree";
+import { commandList } from "../../global";
+import { BookmarkManager } from "../../manager/bookmarkManager";
+import { QuickBookmarkManager } from "../../manager/quickBookmarkManager";
 
 export class RemoveBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];

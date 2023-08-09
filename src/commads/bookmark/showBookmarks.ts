@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { leftPad } from "../util/util";
-import { commandList } from "../global";
-import { IFileTextItem } from "../manager/common";
-import { BookmarkManager } from "../manager/bookmarkManager";
+import { leftPad } from "../../util/util";
+import { commandList } from "../../global";
+import { IFileTextItem } from "../../manager/common";
+import { BookmarkManager } from "../../manager/bookmarkManager";
 
 interface BookmarkItem extends vscode.QuickPickItem {
     fileTextItem: IFileTextItem

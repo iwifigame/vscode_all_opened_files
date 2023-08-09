@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { commandList } from "../global";
-import { getWordAtCursor } from "../util/util";
-import { decoration } from "../util/decorationUtil";
-import { BookmarkManager } from "../manager/bookmarkManager";
-import { QuickBookmarkManager } from "../manager/quickBookmarkManager";
-import { IFileTextChange, createChange } from "../manager/common";
+import { commandList } from "../../global";
+import { getWordAtCursor } from "../../util/util";
+import { decoration } from "../../util/decorationUtil";
+import { BookmarkManager } from "../../manager/bookmarkManager";
+import { QuickBookmarkManager } from "../../manager/quickBookmarkManager";
+import { IFileTextChange, createChange } from "../../manager/common";
 
 export class AddBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];

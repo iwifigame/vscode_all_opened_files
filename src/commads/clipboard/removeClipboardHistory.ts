@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { ClipHistoryItem } from "../tree/clipboardTree";
-import { commandList } from "../global";
-import { ClipboardManager } from "../manager/clipboardManager";
+import { ClipHistoryItem } from "../../tree/clipboardTree";
+import { commandList } from "../../global";
+import { ClipboardManager } from "../../manager/clipboardManager";
 
 export class RemoveClipboardHistoryCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];

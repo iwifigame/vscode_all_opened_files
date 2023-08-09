@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { commandList } from "../global";
-import { ClipboardManager } from "../manager/clipboardManager";
-import { IFileTextItem } from "../manager/common";
+import { commandList } from "../../global";
+import { ClipboardManager } from "../../manager/clipboardManager";
+import { IFileTextItem } from "../../manager/common";
 
 const Start_Index: number = 0;
 
