@@ -1,17 +1,16 @@
 import * as vscode from "vscode";
-import { leftPad } from "../util/util";
-import { commandList } from "../global";
-import { ClipboardManager} from "../manager/clipboardManager";
-import { IFileTextItem } from "../manager/common";
+import { leftPad } from "../../util/util";
+import { commandList } from "../../global";
+import { ClipboardManager} from "../../manager/clipboardManager";
+import { IFileTextItem } from "../../manager/common";
 
 // 剪贴板快速选择项目
 export class ClipPickItem implements vscode.QuickPickItem {
     public label: string;
 
     get description() {
-        if (this.clip.createdAt) {
-            const date = new Date(this.clip.createdAt);
-            return date.toLocaleString();
+        if (this.clip.updatedAtString) {
+            return this.clip.updatedAtString;
         }
     }
 

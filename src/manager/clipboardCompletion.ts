@@ -52,9 +52,8 @@ export class ClipboardCompletion implements vscode.CompletionItemProvider {
             c.documentation = new vscode.MarkdownString();
             c.documentation.appendCodeblock(clip.value, clip.language);
 
-            if (clip.createdAt) {
-                const date = new Date(clip.createdAt);
-                c.detail += " - " + date.toLocaleString();
+            if (clip.updatedAtString) {
+                c.detail += " - " + clip.updatedAtString;
             }
 
             c.command = {

@@ -51,9 +51,7 @@ export class ClipboardTreeDataProvider
         });
     }
 
-    public getTreeItem(
-        element: ClipHistoryItem
-    ): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    public getTreeItem(element: ClipHistoryItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element;
     }
 

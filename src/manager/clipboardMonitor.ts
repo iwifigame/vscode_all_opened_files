@@ -104,9 +104,10 @@ export class ClipboardMonitor implements vscode.Disposable {
         }
 
         // 创建剪贴板内容修改对象
+        // todo 使用统一的方法
         const change: IFileTextChange = {
             value: newText,
-            createdAt: Date.now(),
+            createdAtString: new Date().toLocaleString(),
         };
 
         const editor = vscode.window.activeTextEditor;
@@ -125,7 +126,7 @@ export class ClipboardMonitor implements vscode.Disposable {
             }
         }
 
-        this._onDidChangeText.fire(change); // 派发修改事件
+        this._onDidChangeText.fire(change); // 派发当前剪贴板内容修改事件
         this._previousText = newText;
     }
 

@@ -3,11 +3,12 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.0.80",
+    "version": "3.1.30",
     "keywords": [
         "file",
         "clipboard",
         "bookmark",
+        "ring paste",
         "vim",
         "mark",
         "open",
@@ -104,6 +105,11 @@
                     "dark": "resources/dark/remove.svg",
                     "light": "resources/light/remove.svg"
                 }
+            },
+            {
+                "command": "BookmarkManager.showBookmarks",
+                "title": "Show Bookmarks",
+                "category": "BookmarkManager"
             },
             {
                 "command": "BookmarkManager.showBookmarkInFile",
@@ -347,7 +353,5 @@
         "vscode": "^1.1.25"
     },
     "dependencies": {
-        "clipboardy": "^2.3.0",
-        "vscode-ext-selection": "^1.0.0"
     }
 }

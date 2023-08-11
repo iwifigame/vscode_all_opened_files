@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
-import { ClipHistoryItem } from "../tree/clipboardTree";
-import { commandList } from "../global";
-import { ClipboardManager } from "../manager/clipboardManager";
+import { ClipHistoryItem } from "../../tree/clipboardTree";
+import { commandList } from "../../global";
+import { ClipboardManager } from "../../manager/clipboardManager";
 
-export class ShowClipboardInFile implements vscode.Disposable {
+export class ShowClipboardInFileCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
     constructor(protected _manager: ClipboardManager) {
@@ -24,7 +24,6 @@ export class ShowClipboardInFile implements vscode.Disposable {
         }
 
         const uri = clip.createdLocation.uri;
-
         const document = await vscode.workspace.openTextDocument(uri);
 
         const opts: vscode.TextDocumentShowOptions = {

@@ -18,8 +18,5 @@ process.on('uncaughtException', function (e) {
     writeLog('fileHeader: uncaughtException崩溃', msg)
 })
 
-// 每次重启插件都清空日志 防止日志过多
-let content = ''
-
 function writeLog(tag: string, msg = '') {
 }

@@ -1,9 +1,9 @@
-import * as path from "path";
 import * as vscode from "vscode";
+import * as path from "path";
 import { commandList } from "../global";
-import { BookmarkManager } from "../manager/bookmarkManager";
-import { leftPad } from "../util/util";
+import { leftPad, pathEqual } from "../util/util";
 import { IFileTextItem } from "../manager/common";
+import { AbstractManager } from "../manager/abstractManager";
 
 export class BookmarkItem extends vscode.TreeItem {
     constructor(readonly bookmark: IFileTextItem) {
@@ -24,7 +24,7 @@ export class BookmarkItem extends vscode.TreeItem {
             this.resourceUri = this.bookmark.createdLocation.uri; // 会自动根据后缀设置前面的图标
             this.contextValue += "file";
             this.tooltip = `File: ${this.resourceUri.fsPath}\nValue: ${this.tooltip}\n`;
-            this.description = path.basename(this.resourceUri.path);
+            this.description = path.basename(this.resourceUri.path) + "---" + bookmark.updateCount;
         } else {
             // 设置项目前面的图标
             const basePath = path.join(__filename, "..", "..", "..", "resources");
@@ -43,11 +43,70 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
     private _onDidChangeTreeData: vscode.EventEmitter<BookmarkItem | null> = new vscode.EventEmitter<BookmarkItem | null>();
     public readonly onDidChangeTreeData: vscode.Event<BookmarkItem | null> = this._onDidChangeTreeData.event;
 
-    constructor(private _manager: BookmarkManager) {
+    private tree: vscode.TreeView<BookmarkItem> | undefined;
+    private data: BookmarkItem[] = [];
+
+    constructor(private _manager: AbstractManager) {
         this._manager.onDidChangeFileTextList(() => {
             // 通知树修改
             this._onDidChangeTreeData.fire(null); // manager的事件修改了，这里也派发事件
         });
+
+        vscode.window.onDidChangeActiveTextEditor((editor) => {
+            if (!this.tree || !this.tree.visible) {
+                return
+            }
+
+            if (!editor) {
+                return
+            }
+
+            let doc = editor.document
+            if (doc == undefined) {
+                return
+            }
+
+            let filePath = doc.fileName;
+            this.autoSelectCurrentFileItems(filePath)
+        })
+    }
+
+    public setTreeView(t: vscode.TreeView<BookmarkItem>) {
+        this.tree = t;
+    }
+
+    private autoSelectCurrentFileItems(filePath: string) {
+        if (!this.tree || !this.tree.visible) {
+            return
+        }
+
+        // 如果当前树中选择的路径和指定路径相同，则不处理
+        if (this.tree.selection.length > 0) {
+            let cur = this.tree.selection[0];
+            if (pathEqual(cur.bookmark.createdLocation?.uri.path, filePath)) {
+                return
+            }
+        }
+
+        // 高亮显示当前文件中的标签
+        const item = this.getOneTreeItemByPath(filePath);
+        if (!item) {
+            return
+        }
+        this.tree.reveal(item, { focus: false, select: true });
+    }
+
+    private getOneTreeItemByPath(filePath: string) {
+        let tmp = this.data.find((x: BookmarkItem) => {
+            if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
+                return x;
+            }
+        });
+        return tmp;
+    }
+
+    getParent(element: BookmarkItem): vscode.ProviderResult<BookmarkItem> {
+        return undefined;
     }
 
     public getTreeItem(element: BookmarkItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -74,6 +133,8 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
 
             return item;
         });
+
+        this.data = childs;
 
         return childs;
     }

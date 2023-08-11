@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { BookmarkItem } from "../tree/bookmarkTree";
-import { commandList } from "../global";
-import { BookmarkManager } from "../manager/bookmarkManager";
-import { QuickBookmarkManager } from "../manager/quickBookmarkManager";
+import { BookmarkItem } from "../../tree/bookmarkTree";
+import { commandList } from "../../global";
+import { BookmarkManager } from "../../manager/bookmarkManager";
+import { QuickBookmarkManager } from "../../manager/quickBookmarkManager";
 
-export class RemoveBookmark implements vscode.Disposable {
+export class RemoveBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
     constructor(protected _manager: BookmarkManager, protected _quickManager: QuickBookmarkManager) {
@@ -19,6 +19,7 @@ export class RemoveBookmark implements vscode.Disposable {
 
     protected execute(item: BookmarkItem) {
         if (item.bookmark.param) {
+            // this._quickManager.removeAllByParam(item.bookmark.param);
             this._quickManager.remove(item.bookmark);
         } else {
             this._manager.remove(item.bookmark);

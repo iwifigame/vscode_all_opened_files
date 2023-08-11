@@ -24,46 +24,43 @@ export class QuickOpenCommand implements vscode.Disposable {
 
     protected async execute(filePath: string) {
         try {
-            const activeTextEditor = vscode.window.activeTextEditor;
-            if (activeTextEditor == undefined) {
+            const editor = vscode.window.activeTextEditor;
+            if (editor == undefined) {
                 return
             }
 
-            if (activeTextEditor.document.fileName !== filePath) {
+            if (editor.document.fileName !== filePath) {
                 const homedir = require("os").homedir();
                 if (filePath.includes("~")) {
                     filePath = path.join(homedir, filePath.replace("~", ""));
                 }
 
-                const doc = await vscode.workspace.openTextDocument(
-                    vscode.Uri.file(filePath)
-                );
-                const editor = await vscode.window.showTextDocument(doc);
+                // 打开文件
+                const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
 
                 let t = this._manager.getFileText(filePath);
-                if (t && t.createdLocation) {
+                if (t && t.createdLocation) { // 跳转到关闭前的位置
                     const opts: vscode.TextDocumentShowOptions = {
                         viewColumn: vscode.ViewColumn.Active,
                     };
                     opts.selection = t.createdLocation.range;
                     await vscode.window.showTextDocument(doc, opts);
                 } else {
-                    this.revealEditorPosition(editor, 0, 0);
+                    await vscode.window.showTextDocument(doc);
+                    // this.revealEditorPosition(editor, 0, 0);
                 }
             }
         } catch (error) {
-            console.error(`error:`, error);
+            console.error(`QuickOpenCommand execute error:`, error);
             // vscode.window.showErrorMessage(error.message);
         }
     }
 
-
-    public dispose() {
-        this._disposable.forEach(d => d.dispose());
-    }
-
     private revealEditorPosition(editor: any, line: any, character: any) {
-        if (!line) return;
+        if (!line) {
+            return;
+        }
+
         character = character || 1;
         const position = new vscode.Position(line - 1, character - 1);
         editor.selections = [new vscode.Selection(position, position)];
@@ -71,5 +68,9 @@ export class QuickOpenCommand implements vscode.Disposable {
             new vscode.Range(position, position),
             vscode.TextEditorRevealType.InCenterIfOutsideViewport
         );
+    }
+
+    public dispose() {
+        this._disposable.forEach(d => d.dispose());
     }
 }
