@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.1.32",
+    "version": "3.1.31",
     "keywords": [
         "file",
         "clipboard",
@@ -38,7 +38,7 @@
     ],
     "main": "./out/extension.js",
     "contributes": {
-        "commands": [
+        "commands": [ // 增加的命令。可用来快捷键绑定
             {
                 "command": "AllOpenedFiles.showAllOpenedFiles",
                 "category": "AllOpenedFiles",
@@ -117,7 +117,7 @@
                 "category": "BookmarkManager"
             }
         ],
-        "keybindings": [
+        "keybindings": [ // 插件设置的快捷键绑定
             {
                 "command": "AllOpenedFiles.showAllOpenedFiles",
                 "key": "alt+shift+o",
@@ -148,12 +148,12 @@
                 "when": "textInputFocus && !editorReadonly"
             }
         ],
-        "viewsContainers": {
+        "viewsContainers": { // 视图容器。最左边竖条上图标以及对应的窗口
             "activitybar": [
                 {
                     "id": "ClipManager",
                     "title": "ClipManager",
-                    "icon": "images/clipboard_activitybar.svg"
+                    "icon": "images/clipboard_activitybar.svg" // 竖条上对应的图标
                 },
                 {
                     "id": "BookmarkManager",
@@ -162,14 +162,14 @@
                 }
             ]
         },
-        "views": {
+        "views": { // 上面图标点击后，对应的窗口
             "ClipManager": [
                 {
                     "id": "clipboardHistory",
                     "name": "Clipboard History"
                 }
             ],
-            "BookmarkManager": [
+            "BookmarkManager": [ // 窗口中分两个
                 {
                     "id": "bookmark",
                     "name": "bookmark"
@@ -181,7 +181,7 @@
             ]
         },
         "menus": {
-            "commandPalette": [
+            "commandPalette": [ // 控制ctrl+shift+p时，命令的显示
                 {
                     "command": "ClipManager.pickAndPaste"
                 },
@@ -189,26 +189,19 @@
                     "command": "ClipManager.ringPaste"
                 },
                 {
+                    // todo bookmark处理
                     "command": "ClipManager.showClipboardInFile",
-                    "when": "false"
+                    "when": "false" // 永不显示
                 },
                 {
                     "command": "ClipManager.history.clear"
                 },
                 {
                     "command": "ClipManager.history.remove",
-                    "when": "false"
-                },
-                {
-                    "command": "BookmarkManager.showBookmarkInFile",
-                    "when": "false"
-                },
-                {
-                    "command": "BookmarkManager.remove",
-                    "when": "false"
+                    "when": "false" // 永不显示
                 }
             ],
-            "view/item/context": [
+            "view/item/context": [ // 侧边栏中显示的菜单
                 {
                     "command": "ClipManager.showClipboardInFile",
                     "when": "viewItem =~ /^clipHistoryItem:file/",
@@ -217,12 +210,12 @@
                 {
                     "command": "ClipManager.history.remove",
                     "when": "viewItem =~ /^clipHistoryItem:/",
-                    "group": "1_modification"
+                    "group": "1_modification" // 在项目右键，显示删除选项
                 },
                 {
                     "command": "ClipManager.history.remove",
                     "when": "viewItem =~ /^clipHistoryItem:/",
-                    "group": "inline"
+                    "group": "inline" // 在项目右边显示删除按钮
                 },
                 {
                     "command": "BookmarkManager.remove",
@@ -235,7 +228,7 @@
                     "group": "inline"
                 }
             ],
-            "view/title": [
+            "view/title": [ // 侧边栏顶部显示的按钮
                 {
                     "command": "ClipManager.history.clear",
                     "when": "view == clipboardHistory",
@@ -243,7 +236,7 @@
                 }
             ]
         },
-        "configuration": [
+        "configuration": [ // 配置
             {
                 "title": "All Opened Files",
                 "properties": {

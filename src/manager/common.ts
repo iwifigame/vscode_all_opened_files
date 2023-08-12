@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import { AbstractManager } from "./abstractManager";
 
 export interface IFileTextItem {
     value: string;
@@ -79,4 +80,58 @@ export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
 
         return pa.line - pb.line;
     }
+}
+
+export async function showFileTextItem(fileTextItem: IFileTextItem, manager: AbstractManager) {
+    if (!fileTextItem || !fileTextItem.createdLocation) {
+        return;
+    }
+
+    const uri = fileTextItem.createdLocation.uri;
+    const document = await vscode.workspace.openTextDocument(uri);
+
+    const opts: vscode.TextDocumentShowOptions = {
+        viewColumn: vscode.ViewColumn.Active,
+    };
+    opts.selection = fileTextItem.createdLocation.range;
+
+    const rangeText = document.getText(fileTextItem.createdLocation.range);
+    if (rangeText !== fileTextItem.value) { // 当前书签范围对应的文本与书签不匹配，则查找最近匹配的
+        // Find current position of value
+        const indexes: number[] = [];
+        const text = document.getText();
+        let lastIndex = text.indexOf(fileTextItem.value); // 找到第一个匹配的索引
+
+        // 查找文档中所有匹配的索引
+        while (lastIndex >= 0) {
+            indexes.push(lastIndex);
+            // 查找bookmark所在位置
+            lastIndex = text.indexOf(fileTextItem.value, lastIndex + 1);
+        }
+
+        if (indexes.length >= 0) { // 找到了
+            const offset = document.offsetAt(fileTextItem.createdLocation.range.start);
+
+            // 根据离书签原始位置的距离，排序
+            indexes.sort((a, b) => Math.abs(a - offset) - Math.abs(b - offset));
+
+            const index = indexes[0]; // 取最近的一个位置
+            if (index >= 0) {
+                const range = new vscode.Range(
+                    document.positionAt(index),
+                    document.positionAt(index + fileTextItem.value.length)
+                );
+                opts.selection = range;
+
+                // 更新书签位置范围
+                if (fileTextItem.createdLocation) {
+                    fileTextItem.createdLocation.range = range;
+                }
+            }
+        }
+    }
+
+    manager.updateFileTextByItem(fileTextItem);
+
+    vscode.window.showTextDocument(document, opts);
 }

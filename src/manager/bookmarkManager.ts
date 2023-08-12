@@ -1,4 +1,4 @@
-import * as path from "path";
+import * as vscode from "vscode";
 import { AbstractManager as AbstractManager } from "./abstractManager";
 import { IFileTextItem, fileTextLocationCompare } from "./common";
 
@@ -11,6 +11,11 @@ export class BookmarkManager extends AbstractManager {
 
     public getConfigName(): string {
         return "BookmarkManager";
+    }
+
+    protected get maxfileTexts(): number {
+        const config = vscode.workspace.getConfiguration(this.getConfigName());
+        return config.get("maxfileTexts", 10000);
     }
 
     protected get moveToTop(): boolean {

@@ -13,8 +13,8 @@ export class BookmarkItem extends vscode.TreeItem {
         this.label = this.bookmark.value.replace(/\s+/g, " ").trim();
         this.tooltip = this.bookmark.value;
 
-        this.command = {
-            command: commandList.showBookmarkInFile,
+        this.command = { // 当选择本项目时，触发的命令
+            command: commandList.showBookmarkInFile, 
             "title": "Show in the file",
             tooltip: "Show in the file",
             arguments: [null, this.bookmark],
