@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { commandList } from "../global";
-import { leftPad, pathEqual } from "../util/util";
+import { pathEqual } from "../util/util";
 import { IFileTextItem } from "../manager/common";
 import { AbstractManager } from "../manager/abstractManager";
 
@@ -14,7 +14,7 @@ export class BookmarkItem extends vscode.TreeItem {
         this.tooltip = this.bookmark.value;
 
         this.command = { // 当选择本项目时，触发的命令
-            command: commandList.showBookmarkInFile, 
+            command: commandList.showBookmarkInFile,
             "title": "Show in the file",
             tooltip: "Show in the file",
             arguments: [null, this.bookmark],
@@ -67,6 +67,7 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
             }
 
             let filePath = doc.fileName;
+            // todo: 这里拿不到当前光标下所在的单词。就无法将bookmart树，高亮指定的书签。只能随便选一个
             this.autoSelectCurrentFileItems(filePath)
         })
     }
@@ -97,12 +98,12 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
     }
 
     private getOneTreeItemByPath(filePath: string) {
-        let tmp = this.data.find((x: BookmarkItem) => {
+        for (var i = this.data.length - 1; i >= 0; i--) {
+            let x = this.data[i];
             if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
                 return x;
             }
-        });
-        return tmp;
+        }
     }
 
     getParent(element: BookmarkItem): vscode.ProviderResult<BookmarkItem> {
@@ -122,11 +123,12 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
         // todo: 以文件为父节点，书签为叶子节点显示
         const childs = bookmarks.map((c, index) => {
             const item = new BookmarkItem(c);
-            const indexNumber = leftPad(index + 1, maxLength, "0");
+            // const indexNumber = leftPad(index + 1, maxLength, "0");
+            const indexNumber = index + 1;
 
-            if (c.param) {
+            if (c.param) { // 快速书签
                 item.label = `${c.param}) ${item.label}`;
-            } else {
+            } else { // 普通书签
                 item.label = `${indexNumber}) ${item.label}`;
             }
 

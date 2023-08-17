@@ -1,14 +1,11 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import { IFileTextChange, IFileTextItem, fileTextLocationCompare } from "./common";
+import { IFileTextItem, fileTextLocationCompare } from "./common";
 import { decoration } from '../util/decorationUtil';
-import { isOpenPathlegal, pathEqual } from '../util/util';
 import { AbstractManager } from './abstractManager';
-import { GIT_EXT } from '../global';
+import { pathEqual } from '../util/util';
 
 export class QuickBookmarkManager extends AbstractManager {
-    private searchedSet = new Set<IFileTextItem>();
+    private searchedSet = new Set<IFileTextItem>(); // 已搜索过的项目。用来对t的循环跳转
 
     protected init() {
         this.onDidChangeFileTextList((item: IFileTextItem) => {
