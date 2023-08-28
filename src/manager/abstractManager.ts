@@ -113,13 +113,6 @@ export abstract class AbstractManager implements vscode.Disposable {
         this.fireAndSave(newItem)
     }
 
-    private hdlMoveIndexToTop(index: number) {
-        if (this.moveToTop) {
-            const deleted = this.fileTexts.splice(index, 1); // 删除index处一个元素，即将当前元素删除
-            this._fileTexts.unshift(...deleted); // 重新插入
-        }
-    }
-
     public async updateFileText(value: string) {
         let item = this.getFileText(value)
         if (item) {
@@ -141,6 +134,13 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         this.hdlMoveIndexToTop(index)
         this.fireAndSave(item)
+    }
+
+    private hdlMoveIndexToTop(index: number) {
+        if (this.moveToTop) {
+            const deleted = this.fileTexts.splice(index, 1); // 删除index处一个元素，即将当前元素删除
+            this._fileTexts.unshift(...deleted); // 重新插入
+        }
     }
 
     public getFileText(value: string): IFileTextItem | null {
@@ -203,23 +203,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         return filePath;
     }
 
-    private jsonReplacer(key: string, value: any) {
-        if (key === "createdLocation" && value) {
-            value = {
-                range: {
-                    start: value.range.start,
-                    end: value.range.end,
-                },
-                uri: value.uri.toString(),
-            };
-        } else if (value instanceof vscode.Uri) {
-            value = value.toString();
-        }
-
-        return value;
-    }
-
-    protected fireAndSave(item:IFileTextItem|undefined) {
+    protected fireAndSave(item: IFileTextItem | undefined) {
         this.isFileDirty = true;
         this._onDidFileTextListChange.fire(item);
     }
@@ -243,13 +227,29 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         let json = "[]";
         try {
+            let jsonReplacer = (key: string, value: any) => {
+                if (key === "createdLocation" && value) {
+                    value = {
+                        range: {
+                            start: value.range.start,
+                            end: value.range.end,
+                        },
+                        uri: value.uri.toString(),
+                    };
+                } else if (value instanceof vscode.Uri) {
+                    value = value.toString();
+                }
+
+                return value;
+            }
+
             json = JSON.stringify(
                 {
                     version: CUR_VERSION,
-                    count:this._fileTexts.length,
+                    count: this._fileTexts.length,
                     fileTexts: this._fileTexts,
                 },
-                this.jsonReplacer,
+                jsonReplacer,
                 2
             );
         } catch (error) {

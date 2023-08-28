@@ -133,5 +133,10 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
 
     manager.updateFileTextByItem(fileTextItem);
 
+    // 光标移到单词的开头
+    opts.selection = new vscode.Range(
+        opts.selection.start,
+        opts.selection.start,
+    )
     vscode.window.showTextDocument(document, opts);
 }
