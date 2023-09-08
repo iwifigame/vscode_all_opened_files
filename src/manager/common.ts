@@ -47,6 +47,7 @@ export function createChange(editor: vscode.TextEditor | undefined, value: strin
     return change
 }
 
+// 先按文件名排序；再按所在位置排序
 export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
     let ta = a.createdLocation?.uri.path;
     let tb = b.createdLocation?.uri.path;

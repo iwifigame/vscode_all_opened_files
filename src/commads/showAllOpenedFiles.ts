@@ -39,8 +39,8 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     }
 
     protected async execute() {
-        let quickPickItems = this.buildFileQuickPickItems(this._manager.fileTexts);
-        vscode.window.showQuickPick(quickPickItems, {
+        let picks = this.createPicks();
+        vscode.window.showQuickPick(picks, {
             canPickMany: false,
             placeHolder: ""
         }).then(item => {
@@ -61,6 +61,70 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
                 });
             }
         });
+    }
+
+    private createPicks(): FileQuickPickItem[] {
+        const fileTexts = this._manager.fileTexts;
+
+        const picks = fileTexts.map((fileText, i) => {
+            const item: FileQuickPickItem = {
+                fileTextItem: fileText,
+                label: "",
+            };
+            return item;
+        });
+
+        picks.sort((a: FileQuickPickItem, b: FileQuickPickItem) => {
+            let ta = a.fileTextItem.updateCount;
+            let tb = b.fileTextItem.updateCount;
+            return tb - ta;
+        });
+
+        picks.forEach((pick, i) => {
+            const fileText = pick.fileTextItem;
+            const dirName = path.dirname(fileText.value)
+            const baseName = path.basename(fileText.value)
+
+            const label = i.toString() + ") " + baseName;
+            let description = dirName;
+            let updateCountStr = "  " + fileText.updateCount.toString();
+
+            // 调整宽度与显示
+            const cfgWidth = config.itemWidth;
+            const prefix = "...";
+            const tmpWidth = label.length + description.length + updateCountStr.length
+            if (tmpWidth > cfgWidth) {
+                let charToFind = "\\";
+                let firstPosition = description.indexOf(charToFind);
+                let secondPosition = -1;
+                if (firstPosition != -1) { // 如果找到了指定字符
+                    secondPosition = description.indexOf(charToFind, firstPosition + 1);
+                    if (secondPosition != -1) { // 如果找到了第二个指定字符
+                        secondPosition++;
+                    } else {
+                        secondPosition = 10;
+                    }
+                } else {
+                    secondPosition = 10;
+                }
+
+                let tle = cfgWidth - label.length - prefix.length - updateCountStr.length
+                if (tle > 0) {
+                    let toDeleteLen = description.length - tle;
+                    description = description.substring(0, secondPosition) + prefix + description.substring(secondPosition + toDeleteLen) + updateCountStr;
+                    // description = prefix + description.slice(-tle) + updateCountStr;
+                } else {
+                    description = prefix + description + updateCountStr
+                }
+            } else {
+                description = description + updateCountStr
+            }
+
+            pick.label = label;
+            pick.description = description;
+        });
+
+        return picks;
     }
 
     private setupConfg() {
@@ -161,43 +225,6 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
         });
     }
 
-    private buildFileQuickPickItems(fileTexts: Array<IFileTextItem>): FileQuickPickItem[] {
-        let count = fileTexts.length
-
-        const items = fileTexts.map((fileText, i) => {
-            const dirName = path.dirname(fileText.value)
-            const baseName = path.basename(fileText.value)
-
-            const label = i.toString() + ") " + baseName;
-            let description = dirName;
-            let updateCountStr = "  " + fileText.updateCount.toString();
-
-            // 调整宽度与显示
-            const cfgWidth = config.itemWidth;
-            const prefix = "   ...";
-            const tmpWidth = label.length + description.length + updateCountStr.length
-            if (tmpWidth > cfgWidth) {
-                const wholeWidth = label.length + description.length + prefix.length + updateCountStr.length
-                let tle = cfgWidth - label.length - prefix.length - updateCountStr.length
-                if (tle > 0) {
-                    description = prefix + description.slice(-tle) + updateCountStr;
-                } else {
-                    description = prefix + description + updateCountStr
-                }
-            } else {
-                description = description + updateCountStr
-            }
-
-            let item = {
-                fileTextItem: fileText,
-                label: label,
-                description: description,
-            } as FileQuickPickItem;
-            return item
-        });
-
-        return items;
-    }
 
     public dispose() {
         this._disposable.forEach(d => d.dispose());

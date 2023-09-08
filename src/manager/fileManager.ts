@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { AbstractManager } from "./abstractManager";
+import { IFileTextItem, fileTextLocationCompare } from "./common";
 
 export class FileManager extends AbstractManager {
     getConfigName(): string {

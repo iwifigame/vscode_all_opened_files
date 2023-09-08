@@ -23,7 +23,6 @@ export class ShowBookmarksCommand implements vscode.Disposable {
 
     protected async execute() {
         const picks = this.createPicks();
-
         const options: vscode.QuickPickOptions = {
             canPickMany: false,
             placeHolder: ""
