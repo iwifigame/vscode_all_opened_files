@@ -1,6 +1,6 @@
-import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
+import * as vscode from "vscode";
 import { GIT_EXT } from "../global";
 
 export interface IDisposable {
@@ -11,15 +11,15 @@ export function toDisposable(dispose: () => void): IDisposable {
     return { dispose };
 }
 
-export function leftPad(
-    value: string | number,
-    size: number,
-    char: string = " "
+// 左填充。
+// @param value: 内容
+// @param size: 总宽度
+// @param char: 填充字符 
+// @example: leftPad(8, 3, "0") = "008"
+export function leftPad(value: string | number, size: number, char: string = " "
 ) {
-    const chars = char.repeat(size);
-
-    const paddedNumber = `${chars}${value}`.substr(-chars.length);
-
+    const chars = char.repeat(size); // 创建填充字符
+    const paddedNumber = `${chars}${value}`.slice(-chars.length); // 将填充字符与内容连接，然后去除多余的字符
     return paddedNumber;
 }
 
@@ -60,6 +60,7 @@ export function pathEqual(a: string | undefined, b: string | undefined): boolean
     return a === b || simplePath(a) === simplePath(b)
 }
 
+// 将路径中“/\.”等全移除，因为win/linux各个平台不同
 function simplePath(path: string): string {
     const replace: [RegExp, string][] = [
         // [/\\/g, '/'],

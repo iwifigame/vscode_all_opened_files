@@ -1,11 +1,11 @@
-import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
+import * as vscode from "vscode";
 import { getStoreFolder } from "../global";
-import { IFileTextItem, IFileTextChange } from "./common";
+import { IFileTextChange, IFileTextItem } from "./common";
 
 const CUR_VERSION = 3;
-const SAVE_FILE_TIME_GAP = 1000 * 10
+const SAVE_FILE_TIME_GAP = 1000 * 10 // 每10s保存一次文件
 
 export abstract class AbstractManager implements vscode.Disposable {
     protected _disposable: vscode.Disposable[] = [];

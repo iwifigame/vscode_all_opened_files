@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { GIT_EXT, commandList, getStoreFolder } from '../global';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
-import { IFileTextItem, createChange } from '../manager/common';
+import { IFileTextItem, createTextChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
 import { isOpenPathlegal } from '../util/util';
 
@@ -10,7 +10,8 @@ import { isOpenPathlegal } from '../util/util';
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
 
 interface FileQuickPickItem extends vscode.QuickPickItem {
-    fileTextItem: IFileTextItem
+    fileTextItem: IFileTextItem;
+    weight: number;
 }
 
 export class ShowAllOpenedFilesCommand implements vscode.Disposable {
@@ -67,17 +68,25 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
         const fileTexts = this._manager.fileTexts;
 
         const picks = fileTexts.map((fileText, i) => {
+            let weight = 0;
+            if (i < 10) {
+                weight = 10000 * (10 - i) + fileText.updateCount;
+            } else {
+                weight = fileText.updateCount;
+            }
             const item: FileQuickPickItem = {
                 fileTextItem: fileText,
                 label: "",
+                weight: weight,
             };
             return item;
         });
 
         picks.sort((a: FileQuickPickItem, b: FileQuickPickItem) => {
-            let ta = a.fileTextItem.updateCount;
-            let tb = b.fileTextItem.updateCount;
-            return tb - ta;
+            // let ta = a.fileTextItem.updateCount;
+            // let tb = b.fileTextItem.updateCount;
+            // return tb - ta;
+            return b.weight - a.weight;
         });
 
         picks.forEach((pick, i) => {
@@ -149,7 +158,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
                 this._manager.updateFileText(filePath);
             } else {
                 const editor = vscode.window.activeTextEditor
-                const change = createChange(editor, filePath);
+                const change = createTextChange(editor, filePath);
                 this._manager.addFileText(change);
             }
         })

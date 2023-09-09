@@ -9,6 +9,7 @@ export function getStoreFolder() {
 export enum commandList {
     showAllOpenedFiles = "AllOpenedFiles.showAllOpenedFiles",
     quickOpen = "AllOpenedFiles.quickOpen",
+
     insertLineNumber = "AllOpenedFiles.insertLineNumber",
 
     pickAndPaste = "ClipManager.pickAndPaste",

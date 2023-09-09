@@ -21,7 +21,7 @@ export interface IFileTextChange {
     createdLocation?: vscode.Location;
 }
 
-export function createChange(editor: vscode.TextEditor | undefined, value: string): IFileTextChange {
+export function createTextChange(editor: vscode.TextEditor | undefined, value: string): IFileTextChange {
     const change: IFileTextChange = {
         value: value,
         createdAtString: new Date().toLocaleString(),
@@ -32,15 +32,16 @@ export function createChange(editor: vscode.TextEditor | undefined, value: strin
         return change
     }
 
-    if (vscode.window.state.focused) {
-        change.language = doc.languageId;
+    change.language = doc.languageId;
+    change.createdLocation = {
+        range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0)),
+        uri: doc.uri,
+    };
 
+    if (vscode.window.state.focused) {
         if (editor.selection) {
             const selection = editor.selection;
-            change.createdLocation = {
-                range: new vscode.Range(selection.start, selection.end),
-                uri: editor.document.uri,
-            };
+            change.createdLocation.range = new vscode.Range(selection.start, selection.end);
         }
     }
 

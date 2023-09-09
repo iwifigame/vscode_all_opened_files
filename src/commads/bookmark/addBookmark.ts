@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import { commandList } from "../../global";
-import { getWordAtCursor } from "../../util/util";
-import { decoration } from "../../util/decorationUtil";
 import { BookmarkManager } from "../../manager/bookmarkManager";
+import { IFileTextChange, createTextChange } from "../../manager/common";
 import { QuickBookmarkManager } from "../../manager/quickBookmarkManager";
-import { IFileTextChange, createChange } from "../../manager/common";
+import { decoration } from "../../util/decorationUtil";
+import { getWordAtCursor } from "../../util/util";
 
 export class AddBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
@@ -19,7 +19,11 @@ export class AddBookmarkCommand implements vscode.Disposable {
         );
     }
 
-    // @param mark: 当前光标所在单词，对应的标签:如a,b,c...
+    public dispose() {
+        this._disposable.forEach(d => d.dispose());
+    }
+
+    // @param mark: 当前光标所在单词对应的标签:如a,b,c...
     // 有mark则添加到quick bookmark中，否则添加到默认的bookmark中
     protected async execute(mark: string) {
         const editor = vscode.window.activeTextEditor;
@@ -40,14 +44,17 @@ export class AddBookmarkCommand implements vscode.Disposable {
         let range: vscode.Range | undefined;
         if (!text) {
             text = getWordAtCursor(editor);
-            if (!text) {
+            if (!text) { // 没有单词，则使用整行
                 const cursorPosition = editor.selection.active;
-                text = editor.document.lineAt(cursorPosition.line).text;
+                text = editor.document.lineAt(cursorPosition.line).text.trim();
+                // range = editor.document.lineAt(cursorPosition.line).range;
+            } else {
+                // 得到当前光标处的单词范围
+                range = editor.document.getWordRangeAtPosition(editor.selection.active);
             }
-            range = editor.document.getWordRangeAtPosition(editor.selection.active);
         }
 
-        const change = createChange(editor, text);
+        const change = createTextChange(editor, text);
         if (range && change.createdLocation) {
             change.createdLocation.range = range
         }
@@ -66,7 +73,4 @@ export class AddBookmarkCommand implements vscode.Disposable {
         }
     }
 
-    public dispose() {
-        this._disposable.forEach(d => d.dispose());
-    }
 }

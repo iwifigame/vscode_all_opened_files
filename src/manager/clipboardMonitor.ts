@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { BaseClipboard } from "./clipboard";
 import { toDisposable } from "../util/util";
+import { BaseClipboard } from "./clipboard";
 import { IFileTextChange } from "./common";
 
 // 监视器：每500ms监视剪贴板内容的改变
