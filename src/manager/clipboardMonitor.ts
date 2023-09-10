@@ -104,7 +104,6 @@ export class ClipboardMonitor implements vscode.Disposable {
         }
 
         // 创建剪贴板内容修改对象
-        // todo 使用统一的方法
         const change: IFileTextChange = {
             value: newText,
             createdAtString: new Date().toLocaleString(),

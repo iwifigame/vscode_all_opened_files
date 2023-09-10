@@ -1,9 +1,9 @@
-import * as vscode from "vscode";
 import * as path from "path";
+import * as vscode from "vscode";
 import { commandList } from "../global";
-import { pathEqual } from "../util/util";
-import { IFileTextItem } from "../manager/common";
 import { AbstractManager } from "../manager/abstractManager";
+import { IFileTextItem } from "../manager/common";
+import { createIconPath, pathEqual } from "../util/util";
 
 export class BookmarkItem extends vscode.TreeItem {
     constructor(readonly bookmark: IFileTextItem) {
@@ -27,12 +27,7 @@ export class BookmarkItem extends vscode.TreeItem {
             this.description = path.basename(this.resourceUri.path) + "---" + bookmark.updateCount;
         } else {
             // 设置项目前面的图标
-            const basePath = path.join(__filename, "..", "..", "..", "resources");
-
-            this.iconPath = {
-                light: path.join(basePath, "light", "string.svg"),
-                dark: path.join(basePath, "dark", "string.svg"),
-            };
+            this.iconPath = createIconPath("string.svg");
         }
     }
 }
@@ -67,7 +62,7 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
             }
 
             let filePath = doc.fileName;
-            // todo: 这里拿不到当前光标下所在的单词。就无法将bookmart树，高亮指定的书签。只能随便选一个
+            // 这里拿不到当前光标下所在的单词。就无法将bookmart树，高亮指定的书签。只能随便选一个
             this.autoSelectCurrentFileItems(filePath)
         })
     }
@@ -120,7 +115,6 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
         const maxLength = `${bookmarks.length}`.length;
 
         // 创建树中的子节点
-        // todo: 以文件为父节点，书签为叶子节点显示
         const childs = bookmarks.map((c, index) => {
             const item = new BookmarkItem(c);
             // const indexNumber = leftPad(index + 1, maxLength, "0");

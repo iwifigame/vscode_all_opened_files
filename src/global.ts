@@ -1,3 +1,5 @@
+import * as path from "path";
+
 let storeFolder: string;
 export function setStoreFolder(folder: string) {
     storeFolder = folder;
@@ -5,6 +7,9 @@ export function setStoreFolder(folder: string) {
 export function getStoreFolder() {
     return storeFolder;
 }
+
+export const PROJECT_ROOT = path.join(__filename, "..", "..");
+export const RESOURCES_ROOT = path.join(PROJECT_ROOT, "resources");
 
 export enum commandList {
     showAllOpenedFiles = "AllOpenedFiles.showAllOpenedFiles",

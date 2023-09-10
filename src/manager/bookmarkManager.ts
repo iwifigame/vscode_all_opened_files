@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { AbstractManager as AbstractManager } from "./abstractManager";
+import { AbstractManager } from "./abstractManager";
 import { IFileTextItem, fileTextLocationCompare } from "./common";
 
 export class BookmarkManager extends AbstractManager {
@@ -35,6 +35,7 @@ export class BookmarkManager extends AbstractManager {
         return false
     }
 
+    // 对书签排序。决定了书签树中的顺序
     private sortBookmarks() {
         this._fileTexts.sort((a: IFileTextItem, b: IFileTextItem) => {
             return fileTextLocationCompare(a, b)

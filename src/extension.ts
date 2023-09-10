@@ -30,7 +30,7 @@ import { ShowBookmarksCommand } from "./commads/bookmark/showBookmarks";
 import { BookmarkManager } from "./manager/bookmarkManager";
 import { QuickBookmarkManager } from "./manager/quickBookmarkManager";
 import { BookmarkTreeDataProvider } from "./tree/bookmarkTree";
-import { DEBUG, ERROR, FATAL, INFO, WARN, log } from "./util/logger";
+import { DEBUG, ERROR, FATAL, INFO, TRACE, WARN, log } from "./util/logger";
 
 let fileManager: FileManager;
 let clipboardManager: ClipboardManager;
@@ -58,15 +58,16 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 function testLog() {
+    console.log("------------ testLog start ------------ ");
     // setLogLevel(LogLevel.TRACE);
-    // TRACE("111111111111111111111");
+    TRACE("111111111111111111111");
     DEBUG("111111111111111111111");
     log("111111111111111111111");
     INFO("111111111111111111111");
     WARN("111111111111111111111");
     ERROR("111111111111111111111");
     FATAL("111111111111111111111");
-    console.log("2222222222222222222");
+    console.log("------------ testLog end ------------ ");
 }
 
 function setExtensionStoreFolder(context: vscode.ExtensionContext) {

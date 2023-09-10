@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { IFileTextItem, fileTextLocationCompare } from "./common";
 import { decoration } from '../util/decorationUtil';
-import { AbstractManager } from './abstractManager';
 import { pathEqual } from '../util/util';
+import { AbstractManager } from './abstractManager';
+import { IFileTextItem, fileTextLocationCompare } from "./common";
 
 export class QuickBookmarkManager extends AbstractManager {
     private searchedSet = new Set<IFileTextItem>(); // 已搜索过的项目。用来对t的循环跳转
@@ -115,7 +115,7 @@ export class QuickBookmarkManager extends AbstractManager {
     }
 
     protected isFileTextItemEqual(a: IFileTextItem, b: IFileTextItem): boolean {
-        if (a.param == "t" || b.param == "t") { // t用来快速添加可重复的临时标签，可用来作为添加todo等用途
+        if (a.param == "t" || b.param == "t") { // t为可重复添加的的特殊标签
             return false
         }
 

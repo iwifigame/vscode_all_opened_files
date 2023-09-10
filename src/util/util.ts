@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { GIT_EXT } from "../global";
+import { GIT_EXT, RESOURCES_ROOT } from "../global";
 
 export interface IDisposable {
     dispose(): void;
@@ -97,4 +97,11 @@ export function isOpenPathlegal(filePath: string): boolean {
     }
 
     return true
+}
+
+export function createIconPath(iconName: string) {
+    return {
+        light: path.join(RESOURCES_ROOT, "light", iconName),
+        dark: path.join(RESOURCES_ROOT, "dark", iconName),
+    };
 }

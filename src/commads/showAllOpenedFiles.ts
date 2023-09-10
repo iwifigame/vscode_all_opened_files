@@ -1,10 +1,10 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import { GIT_EXT, commandList, getStoreFolder } from '../global';
+import * as vscode from 'vscode';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
+import { GIT_EXT, commandList } from '../global';
 import { IFileTextItem, createTextChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
-import { isOpenPathlegal } from '../util/util';
+import { createIconPath, isOpenPathlegal } from '../util/util';
 
 // todo: 自动获取宽度
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
@@ -40,27 +40,45 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     }
 
     protected async execute() {
-        let picks = this.createPicks();
-        vscode.window.showQuickPick(picks, {
-            canPickMany: false,
-            placeHolder: ""
-        }).then(item => {
+        let deleteButton: vscode.QuickInputButton = {
+            iconPath: createIconPath("remove.svg"),
+            tooltip: "delete",
+        };
+
+        let quickPick = vscode.window.createQuickPick();
+        quickPick.items = this.createPicks();
+        quickPick.buttons = [deleteButton];
+        quickPick.onDidAccept(() => {
+            quickPick.hide();
+            const item = quickPick.selectedItems[0] as FileQuickPickItem;
             if (item) {
-                // console.log(`execshowAllOpenedFiles: ${item.fileName}`);
-                const path = item.fileTextItem.value;
-                const options = {
-                    selection: item.fileTextItem.createdLocation?.range,
-                    // 是否预览，默认true，预览的意思是下次再打开文件是否会替换当前文件
-                    // preview: false,
-                    // 显示在第二个编辑器
-                    // viewColumn: vscode.ViewColumn.Two
-                };
-                vscode.window.showTextDocument(vscode.Uri.file(path), options).then((editor) => {
-                    // this._manager.updateFileText(path);
-                }, (err) => {
-                    this._manager.removeFileText(path)
-                });
+                this.showPickItem(item);
             }
+        });
+        quickPick.placeholder = "bookmarks...";
+        quickPick.onDidTriggerButton((e: vscode.QuickInputButton) => {
+            const item = quickPick.activeItems[0] as FileQuickPickItem;
+            if (item) {
+                this._manager.remove(item.fileTextItem);
+                vscode.window.showWarningMessage("delete " + item.fileTextItem.value);
+            }
+        });
+        quickPick.show();
+    }
+
+    private showPickItem(item: FileQuickPickItem) {
+        const path = item.fileTextItem.value;
+        const options = {
+            selection: item.fileTextItem.createdLocation?.range,
+            // 是否预览，默认true，预览的意思是下次再打开文件是否会替换当前文件
+            // preview: false,
+            // 显示在第二个编辑器
+            // viewColumn: vscode.ViewColumn.Two
+        };
+        vscode.window.showTextDocument(vscode.Uri.file(path), options).then((editor) => {
+            // this._manager.updateFileText(path);
+        }, (err) => {
+            this._manager.removeFileText(path)
         });
     }
 
@@ -169,12 +187,12 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             if (!editor) {
                 return
             }
-
+    
             let doc = editor.document
             if (doc == undefined) {
                 return
             }
-
+    
             let item = this._manager.getFileText(doc.fileName);
             if (item) {
                 this._manager.updateFileText(doc.fileName);
