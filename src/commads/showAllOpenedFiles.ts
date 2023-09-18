@@ -6,6 +6,8 @@ import { IFileTextItem, createTextChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
 import { createIconPath, isOpenPathlegal } from '../util/util';
 
+const MAX_RECENT_FILES = 20;
+
 // todo: 自动获取宽度
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
 
@@ -40,6 +42,20 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     }
 
     protected async execute() {
+        /*
+        const qpOptions = { title: "demos of iconPaths", canPickMany: false };
+        let iconPath22 = createIconPath("remove.svg");
+        let iconPath2 = createIconPath("string.svg");
+        const qpItems = [
+            { label: "first item", iconPath: iconPath22, buttons: [deleteButton], },
+            { label: "second item", iconPath: iconPath2 },
+            { label: "third item", iconPath: "C:\\Users\\Mark\\folder-operations\\images\\camera.svg" },
+            { label: "fourth item", iconPath: "C:\\Users\\Mark\\\folder-operations\\images\\github.svg" },
+            { label: "fifth item", iconPath: "C:\\Users\\Mark\\folder-operations\\images\\mail.svg" }
+        ];
+        const selectedItem = await vscode.window.showQuickPick(qpItems, qpOptions);
+        */
+
         let deleteButton: vscode.QuickInputButton = {
             iconPath: createIconPath("remove.svg"),
             tooltip: "delete",
@@ -55,7 +71,8 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
                 this.showPickItem(item);
             }
         });
-        quickPick.placeholder = "bookmarks...";
+        quickPick.placeholder = "Select to open...";
+        quickPick.title = "All Opened Files";
         quickPick.onDidTriggerButton((e: vscode.QuickInputButton) => {
             const item = quickPick.activeItems[0] as FileQuickPickItem;
             if (item) {
@@ -87,8 +104,8 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
 
         const picks = fileTexts.map((fileText, i) => {
             let weight = 0;
-            if (i < 10) {
-                weight = 10000 * (10 - i) + fileText.updateCount;
+            if (i < MAX_RECENT_FILES) {
+                weight = 10000 * (MAX_RECENT_FILES - i) + fileText.updateCount;
             } else {
                 weight = fileText.updateCount;
             }

@@ -40,7 +40,10 @@ let quickBookmarkManager: QuickBookmarkManager;
 export async function activate(context: vscode.ExtensionContext) {
     const disposable: vscode.Disposable[] = [];
 
-    testLog();
+    // handleUncaughtException();
+    // throw new Error('这是一个异常');
+
+    // testLog();
 
     setExtensionStoreFolder(context);
 
