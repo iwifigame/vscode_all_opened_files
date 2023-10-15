@@ -1,7 +1,7 @@
-import * as vscode from "vscode";
-import { ClipboardMonitor } from "./clipboardMonitor";
-import { AbstractManager } from "./abstractManager";
-import { IFileTextItem } from "./common";
+import * as vscode from 'vscode';
+import { ClipboardMonitor } from './clipboardMonitor';
+import { AbstractManager } from './abstractManager';
+import { IFileTextItem } from './common';
 
 export class ClipboardManager extends AbstractManager {
     constructor(protected _monitor: ClipboardMonitor) {
@@ -18,6 +18,6 @@ export class ClipboardManager extends AbstractManager {
     }
 
     getConfigName(): string {
-        return "ClipboardManager";
+        return 'ClipboardManager';
     }
 }

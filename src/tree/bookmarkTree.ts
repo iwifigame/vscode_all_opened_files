@@ -1,42 +1,47 @@
-import * as path from "path";
-import * as vscode from "vscode";
-import { commandList } from "../global";
-import { AbstractManager } from "../manager/abstractManager";
-import { IFileTextItem } from "../manager/common";
-import { createIconPath, pathEqual } from "../util/util";
+import * as path from 'path';
+import * as vscode from 'vscode';
+import { commandList } from '../global';
+import { AbstractManager } from '../manager/abstractManager';
+import { IFileTextItem } from '../manager/common';
+import { createIconPath, pathEqual } from '../util/util';
 
 export class BookmarkItem extends vscode.TreeItem {
     constructor(readonly bookmark: IFileTextItem) {
         super(bookmark.value);
 
-        this.contextValue = "bookmarkItem:";
-        this.label = this.bookmark.value.replace(/\s+/g, " ").trim();
+        this.contextValue = 'bookmarkItem:';
+        this.label = this.bookmark.value.replace(/\s+/g, ' ').trim();
         this.tooltip = this.bookmark.value;
 
-        this.command = { // 当选择本项目时，触发的命令
+        this.command = {
+            // 当选择本项目时，触发的命令
             command: commandList.showBookmarkInFile,
-            "title": "Show in the file",
-            tooltip: "Show in the file",
+            title: 'Show in the file',
+            tooltip: 'Show in the file',
             arguments: [null, this.bookmark],
         };
 
         if (this.bookmark.createdLocation) {
             this.resourceUri = this.bookmark.createdLocation.uri; // 会自动根据后缀设置前面的图标
-            this.contextValue += "file";
+            this.contextValue += 'file';
             this.tooltip = `File: ${this.resourceUri.fsPath}\nValue: ${this.tooltip}\n`;
-            this.description = path.basename(this.resourceUri.path) + "---" + bookmark.updateCount;
+            this.description = path.basename(this.resourceUri.path) + '---' + bookmark.updateCount;
         } else {
             // 设置项目前面的图标
-            this.iconPath = createIconPath("string.svg");
+            this.iconPath = createIconPath('string.svg');
         }
     }
 }
 
-export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<BookmarkItem>, vscode.Disposable {
+export class BookmarkTreeDataProvider
+    implements vscode.TreeDataProvider<BookmarkItem>, vscode.Disposable
+{
     private _disposables: vscode.Disposable[] = [];
 
-    private _onDidChangeTreeData: vscode.EventEmitter<BookmarkItem | null> = new vscode.EventEmitter<BookmarkItem | null>();
-    public readonly onDidChangeTreeData: vscode.Event<BookmarkItem | null> = this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData: vscode.EventEmitter<BookmarkItem | null> =
+        new vscode.EventEmitter<BookmarkItem | null>();
+    public readonly onDidChangeTreeData: vscode.Event<BookmarkItem | null> =
+        this._onDidChangeTreeData.event;
 
     private tree: vscode.TreeView<BookmarkItem> | undefined;
     private data: BookmarkItem[] = [];
@@ -49,22 +54,22 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
 
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             if (!this.tree || !this.tree.visible) {
-                return
+                return;
             }
 
             if (!editor) {
-                return
+                return;
             }
 
-            let doc = editor.document
+            let doc = editor.document;
             if (doc == undefined) {
-                return
+                return;
             }
 
             let filePath = doc.fileName;
             // 这里拿不到当前光标下所在的单词。就无法将bookmart树，高亮指定的书签。只能随便选一个
-            this.autoSelectCurrentFileItems(filePath)
-        })
+            this.autoSelectCurrentFileItems(filePath);
+        });
     }
 
     public setTreeView(t: vscode.TreeView<BookmarkItem>) {
@@ -73,21 +78,21 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
 
     private autoSelectCurrentFileItems(filePath: string) {
         if (!this.tree || !this.tree.visible) {
-            return
+            return;
         }
 
         // 如果当前树中选择的路径和指定路径相同，则不处理
         if (this.tree.selection.length > 0) {
             let cur = this.tree.selection[0];
             if (pathEqual(cur.bookmark.createdLocation?.uri.path, filePath)) {
-                return
+                return;
             }
         }
 
         // 高亮显示当前文件中的标签
         const item = this.getOneTreeItemByPath(filePath);
         if (!item) {
-            return
+            return;
         }
         this.tree.reveal(item, { focus: false, select: true });
     }
@@ -120,12 +125,13 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
             // const indexNumber = leftPad(index + 1, maxLength, "0");
             const indexNumber = index + 1;
 
-            if (c.param) { // 快速书签
+            if (c.param) {
+                // 快速书签
                 item.label = `${c.param}) ${item.label}`;
-            } else { // 普通书签
+            } else {
+                // 普通书签
                 item.label = `${indexNumber}) ${item.label}`;
             }
-
 
             return item;
         });
@@ -136,6 +142,6 @@ export class BookmarkTreeDataProvider implements vscode.TreeDataProvider<Bookmar
     }
 
     public dispose() {
-        this._disposables.forEach(d => d.dispose());
+        this._disposables.forEach((d) => d.dispose());
     }
 }

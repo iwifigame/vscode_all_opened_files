@@ -1,17 +1,13 @@
-import * as vscode from "vscode";
-import { commandList } from "../../global";
-import { ClipboardMonitor } from "../../manager/clipboardMonitor";
+import * as vscode from 'vscode';
+import { commandList } from '../../global';
+import { ClipboardMonitor } from '../../manager/clipboardMonitor';
 
 export class ApiGetMonitor implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
     constructor(protected monitor: ClipboardMonitor) {
         this._disposable.push(
-            vscode.commands.registerCommand(
-                commandList.apiGetMonitor,
-                this.execute,
-                this
-            )
+            vscode.commands.registerCommand(commandList.apiGetMonitor, this.execute, this),
         );
     }
 
@@ -20,6 +16,6 @@ export class ApiGetMonitor implements vscode.Disposable {
     }
 
     public dispose() {
-        this._disposable.forEach(d => d.dispose());
+        this._disposable.forEach((d) => d.dispose());
     }
 }

@@ -18,19 +18,19 @@ let LogLevel = {
     FATAL: 6,
 };
 
-const _LogDateTime = function () { };
+const _LogDateTime = function () {};
 _LogDateTime.toString = function () {
     counter++;
 
-    const d = new Date;
+    const d = new Date();
     // return d.toLocaleString() + `.${d.getMilliseconds()}`;
     return `${counter} ${d.toLocaleTimeString('it-IT')}.${d.getMilliseconds()}`;
 };
 
 function initLogFunc() {
     // 绑定console的函数，只是参数改写，而功能一样。从而可以输出正确的当前行号
-    TRACE = console.trace.bind(console, '%c[%s][TRACE]', "color:green", _LogDateTime);
-    DEBUG = console.debug.bind(console, '%c[%s][DEBUG]', "color:green", _LogDateTime);
+    TRACE = console.trace.bind(console, '%c[%s][TRACE]', 'color:green', _LogDateTime);
+    DEBUG = console.debug.bind(console, '%c[%s][DEBUG]', 'color:green', _LogDateTime);
 
     // log = console.log.bind(console, '%c[%s][LOG]', "color:blue", _LogDateTime);
     // INFO = console.info.bind(console, '%c[%s][INFO]', "color:purple", _LogDateTime);
@@ -39,16 +39,16 @@ function initLogFunc() {
     // FATAL = console.error.bind(console, '%c[%s][FATAL]', 'font-weight:bold;', _LogDateTime);
 
     // 使用下面的，才会输出行号
-    log = console.debug.bind(console, '%c[%s][LOG]', "color:blue", _LogDateTime);
-    INFO = console.debug.bind(console, '%c[%s][INFO]', "color:purple", _LogDateTime);
-    WARN = console.debug.bind(console, '%c[%s][WARN]', "color:yellow", _LogDateTime);
+    log = console.debug.bind(console, '%c[%s][LOG]', 'color:blue', _LogDateTime);
+    INFO = console.debug.bind(console, '%c[%s][INFO]', 'color:purple', _LogDateTime);
+    WARN = console.debug.bind(console, '%c[%s][WARN]', 'color:yellow', _LogDateTime);
     ERROR = console.debug.bind(console, '[%s][ERROR]', _LogDateTime);
     FATAL = console.debug.bind(console, '%c[%s][FATAL]', 'font-weight:bold;', _LogDateTime);
 }
 
 initLogFunc();
 
-function noLog(...data: any) { }
+function noLog(...data: any) {}
 function setLogLevel(level: number) {
     initLogFunc();
 
@@ -77,7 +77,4 @@ function setLogLevel(level: number) {
 
 // setLogLevel(LogLevel.DEBUG);
 
-export {
-    DEBUG, ERROR,
-    FATAL, INFO, LogLevel, TRACE, WARN, log, setLogLevel
-};
+export { DEBUG, ERROR, FATAL, INFO, LogLevel, TRACE, WARN, log, setLogLevel };

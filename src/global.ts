@@ -1,4 +1,4 @@
-import * as path from "path";
+import * as path from 'path';
 
 let storeFolder: string;
 export function setStoreFolder(folder: string) {
@@ -8,31 +8,31 @@ export function getStoreFolder() {
     return storeFolder;
 }
 
-export const PROJECT_ROOT = path.join(__filename, "..", "..");
-export const RESOURCES_ROOT = path.join(PROJECT_ROOT, "resources");
+export const PROJECT_ROOT = path.join(__filename, '..', '..');
+export const RESOURCES_ROOT = path.join(PROJECT_ROOT, 'resources');
 
 export enum commandList {
-    showAllOpenedFiles = "AllOpenedFiles.showAllOpenedFiles",
-    quickOpen = "AllOpenedFiles.quickOpen",
+    showAllOpenedFiles = 'AllOpenedFiles.showAllOpenedFiles',
+    quickOpen = 'AllOpenedFiles.quickOpen',
 
-    insertLineNumber = "AllOpenedFiles.insertLineNumber",
+    insertLineNumber = 'AllOpenedFiles.insertLineNumber',
 
-    pickAndPaste = "ClipManager.pickAndPaste",
-    ringPaste = "ClipManager.ringPaste",
+    pickAndPaste = 'ClipManager.pickAndPaste',
+    ringPaste = 'ClipManager.ringPaste',
 
-    apiGetMonitor = "ClipManager.api.getMonitor",
-    copyToHistory = "ClipManager.copyToHistory",
-    setClipboardValue = "ClipManager.setClipboardValue",
-    showClipboardInFile = "ClipManager.showClipboardInFile",
+    apiGetMonitor = 'ClipManager.api.getMonitor',
+    copyToHistory = 'ClipManager.copyToHistory',
+    setClipboardValue = 'ClipManager.setClipboardValue',
+    showClipboardInFile = 'ClipManager.showClipboardInFile',
 
-    historyTreeDoubleClick = "ClipManager.historyTree.doubleClick",
-    clearClipboardHistory = "ClipManager.history.clear",
-    removeClipboardHistory = "ClipManager.history.remove",
+    historyTreeDoubleClick = 'ClipManager.historyTree.doubleClick',
+    clearClipboardHistory = 'ClipManager.history.clear',
+    removeClipboardHistory = 'ClipManager.history.remove',
 
-    addBookmark = "BookmarkManager.addBookmark",
-    removeBookmark = "BookmarkManager.remove",
-    showBookmarks = "BookmarkManager.showBookmarks",
-    showBookmarkInFile = "BookmarkManager.showBookmarkInFile",
+    addBookmark = 'BookmarkManager.addBookmark',
+    removeBookmark = 'BookmarkManager.remove',
+    showBookmarks = 'BookmarkManager.showBookmarks',
+    showBookmarkInFile = 'BookmarkManager.showBookmarkInFile',
 }
 
-export const GIT_EXT = ".git"
+export const GIT_EXT = '.git';

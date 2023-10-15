@@ -1,36 +1,36 @@
 // "use strict";
-import * as os from "os";
-import * as vscode from "vscode";
-import { setStoreFolder } from "./global";
-import { defaultClipboard } from "./manager/clipboard";
+import * as os from 'os';
+import * as vscode from 'vscode';
+import { setStoreFolder } from './global';
+import { defaultClipboard } from './manager/clipboard';
 
-import { InsertLineNumberCommand } from "./commads/insertLineNumber";
-import { QuickOpenCommand } from "./commads/quickOpen";
-import { ShowAllOpenedFilesCommand } from "./commads/showAllOpenedFiles";
-import { FileManager } from "./manager/fileManager";
+import { InsertLineNumberCommand } from './commads/insertLineNumber';
+import { QuickOpenCommand } from './commads/quickOpen';
+import { ShowAllOpenedFilesCommand } from './commads/showAllOpenedFiles';
+import { FileManager } from './manager/fileManager';
 
-import { ApiGetMonitor } from "./commads/clipboard/apiGetMonitor";
-import { ClearClipboardHistoryCommand } from "./commads/clipboard/clearClipboardHistory";
-import { CopyToHistoryCommand } from "./commads/clipboard/copyToHistory";
-import { HistoryTreeDoubleClickCommand } from "./commads/clipboard/historyTreeDoubleClick";
-import { PickAndPasteCommand } from "./commads/clipboard/pickAndPaste";
-import { RemoveClipboardHistoryCommand } from "./commads/clipboard/removeClipboardHistory";
-import { RingPasteCommand } from "./commads/clipboard/ringPaste";
-import { SetClipboardValueCommand } from "./commads/clipboard/setClipboardValue";
-import { ShowClipboardInFileCommand } from "./commads/clipboard/showClipboardInFile";
-import { ClipboardCompletion } from "./manager/clipboardCompletion";
-import { ClipboardManager } from "./manager/clipboardManager";
-import { ClipboardMonitor } from "./manager/clipboardMonitor";
-import { ClipboardTreeDataProvider } from "./tree/clipboardTree";
+import { ApiGetMonitor } from './commads/clipboard/apiGetMonitor';
+import { ClearClipboardHistoryCommand } from './commads/clipboard/clearClipboardHistory';
+import { CopyToHistoryCommand } from './commads/clipboard/copyToHistory';
+import { HistoryTreeDoubleClickCommand } from './commads/clipboard/historyTreeDoubleClick';
+import { PickAndPasteCommand } from './commads/clipboard/pickAndPaste';
+import { RemoveClipboardHistoryCommand } from './commads/clipboard/removeClipboardHistory';
+import { RingPasteCommand } from './commads/clipboard/ringPaste';
+import { SetClipboardValueCommand } from './commads/clipboard/setClipboardValue';
+import { ShowClipboardInFileCommand } from './commads/clipboard/showClipboardInFile';
+import { ClipboardCompletion } from './manager/clipboardCompletion';
+import { ClipboardManager } from './manager/clipboardManager';
+import { ClipboardMonitor } from './manager/clipboardMonitor';
+import { ClipboardTreeDataProvider } from './tree/clipboardTree';
 
-import { AddBookmarkCommand } from "./commads/bookmark/addBookmark";
-import { RemoveBookmarkCommand } from "./commads/bookmark/removeBookmark";
-import { ShowBookmarkInFileCommand } from "./commads/bookmark/showBookmarkInfile";
-import { ShowBookmarksCommand } from "./commads/bookmark/showBookmarks";
-import { BookmarkManager } from "./manager/bookmarkManager";
-import { QuickBookmarkManager } from "./manager/quickBookmarkManager";
-import { BookmarkTreeDataProvider } from "./tree/bookmarkTree";
-import { DEBUG, ERROR, FATAL, INFO, TRACE, WARN, log } from "./util/logger";
+import { AddBookmarkCommand } from './commads/bookmark/addBookmark';
+import { RemoveBookmarkCommand } from './commads/bookmark/removeBookmark';
+import { ShowBookmarkInFileCommand } from './commads/bookmark/showBookmarkInfile';
+import { ShowBookmarksCommand } from './commads/bookmark/showBookmarks';
+import { BookmarkManager } from './manager/bookmarkManager';
+import { QuickBookmarkManager } from './manager/quickBookmarkManager';
+import { BookmarkTreeDataProvider } from './tree/bookmarkTree';
+import { DEBUG, ERROR, FATAL, INFO, TRACE, WARN, log } from './util/logger';
 
 let fileManager: FileManager;
 let clipboardManager: ClipboardManager;
@@ -61,16 +61,16 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 function testLog() {
-    console.log("------------ testLog start ------------ ");
+    console.log('------------ testLog start ------------ ');
     // setLogLevel(LogLevel.TRACE);
-    TRACE("111111111111111111111");
-    DEBUG("111111111111111111111");
-    log("111111111111111111111");
-    INFO("111111111111111111111");
-    WARN("111111111111111111111");
-    ERROR("111111111111111111111");
-    FATAL("111111111111111111111");
-    console.log("------------ testLog end ------------ ");
+    TRACE('111111111111111111111');
+    DEBUG('111111111111111111111');
+    log('111111111111111111111');
+    INFO('111111111111111111111');
+    WARN('111111111111111111111');
+    ERROR('111111111111111111111');
+    FATAL('111111111111111111111');
+    console.log('------------ testLog end ------------ ');
 }
 
 function setExtensionStoreFolder(context: vscode.ExtensionContext) {
@@ -87,19 +87,19 @@ function setExtensionStoreFolder(context: vscode.ExtensionContext) {
     setStoreFolder(folder);
 }
 
-function initConfig(disposable: vscode.Disposable[], clipboardMonitor: ClipboardMonitor,) {
+function initConfig(disposable: vscode.Disposable[], clipboardMonitor: ClipboardMonitor) {
     const updateConfig = () => {
-        const config = vscode.workspace.getConfiguration("ClipManager");
-        clipboardMonitor.checkInterval = config.get("checkInterval", 500);
-        clipboardMonitor.onlyWindowFocused = config.get("onlyWindowFocused", true);
-        clipboardMonitor.maxClipboardSize = config.get("maxClipboardSize", 1000000);
+        const config = vscode.workspace.getConfiguration('ClipManager');
+        clipboardMonitor.checkInterval = config.get('checkInterval', 500);
+        clipboardMonitor.onlyWindowFocused = config.get('onlyWindowFocused', true);
+        clipboardMonitor.maxClipboardSize = config.get('maxClipboardSize', 1000000);
     };
     updateConfig();
 
     disposable.push(
         vscode.workspace.onDidChangeConfiguration(
-            e => e.affectsConfiguration("ClipManager") && updateConfig()
-        )
+            (e) => e.affectsConfiguration('ClipManager') && updateConfig(),
+        ),
     );
 }
 
@@ -141,7 +141,7 @@ function initCommand(disposable: vscode.Disposable[], clipboardMonitor: Clipboar
         new ShowBookmarkInFileCommand(bookmarkManager, quickBookmarkManager),
     ];
 
-    list.forEach(element => {
+    list.forEach((element) => {
         disposable.push(element);
     });
 }
@@ -154,20 +154,20 @@ function initCompletion(disposable: vscode.Disposable[]) {
     disposable.push(
         vscode.languages.registerCompletionItemProvider(
             {
-                scheme: "file",
+                scheme: 'file',
             },
-            completion
-        )
+            completion,
+        ),
     );
 
     // All files types (New file)
     disposable.push(
         vscode.languages.registerCompletionItemProvider(
             {
-                scheme: "untitled",
+                scheme: 'untitled',
             },
-            completion
-        )
+            completion,
+        ),
     );
 }
 
@@ -175,21 +175,22 @@ function initTreeView(disposable: vscode.Disposable[]) {
     const clipboardTreeDataProvider = new ClipboardTreeDataProvider(clipboardManager);
     disposable.push(clipboardTreeDataProvider);
     disposable.push(
-        vscode.window.registerTreeDataProvider(
-            "clipboardHistory",
-            clipboardTreeDataProvider
-        )
+        vscode.window.registerTreeDataProvider('clipboardHistory', clipboardTreeDataProvider),
     );
 
     const bookmarkTreeDataProvider = new BookmarkTreeDataProvider(bookmarkManager);
     disposable.push(bookmarkTreeDataProvider);
-    const treeView = vscode.window.createTreeView("bookmark", { treeDataProvider: bookmarkTreeDataProvider });
+    const treeView = vscode.window.createTreeView('bookmark', {
+        treeDataProvider: bookmarkTreeDataProvider,
+    });
     disposable.push(treeView);
     bookmarkTreeDataProvider.setTreeView(treeView);
 
     const quickBookmarkTreeDataProvider = new BookmarkTreeDataProvider(quickBookmarkManager);
     disposable.push(quickBookmarkTreeDataProvider);
-    const quickTreeView = vscode.window.createTreeView("quick bookmark", { treeDataProvider: quickBookmarkTreeDataProvider });
+    const quickTreeView = vscode.window.createTreeView('quick bookmark', {
+        treeDataProvider: quickBookmarkTreeDataProvider,
+    });
     disposable.push(quickTreeView);
     quickBookmarkTreeDataProvider.setTreeView(quickTreeView);
 }
@@ -211,22 +212,24 @@ export function deactivate() {
 }
 
 function getDefaultClipboardMonitor() {
-    defaultClipboard.readText().then((s: string) => {
-    }, (error: Error) => {
-        console.log(error);
-        // Small delay to force show error
-        setTimeout(() => {
-            if (error.message) {
-                vscode.window.showErrorMessage(error.message);
-            } else {
-                vscode.window.showErrorMessage(
-                    "Failed to read value from clipboard, check the console log"
-                );
-            }
-        }, 2000);
-        // Disable clipboard listening
-        defaultClipboard.dispose();
-    });
+    defaultClipboard.readText().then(
+        (s: string) => {},
+        (error: Error) => {
+            console.log(error);
+            // Small delay to force show error
+            setTimeout(() => {
+                if (error.message) {
+                    vscode.window.showErrorMessage(error.message);
+                } else {
+                    vscode.window.showErrorMessage(
+                        'Failed to read value from clipboard, check the console log',
+                    );
+                }
+            }, 2000);
+            // Disable clipboard listening
+            defaultClipboard.dispose();
+        },
+    );
 
     return new ClipboardMonitor(defaultClipboard);
 }

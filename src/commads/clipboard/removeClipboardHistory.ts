@@ -1,18 +1,14 @@
-import * as vscode from "vscode";
-import { ClipHistoryItem } from "../../tree/clipboardTree";
-import { commandList } from "../../global";
-import { ClipboardManager } from "../../manager/clipboardManager";
+import * as vscode from 'vscode';
+import { ClipHistoryItem } from '../../tree/clipboardTree';
+import { commandList } from '../../global';
+import { ClipboardManager } from '../../manager/clipboardManager';
 
 export class RemoveClipboardHistoryCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
     constructor(protected _manager: ClipboardManager) {
         this._disposable.push(
-            vscode.commands.registerCommand(
-                commandList.removeClipboardHistory,
-                this.execute,
-                this
-            )
+            vscode.commands.registerCommand(commandList.removeClipboardHistory, this.execute, this),
         );
     }
 
@@ -25,6 +21,6 @@ export class RemoveClipboardHistoryCommand implements vscode.Disposable {
     }
 
     public dispose() {
-        this._disposable.forEach(d => d.dispose());
+        this._disposable.forEach((d) => d.dispose());
     }
 }

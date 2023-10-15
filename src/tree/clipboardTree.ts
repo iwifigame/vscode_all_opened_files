@@ -1,37 +1,38 @@
-import * as vscode from "vscode";
-import { commandList } from "../global";
-import { ClipboardManager } from "../manager/clipboardManager";
-import { IFileTextItem } from "../manager/common";
-import { createIconPath, leftPad } from "../util/util";
+import * as vscode from 'vscode';
+import { commandList } from '../global';
+import { ClipboardManager } from '../manager/clipboardManager';
+import { IFileTextItem } from '../manager/common';
+import { createIconPath, leftPad } from '../util/util';
 
 export class ClipHistoryItem extends vscode.TreeItem {
     constructor(readonly clip: IFileTextItem) {
         super(clip.value);
 
-        this.contextValue = "clipHistoryItem:";
-        this.label = this.clip.value.replace(/\s+/g, " ").trim(); // 多个空白字符，转成一个空格
+        this.contextValue = 'clipHistoryItem:';
+        this.label = this.clip.value.replace(/\s+/g, ' ').trim(); // 多个空白字符，转成一个空格
         this.tooltip = this.clip.value;
 
         this.command = {
             command: commandList.historyTreeDoubleClick,
-            title: "Paste",
-            tooltip: "Paste",
+            title: 'Paste',
+            tooltip: 'Paste',
             arguments: [this.clip],
         };
 
         if (this.clip.createdLocation) {
             this.resourceUri = this.clip.createdLocation.uri;
-            this.contextValue += "file";
+            this.contextValue += 'file';
 
             this.tooltip = `File: ${this.resourceUri.fsPath}\nValue: ${this.tooltip}\n`;
         } else {
-            this.iconPath = createIconPath("string.svg");
+            this.iconPath = createIconPath('string.svg');
         }
     }
 }
 
 export class ClipboardTreeDataProvider
-    implements vscode.TreeDataProvider<ClipHistoryItem>, vscode.Disposable {
+    implements vscode.TreeDataProvider<ClipHistoryItem>, vscode.Disposable
+{
     private _disposables: vscode.Disposable[] = [];
 
     private _onDidChangeTreeData: vscode.EventEmitter<ClipHistoryItem | null> =
@@ -50,7 +51,7 @@ export class ClipboardTreeDataProvider
     }
 
     public getChildren(
-        _element?: ClipHistoryItem | undefined
+        _element?: ClipHistoryItem | undefined,
     ): vscode.ProviderResult<ClipHistoryItem[]> {
         const clips = this._manager.fileTexts;
 
@@ -58,7 +59,7 @@ export class ClipboardTreeDataProvider
 
         const childs = clips.map((c, index) => {
             const item = new ClipHistoryItem(c);
-            const indexNumber = leftPad(index + 1, maxLength, "0");
+            const indexNumber = leftPad(index + 1, maxLength, '0');
 
             item.label = `${indexNumber}) ${item.label}`;
 
@@ -69,6 +70,6 @@ export class ClipboardTreeDataProvider
     }
 
     public dispose() {
-        this._disposables.forEach(d => d.dispose());
+        this._disposables.forEach((d) => d.dispose());
     }
 }

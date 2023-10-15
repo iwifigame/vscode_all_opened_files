@@ -1,13 +1,13 @@
-import * as vscode from "vscode";
-import { toDisposable } from "../util/util";
-import { BaseClipboard } from "./clipboard";
-import { IFileTextChange } from "./common";
+import * as vscode from 'vscode';
+import { toDisposable } from '../util/util';
+import { BaseClipboard } from './clipboard';
+import { IFileTextChange } from './common';
 
 // 监视器：每500ms监视剪贴板内容的改变
 export class ClipboardMonitor implements vscode.Disposable {
     protected _disposables: vscode.Disposable[] = [];
 
-    protected _previousText: string = "";
+    protected _previousText: string = '';
 
     protected _windowFocused: boolean = true;
 
@@ -38,7 +38,7 @@ export class ClipboardMonitor implements vscode.Disposable {
 
     constructor(readonly clipboard: BaseClipboard) {
         // Update current clipboard to check changes after init
-        this.readText().then(value => {
+        this.readText().then((value) => {
             this._previousText = value;
 
             // Initialize the checkInterval
@@ -49,9 +49,9 @@ export class ClipboardMonitor implements vscode.Disposable {
 
         // Updates the previous value if you change it manually
         this._disposables.push(
-            this.clipboard.onDidWriteText(value => {
+            this.clipboard.onDidWriteText((value) => {
                 this._previousText = value;
-            })
+            }),
         );
 
         this._disposables.push(
@@ -59,23 +59,19 @@ export class ClipboardMonitor implements vscode.Disposable {
                 if (this._timer) {
                     clearInterval(this._timer);
                 }
-            })
+            }),
         );
 
         this._windowFocused = vscode.window.state.focused;
         // Update current clip when window if focused again
-        vscode.window.onDidChangeWindowState(
-            this.onDidChangeWindowState,
-            this,
-            this._disposables
-        );
+        vscode.window.onDidChangeWindowState(this.onDidChangeWindowState, this, this._disposables);
     }
 
     // 从剪贴板中读内容
     protected async readText(): Promise<string> {
         const text = await this.clipboard.readText();
         if (text.length > this.maxClipboardSize) {
-            return "";
+            return '';
         }
         return text;
     }
@@ -130,6 +126,6 @@ export class ClipboardMonitor implements vscode.Disposable {
     }
 
     public dispose() {
-        this._disposables.forEach(d => d.dispose());
+        this._disposables.forEach((d) => d.dispose());
     }
 }

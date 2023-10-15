@@ -1,7 +1,7 @@
-import * as vscode from "vscode";
-import { commandList } from "../../global";
-import { ClipboardManager } from "../../manager/clipboardManager";
-import { IFileTextItem } from "../../manager/common";
+import * as vscode from 'vscode';
+import { commandList } from '../../global';
+import { ClipboardManager } from '../../manager/clipboardManager';
+import { IFileTextItem } from '../../manager/common';
 
 const Start_Index: number = 0;
 
@@ -13,17 +13,13 @@ export class RingPasteCommand implements vscode.Disposable {
 
     constructor(protected _manager: ClipboardManager) {
         this._disposable.push(
-            vscode.commands.registerCommand(
-                commandList.ringPaste,
-                this.execute,
-                this
-            )
+            vscode.commands.registerCommand(commandList.ringPaste, this.execute, this),
         );
     }
 
     protected async execute() {
         let curPasteTime = Date.now();
-        if ((curPasteTime - this.lastPasteTime) > 2000) {
+        if (curPasteTime - this.lastPasteTime > 2000) {
             this.curIndex = Start_Index;
             this.needUndo = false;
         }
@@ -42,13 +38,13 @@ export class RingPasteCommand implements vscode.Disposable {
             const editor = vscode.window.activeTextEditor;
             if (!editor) {
                 // console.log("------------ccccccc 2 ", selected.value);
-                return
+                return;
             }
 
             // 定义替换成选择的剪贴板内容的方法
             const replace = () =>
                 editor.edit(
-                    edit => {
+                    (edit) => {
                         for (const selection of editor.selections) {
                             // console.log("------------ccccccc 333333 ", selected.value);
                             edit.replace(selection, selected.value); // 替换成选择的剪贴板内容
@@ -58,36 +54,43 @@ export class RingPasteCommand implements vscode.Disposable {
                     {
                         undoStopAfter: false,
                         undoStopBefore: false,
-                    }
+                    },
                 );
 
             const selections: vscode.Selection[] = [];
-            if (editor.selections.every(s => s.isEmpty)) { // 没有选择内容处理
-                editor.edit(
-                    edit => {
-                        // console.log("------------ccccccc 5 ", selected.value);
-                        for (const selection of editor.selections) {
-                            edit.insert(selection.start, " ");
-                            selections.push(new vscode.Selection(
-                                selection.start.line,
-                                selection.start.character,
-                                selection.start.line,
-                                selection.start.character + 1
-                            ));
+            if (editor.selections.every((s) => s.isEmpty)) {
+                // 没有选择内容处理
+                editor
+                    .edit(
+                        (edit) => {
+                            // console.log("------------ccccccc 5 ", selected.value);
+                            for (const selection of editor.selections) {
+                                edit.insert(selection.start, ' ');
+                                selections.push(
+                                    new vscode.Selection(
+                                        selection.start.line,
+                                        selection.start.character,
+                                        selection.start.line,
+                                        selection.start.character + 1,
+                                    ),
+                                );
+                            }
+                        },
+                        {
+                            undoStopAfter: false,
+                            undoStopBefore: false,
+                        },
+                    )
+                    .then(() => {
+                        // console.log("------------ccccccc 4 ", selected.value);
+                        if (selections.length > 0) {
+                            editor.selections = selections;
+                            // console.log("------------aaaaaa ", selections);
                         }
-                    },
-                    {
-                        undoStopAfter: false,
-                        undoStopBefore: false,
-                    }
-                ).then(() => {
-                    // console.log("------------ccccccc 4 ", selected.value);
-                    if (selections.length > 0) {
-                        editor.selections = selections;
-                        // console.log("------------aaaaaa ", selections);
-                    }
-                }).then(replace);
-            } else { // 选择了内容，则替换
+                    })
+                    .then(replace);
+            } else {
+                // 选择了内容，则替换
                 // console.log("------------ccccccc 6 ", selected.value);
                 replace();
                 // console.log("------------ccccccc 7 ", selected.value);
@@ -106,6 +109,6 @@ export class RingPasteCommand implements vscode.Disposable {
     }
 
     public dispose() {
-        this._disposable.forEach(d => d.dispose());
+        this._disposable.forEach((d) => d.dispose());
     }
 }

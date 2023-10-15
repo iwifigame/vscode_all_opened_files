@@ -1,6 +1,6 @@
-import * as vscode from "vscode";
-import * as path from "path";
-import { AbstractManager } from "./abstractManager";
+import * as vscode from 'vscode';
+import * as path from 'path';
+import { AbstractManager } from './abstractManager';
 
 export interface IFileTextItem {
     value: string;
@@ -21,15 +21,18 @@ export interface IFileTextChange {
     createdLocation?: vscode.Location;
 }
 
-export function createTextChange(editor: vscode.TextEditor | undefined, value: string): IFileTextChange {
+export function createTextChange(
+    editor: vscode.TextEditor | undefined,
+    value: string,
+): IFileTextChange {
     const change: IFileTextChange = {
         value: value,
         createdAtString: new Date().toLocaleString(),
     };
 
-    let doc = editor?.document
+    let doc = editor?.document;
     if (editor == undefined || doc == undefined) {
-        return change
+        return change;
     }
 
     change.language = doc.languageId;
@@ -45,7 +48,7 @@ export function createTextChange(editor: vscode.TextEditor | undefined, value: s
         }
     }
 
-    return change
+    return change;
 }
 
 // 先按文件名排序；再按所在位置排序
@@ -98,7 +101,8 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
     opts.selection = fileTextItem.createdLocation.range;
 
     const rangeText = document.getText(fileTextItem.createdLocation.range);
-    if (rangeText !== fileTextItem.value) { // 当前书签范围对应的文本与书签不匹配，则查找最近匹配的
+    if (rangeText !== fileTextItem.value) {
+        // 当前书签范围对应的文本与书签不匹配，则查找最近匹配的
         // Find current position of value
         const indexes: number[] = [];
         const text = document.getText();
@@ -111,7 +115,8 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
             lastIndex = text.indexOf(fileTextItem.value, lastIndex + 1);
         }
 
-        if (indexes.length >= 0) { // 找到了
+        if (indexes.length >= 0) {
+            // 找到了
             const offset = document.offsetAt(fileTextItem.createdLocation.range.start);
 
             // 根据离书签原始位置的距离，排序
@@ -121,7 +126,7 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
             if (index >= 0) {
                 const range = new vscode.Range(
                     document.positionAt(index),
-                    document.positionAt(index + fileTextItem.value.length)
+                    document.positionAt(index + fileTextItem.value.length),
                 );
                 opts.selection = range;
 
@@ -136,9 +141,6 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
     manager.updateFileTextByItem(fileTextItem);
 
     // 光标移到单词的开头
-    opts.selection = new vscode.Range(
-        opts.selection.start,
-        opts.selection.start,
-    )
+    opts.selection = new vscode.Range(opts.selection.start, opts.selection.start);
     vscode.window.showTextDocument(document, opts);
 }
