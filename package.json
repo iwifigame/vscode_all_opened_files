@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files, and quick access it.",
     "license": "MIT",
-    "version": "3.1.52",
+    "version": "3.1.55",
     "keywords": [
         "file",
         "clipboard",
@@ -294,9 +294,9 @@
                         "default": 1000000,
                         "description": "Maximum clipboard size in bytes."
                     },
-                    "ClipManager.maxClips": {
+                    "ClipManager.maxfileTexts": {
                         "type": "integer",
-                        "default": 100,
+                        "default": 1000,
                         "description": "Maximum number of clips to save in clipboard"
                     },
                     "ClipManager.moveToTop": {

@@ -184,17 +184,14 @@ export abstract class AbstractManager implements vscode.Disposable {
     }
 
     private getStoreFile() {
-        let folder = getStoreFolder();
-
+        const folder = getStoreFolder();
         const filePath = path.join(folder, '.' + this.getConfigName() + '.json');
 
         const config = vscode.workspace.getConfiguration(this.getConfigName());
         const saveTo = config.get<string | null | boolean>('saveTo');
-
         if (typeof saveTo === 'string') {
             return saveTo;
         }
-
         if (saveTo === false) {
             return false;
         }
