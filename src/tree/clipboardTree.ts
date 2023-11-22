@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { commandList } from '../global';
 import { ClipboardManager } from '../manager/clipboardManager';
 import { IFileTextItem } from '../manager/common';
-import { createIconPath, leftPad } from '../util/util';
+import { createIconPath, dateFormat, leftPad } from '../util/util';
 
 export class ClipHistoryItem extends vscode.TreeItem {
     constructor(readonly clip: IFileTextItem) {
@@ -62,6 +62,8 @@ export class ClipboardTreeDataProvider
             const indexNumber = leftPad(index + 1, maxLength, '0');
 
             item.label = `${indexNumber}) ${item.label}`;
+            let d = new Date(item.clip.createdAtString);
+            item.description = `${dateFormat(d, 'MM-dd hh:mm:ss')}`;
 
             return item;
         });

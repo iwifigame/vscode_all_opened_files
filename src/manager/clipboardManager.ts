@@ -25,4 +25,8 @@ export class ClipboardManager extends AbstractManager {
         const config = vscode.workspace.getConfiguration(this.getConfigName());
         return config.get('maxfileTexts', 1000);
     }
+
+    protected get moveToTop(): boolean {
+        return false;
+    }
 }
