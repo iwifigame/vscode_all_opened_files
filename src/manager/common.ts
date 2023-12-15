@@ -106,6 +106,8 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
     if (rangeText !== fileTextItem.value) {
         updateFileTextItemRange(document, fileTextItem);
         opts.selection = fileTextItem.createdLocation.range;
+    } else {
+        fileTextItem.extraParam = undefined;
     }
 
     manager.updateFileTextByItem(fileTextItem);
@@ -130,6 +132,8 @@ function updateFileTextItemRange(document: vscode.TextDocument, fileTextItem: IF
         // 没有找到
         fileTextItem.extraParam = 'not found';
     } else {
+        fileTextItem.extraParam = undefined;
+
         // 找到了
         const indexes: number[] = []; // 找到的所有位置
 

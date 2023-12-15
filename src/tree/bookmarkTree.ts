@@ -11,9 +11,9 @@ export class BookmarkItem extends vscode.TreeItem {
 
         this.contextValue = 'bookmarkItem:';
         this.label = this.bookmark.value.replace(/\s+/g, ' ').trim(); // 设置label
-        // 如果对应的书签已经不存在了，在前面加 ------
+        // 如果对应的书签已经不存在了，在前面加标示
         if (this.bookmark.extraParam == 'not found') {
-            this.label = '------' + this.label;
+            this.label = '️❌️' + this.label;
         }
         this.tooltip = this.bookmark.value;
 
@@ -50,6 +50,7 @@ export class BookmarkTreeDataProvider
 
     private tree: vscode.TreeView<BookmarkItem> | undefined;
     private data: BookmarkItem[] = [];
+    private curFileData: BookmarkItem[] = [];
 
     constructor(private _manager: AbstractManager) {
         this._manager.onDidChangeFileTextList(() => {
@@ -86,6 +87,15 @@ export class BookmarkTreeDataProvider
             }
 
             let filePath = doc.fileName;
+
+            let tmpData = this.data;
+            for (var i = tmpData.length - 1; i >= 0; i--) {
+                let x = tmpData[i];
+                if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
+                    this.curFileData.push(x);
+                }
+            }
+
             // todo: 怎么拿不到光标下的单词？这里总是拿到第一个单词。原因未知
             let text = getWordAtCursor(editor);
             // log('光标下的单词', text);
@@ -111,12 +121,13 @@ export class BookmarkTreeDataProvider
             }
         }
 
-        let targetItem;
-        let firstItem;
-        for (var i = this.data.length - 1; i >= 0; i--) {
-            let x = this.data[i];
+        let targetItem: BookmarkItem | undefined;
+        let firstItem: BookmarkItem | undefined;
+        let tmpData = this.curFileData;
+        for (var i = tmpData.length - 1; i >= 0; i--) {
+            let x = tmpData[i];
             if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
-                if (!firstItem) {
+                if (firstItem == undefined) {
                     firstItem = x;
                 }
                 if (x.bookmark.value == text) {

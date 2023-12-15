@@ -1,5 +1,5 @@
 # 管理打开过的所有文件
-管理打开过的所有文件，并提供快速访问它们的方法。
+管理打开过的所有文件，并提供快速访问它们的方法。  
 并额外提供：剪贴板历史管理；书签管理。
 
 # 功能
@@ -10,14 +10,14 @@
 * 快速打开文件，并带有参数。
 
 
-# All Opened Files for Visual Studio Code
-Manage all Opened Files, and quick access it.  
-And other: clipboard manager; bookmark manager.
 
-# Features
-* Quick access All opened files.((alt+shift+o))
-* bookmark manager
-* similar vim mark, but can jump cross files use small case, and save.
-* clipboard manager
-* ring paste.(alt+p)
-* Quick open file with args
+# Manage all opened files
+Manage all your open files and provide quick access to them.  
+And additionally provides: clipboard history management; bookmark management.
+
+# Feature
+* Quickly access all opened files: shortcut key (alt+shift+o).
+* Bookmark management. Quickly add bookmarks and access.
+* Mark bookmark. Quickly jump to this bookmark. Similar to vim's bookmarks, but supports cross-files.
+* Clipboard loop pasting: After copying different contents multiple times, use the shortcut key (alt+p) to switch and paste between these contents.
+* Quickly open files with parameters.
