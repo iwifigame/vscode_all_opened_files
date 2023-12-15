@@ -13,10 +13,10 @@ export class ClipHistoryItem extends vscode.TreeItem {
         this.tooltip = this.clip.value;
 
         this.command = {
-            command: commandList.historyTreeDoubleClick,
-            title: 'Paste',
-            tooltip: 'Paste',
-            arguments: [this.clip],
+            command: commandList.showClipboardInFile,
+            title: 'Show in the file',
+            tooltip: 'Show in the file',
+            arguments: [this],
         };
 
         if (this.clip.createdLocation) {

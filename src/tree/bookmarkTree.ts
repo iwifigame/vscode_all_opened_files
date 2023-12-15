@@ -10,7 +10,11 @@ export class BookmarkItem extends vscode.TreeItem {
         super(bookmark.value);
 
         this.contextValue = 'bookmarkItem:';
-        this.label = this.bookmark.value.replace(/\s+/g, ' ').trim();
+        this.label = this.bookmark.value.replace(/\s+/g, ' ').trim(); // 设置label
+        // 如果对应的书签已经不存在了，在前面加 ------
+        if (this.bookmark.extraParam == 'not found') {
+            this.label = '------' + this.label;
+        }
         this.tooltip = this.bookmark.value;
 
         this.command = {

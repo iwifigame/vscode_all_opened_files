@@ -3,14 +3,15 @@ import * as path from 'path';
 import { AbstractManager } from './abstractManager';
 
 export interface IFileTextItem {
-    value: string;
-    param?: string;
-    addCount: number;
-    updateCount: number;
-    language?: string;
-    createdAtString: string;
-    updatedAtString: string;
-    createdLocation?: vscode.Location;
+    value: string; // 内容
+    param?: string; // 参数
+    extraParam?: string; // 额外参数
+    addCount: number; // 添加次数
+    updateCount: number; // 更新次数
+    language?: string; // 语言
+    createdAtString: string; // 创建时间
+    updatedAtString: string; // 更新时间
+    createdLocation?: vscode.Location; // 路径
 }
 
 export interface IFileTextChange {
@@ -87,6 +88,7 @@ export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
     }
 }
 
+// 在文件中显示指定项目
 export async function showFileTextItem(fileTextItem: IFileTextItem, manager: AbstractManager) {
     if (!fileTextItem || !fileTextItem.createdLocation) {
         return;
@@ -102,11 +104,34 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
 
     const rangeText = document.getText(fileTextItem.createdLocation.range);
     if (rangeText !== fileTextItem.value) {
-        // 当前书签范围对应的文本与书签不匹配，则查找最近匹配的
-        // Find current position of value
-        const indexes: number[] = [];
-        const text = document.getText();
-        let lastIndex = text.indexOf(fileTextItem.value); // 找到第一个匹配的索引
+        updateFileTextItemRange(document, fileTextItem);
+        opts.selection = fileTextItem.createdLocation.range;
+    }
+
+    manager.updateFileTextByItem(fileTextItem);
+
+    // 光标移到单词的开头
+    if (opts.selection) {
+        opts.selection = new vscode.Range(opts.selection.start, opts.selection.start);
+    }
+    vscode.window.showTextDocument(document, opts);
+}
+
+// 当前range可能与内容不匹配，则根据内容查找并更新到最适合的range
+function updateFileTextItemRange(document: vscode.TextDocument, fileTextItem: IFileTextItem) {
+    if (!fileTextItem.createdLocation) {
+        return;
+    }
+
+    const text = document.getText(); // 所有文档内容
+
+    let lastIndex = text.indexOf(fileTextItem.value); // 找到第一个匹配的索引
+    if (lastIndex < 0) {
+        // 没有找到
+        fileTextItem.extraParam = 'not found';
+    } else {
+        // 找到了
+        const indexes: number[] = []; // 找到的所有位置
 
         // 查找文档中所有匹配的索引
         while (lastIndex >= 0) {
@@ -115,32 +140,19 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
             lastIndex = text.indexOf(fileTextItem.value, lastIndex + 1);
         }
 
-        if (indexes.length >= 0) {
-            // 找到了
-            const offset = document.offsetAt(fileTextItem.createdLocation.range.start);
+        // 根据离书签原始位置的距离，排序
+        const offset = document.offsetAt(fileTextItem.createdLocation.range.start);
+        indexes.sort((a, b) => Math.abs(a - offset) - Math.abs(b - offset));
 
-            // 根据离书签原始位置的距离，排序
-            indexes.sort((a, b) => Math.abs(a - offset) - Math.abs(b - offset));
+        const index = indexes[0]; // 取最近的一个位置
+        if (index >= 0) {
+            const range = new vscode.Range(
+                document.positionAt(index),
+                document.positionAt(index + fileTextItem.value.length),
+            );
 
-            const index = indexes[0]; // 取最近的一个位置
-            if (index >= 0) {
-                const range = new vscode.Range(
-                    document.positionAt(index),
-                    document.positionAt(index + fileTextItem.value.length),
-                );
-                opts.selection = range;
-
-                // 更新书签位置范围
-                if (fileTextItem.createdLocation) {
-                    fileTextItem.createdLocation.range = range;
-                }
-            }
+            // 更新书签位置范围
+            fileTextItem.createdLocation.range = range;
         }
     }
-
-    manager.updateFileTextByItem(fileTextItem);
-
-    // 光标移到单词的开头
-    opts.selection = new vscode.Range(opts.selection.start, opts.selection.start);
-    vscode.window.showTextDocument(document, opts);
 }

@@ -52,6 +52,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
         const selectedItem = await vscode.window.showQuickPick(qpItems, qpOptions);
         */
 
+        // 在快速输入框的上面会显示标题。并在标题栏的右边显示删除按钮
         let deleteButton: vscode.QuickInputButton = {
             iconPath: createIconPath('remove.svg'),
             tooltip: 'delete',
