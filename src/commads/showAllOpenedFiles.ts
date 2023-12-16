@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
-import { GIT_EXT, commandList } from '../global';
+import { DESCRIPTION_CONNECTOR_SYMBOL, GIT_EXT, commandList } from '../global';
 import { IFileTextItem, createTextChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
 import { createIconPath, isOpenPathlegal } from '../util/util';
@@ -10,11 +10,6 @@ const MAX_RECENT_FILES = 20;
 
 // todo: 自动获取宽度
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
-
-interface FileQuickPickItem extends vscode.QuickPickItem {
-    fileTextItem: IFileTextItem;
-    weight: number;
-}
 
 export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
@@ -131,7 +126,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
 
             const label = i.toString() + ') ' + baseName;
             let description = dirName;
-            let updateCountStr = '  ' + fileText.updateCount.toString();
+            let updateCountStr = DESCRIPTION_CONNECTOR_SYMBOL + fileText.updateCount.toString();
 
             // 调整宽度与显示
             const cfgWidth = config.itemWidth;
@@ -278,4 +273,9 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     public dispose() {
         this._disposable.forEach((d) => d.dispose());
     }
+}
+
+interface FileQuickPickItem extends vscode.QuickPickItem {
+    fileTextItem: IFileTextItem;
+    weight: number;
 }

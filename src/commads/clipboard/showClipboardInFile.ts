@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { ClipHistoryItem } from '../../tree/clipboardTree';
 import { commandList } from '../../global';
 import { ClipboardManager } from '../../manager/clipboardManager';
 import { showFileTextItem } from '../../manager/common';
+import { ClipHistoryItem } from '../../tree/clipboardTree';
 
 export class ShowClipboardInFileCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
@@ -14,13 +14,7 @@ export class ShowClipboardInFileCommand implements vscode.Disposable {
     }
 
     protected async execute(item: ClipHistoryItem) {
-        const clip = item.clip;
-
-        if (!clip.createdLocation) {
-            return;
-        }
-
-        showFileTextItem(clip, this._manager);
+        showFileTextItem(item.clip, this._manager);
     }
 
     public dispose() {

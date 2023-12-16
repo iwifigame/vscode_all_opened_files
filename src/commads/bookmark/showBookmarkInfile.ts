@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { BookmarkManager } from '../../manager/bookmarkManager';
 import { commandList } from '../../global';
+import { BookmarkManager } from '../../manager/bookmarkManager';
 import { IFileTextItem, showFileTextItem } from '../../manager/common';
 import { QuickBookmarkManager } from '../../manager/quickBookmarkManager';
 
@@ -24,7 +24,6 @@ export class ShowBookmarkInFileCommand implements vscode.Disposable {
                 bookmark = tmp;
             }
         }
-
         showFileTextItem(bookmark, this._manager);
     }
 

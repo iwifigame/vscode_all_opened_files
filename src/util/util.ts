@@ -135,3 +135,8 @@ export function dateFormat(date: Date, fmt: string) {
     }
     return fmt;
 }
+
+// 多个空白字符，压缩为一个空格
+export function compressSpaces(text: string): string {
+    return text.replace(/\s+/g, ' ').trim();
+}

@@ -36,3 +36,7 @@ export enum commandList {
 }
 
 export const GIT_EXT = '.git';
+
+export const EXT_PARAM_NOT_FOUND = 'not found';
+
+export const DESCRIPTION_CONNECTOR_SYMBOL = '  ';

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { commandList } from '../global';
-import { ClipboardManager } from './clipboardManager';
 import { leftPad } from '../util/util';
+import { ClipboardManager } from './clipboardManager';
 
 export class ClipboardCompletion implements vscode.CompletionItemProvider {
     constructor(protected manager: ClipboardManager) {}

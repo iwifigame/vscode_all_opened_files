@@ -2,23 +2,7 @@ import * as vscode from 'vscode';
 import { commandList } from '../../global';
 import { ClipboardManager } from '../../manager/clipboardManager';
 import { IFileTextItem } from '../../manager/common';
-import { leftPad } from '../../util/util';
-
-// 剪贴板快速选择项目
-export class ClipPickItem implements vscode.QuickPickItem {
-    public label: string;
-
-    get description() {
-        if (this.clip.updatedAtString) {
-            return this.clip.updatedAtString;
-        }
-    }
-
-    constructor(readonly clip: IFileTextItem) {
-        // 多个空格转成一个空格，并且删除首尾空格
-        this.label = this.clip.value.replace('/s+/g', ' ').trim();
-    }
-}
+import { compressSpaces, leftPad } from '../../util/util';
 
 export class PickAndPasteCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
@@ -40,12 +24,7 @@ export class PickAndPasteCommand implements vscode.Disposable {
 
         // 创建快速选择项目
         const picks = clips.map((c, index) => {
-            const item = new ClipPickItem(c);
-            const indexNumber = leftPad(index + 1, maxLength, '0');
-
-            item.label = `${indexNumber}) ${item.label}`;
-
-            return item;
+            return new ClipQuickPickItem(c, maxLength, index);
         });
 
         // Variable to check changes in document by preview
@@ -63,7 +42,7 @@ export class PickAndPasteCommand implements vscode.Disposable {
         if (preview) {
             // 配置了预览
             // 设置选择事件处理
-            options.onDidSelectItem = async (selected: ClipPickItem) => {
+            options.onDidSelectItem = async (selected: ClipQuickPickItem) => {
                 const editor = vscode.window.activeTextEditor;
                 if (editor) {
                     // 定义替换成选择的剪贴板内容的方法
@@ -151,5 +130,22 @@ export class PickAndPasteCommand implements vscode.Disposable {
 
     public dispose() {
         this._disposable.forEach((d) => d.dispose());
+    }
+}
+
+// 剪贴板快速选择项目
+export class ClipQuickPickItem implements vscode.QuickPickItem {
+    public label: string;
+
+    constructor(readonly clip: IFileTextItem, maxLength: number, index: number) {
+        const indexNumber = leftPad(index + 1, maxLength, '0');
+        const label = `${indexNumber}) ${this.clip.value}`;
+        this.label = compressSpaces(label);
+    }
+
+    get description() {
+        if (this.clip.updatedAtString) {
+            return this.clip.updatedAtString;
+        }
     }
 }

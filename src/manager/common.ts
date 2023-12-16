@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { AbstractManager } from './abstractManager';
+import { EXT_PARAM_NOT_FOUND } from '../global';
 
 export interface IFileTextItem {
     value: string; // 内容
@@ -130,7 +131,7 @@ function updateFileTextItemRange(document: vscode.TextDocument, fileTextItem: IF
     let lastIndex = text.indexOf(fileTextItem.value); // 找到第一个匹配的索引
     if (lastIndex < 0) {
         // 没有找到
-        fileTextItem.extraParam = 'not found';
+        fileTextItem.extraParam = EXT_PARAM_NOT_FOUND;
     } else {
         fileTextItem.extraParam = undefined;
 
