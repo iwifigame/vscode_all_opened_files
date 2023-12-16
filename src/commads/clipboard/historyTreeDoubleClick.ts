@@ -1,7 +1,7 @@
-import * as vscode from "vscode";
-import { commandList } from "../../global";
-import { ClipboardManager } from "../../manager/clipboardManager";
-import { IFileTextChange } from "../../manager/common";
+import * as vscode from 'vscode';
+import { commandList } from '../../global';
+import { ClipboardManager } from '../../manager/clipboardManager';
+import { IFileTextChange } from '../../manager/common';
 
 /**
  * Command to paste from double click on history item
@@ -14,11 +14,7 @@ export class HistoryTreeDoubleClickCommand implements vscode.Disposable {
 
     constructor(protected _manager: ClipboardManager) {
         this._disposable.push(
-            vscode.commands.registerCommand(
-                commandList.historyTreeDoubleClick,
-                this.execute,
-                this
-            )
+            vscode.commands.registerCommand(commandList.historyTreeDoubleClick, this.execute, this),
         );
     }
 
@@ -48,17 +44,13 @@ export class HistoryTreeDoubleClickCommand implements vscode.Disposable {
         await this._manager.updateFileText(clip.value);
 
         // Force to focus on editor to paste command works
-        await vscode.commands.executeCommand(
-            "workbench.action.focusActiveEditorGroup"
-        );
+        await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
 
         // Run default paste
-        return await vscode.commands.executeCommand(
-            "editor.action.clipboardPasteAction"
-        );
+        return await vscode.commands.executeCommand('editor.action.clipboardPasteAction');
     }
 
     public dispose() {
-        this._disposable.forEach(d => d.dispose());
+        this._disposable.forEach((d) => d.dispose());
     }
 }

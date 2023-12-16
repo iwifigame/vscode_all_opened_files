@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { commandList } from "../global";
+import { commandList } from '../global';
 import { InsertLineNumberConfig } from '../config/configuration';
 
 export class InsertLineNumberCommand implements vscode.Disposable {
@@ -7,11 +7,7 @@ export class InsertLineNumberCommand implements vscode.Disposable {
 
     constructor() {
         this._disposable.push(
-            vscode.commands.registerCommand(
-                commandList.insertLineNumber,
-                this.execute,
-                this
-            )
+            vscode.commands.registerCommand(commandList.insertLineNumber, this.execute, this),
         );
 
         setupDefaultFormatConfigs();
@@ -19,7 +15,7 @@ export class InsertLineNumberCommand implements vscode.Disposable {
 
     protected async execute() {
         if (!vscode.window.activeTextEditor) {
-            vscode.window.showWarningMessage("No activated editor.");
+            vscode.window.showWarningMessage('No activated editor.');
             return;
         }
 
@@ -28,23 +24,27 @@ export class InsertLineNumberCommand implements vscode.Disposable {
             let item = quickPickItems[0];
             insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
         } else {
-            vscode.window.showQuickPick(quickPickItems, {
-                canPickMany: false,
-                placeHolder: "Select a format (Define your own formats under 'InsertLineNumber.formats' in config file.)"
-            }).then(item => {
-                if (item) {
-                    insertLineNumber(item.formatConfig, vscode.window.activeTextEditor!.selection);
-                }
-            });
+            vscode.window
+                .showQuickPick(quickPickItems, {
+                    canPickMany: false,
+                    placeHolder:
+                        "Select a format (Define your own formats under 'InsertLineNumber.formats' in config file.)",
+                })
+                .then((item) => {
+                    if (item) {
+                        insertLineNumber(
+                            item.formatConfig,
+                            vscode.window.activeTextEditor!.selection,
+                        );
+                    }
+                });
         }
-
     }
 
     public dispose() {
-        this._disposable.forEach(d => d.dispose());
+        this._disposable.forEach((d) => d.dispose());
     }
 }
-
 
 interface FormatQuickPickItem extends vscode.QuickPickItem {
     formatConfig: InsertLineNumberConfig.Format;
@@ -55,21 +55,22 @@ interface LineRange {
     end: number;
 }
 
-
 function buildFormatQuickPickItems(): FormatQuickPickItem[] {
-    const items = normalizedFormatConfigs.map((v) => ({
-        formatConfig: v,
-        label: buildSample(v),
-        description: buildDescription(v),
-    } as FormatQuickPickItem));
+    const items = normalizedFormatConfigs.map(
+        (v) =>
+            ({
+                formatConfig: v,
+                label: buildSample(v),
+                description: buildDescription(v),
+            }) as FormatQuickPickItem,
+    );
 
     return items;
 }
 
 function buildSample(formatConfig: InsertLineNumberConfig.Format): string {
     const { start, end } = getLineNumberRange(formatConfig);
-    return `[${formatNumber(start, formatConfig)}]`
-        + ` - [${formatNumber(end, formatConfig)}]`;
+    return `[${formatNumber(start, formatConfig)}]` + ` - [${formatNumber(end, formatConfig)}]`;
 }
 
 function buildDescription(formatConfig: InsertLineNumberConfig.Format): string {
@@ -92,32 +93,31 @@ function getSelection(): LineRange {
 function getLineNumberRange(formatConfig: InsertLineNumberConfig.Format): LineRange {
     const { start, end } = getSelection();
 
-    if (formatConfig.start === "current") {
+    if (formatConfig.start === 'current') {
         return { start: start + 1, end: end + 1 };
     } else {
         return { start: formatConfig.start!, end: formatConfig.start! + end - start };
     }
 }
 
-function formatNumber(
-    n: number,
-    formatConfig: InsertLineNumberConfig.Format,): string {
-
+function formatNumber(n: number, formatConfig: InsertLineNumberConfig.Format): string {
     let str = n.toString();
 
-    if (formatConfig.width === "alignToLast") {
+    if (formatConfig.width === 'alignToLast') {
         const { end } = getLineNumberRange(formatConfig);
         str = padString(
             str,
             end.toString().length,
-            formatConfig.padding === "zero" ? "0" : " ",
-            formatConfig.align === "right");
+            formatConfig.padding === 'zero' ? '0' : ' ',
+            formatConfig.align === 'right',
+        );
     } else if (typeof formatConfig.width === 'number') {
         str = padString(
             str,
             formatConfig.width,
-            formatConfig.padding === "zero" ? "0" : " ",
-            formatConfig.align === "right");
+            formatConfig.padding === 'zero' ? '0' : ' ',
+            formatConfig.align === 'right',
+        );
     }
 
     return formatConfig.prefix + str + formatConfig.suffix;
@@ -134,8 +134,8 @@ function padString(str: string, width: number, paddingChar: string, padLeft: boo
 
 function insertLineNumber(
     config: InsertLineNumberConfig.Format,
-    selection: vscode.Selection): void {
-
+    selection: vscode.Selection,
+): void {
     let ss = selection.start.line;
     let se = selection.end.line;
 
@@ -151,23 +151,25 @@ function insertLineNumber(
 
 function setupDefaultFormatConfigs() {
     const formatConfigs = vscode.workspace
-        .getConfiguration("InsertLineNumber")
-        .get("formats") as InsertLineNumberConfig.Format[];
+        .getConfiguration('InsertLineNumber')
+        .get('formats') as InsertLineNumberConfig.Format[];
 
-    normalizedFormatConfigs = formatConfigs.map(v => fillDefaultForamt(v));
+    normalizedFormatConfigs = formatConfigs.map((v) => fillDefaultForamt(v));
 }
 
-function fillDefaultForamt(formatConfig: InsertLineNumberConfig.Format): InsertLineNumberConfig.Format {
+function fillDefaultForamt(
+    formatConfig: InsertLineNumberConfig.Format,
+): InsertLineNumberConfig.Format {
     return Object.assign({}, defaultFormat, formatConfig);
 }
 
 const defaultFormat: InsertLineNumberConfig.Format = {
     start: 1,
-    align: "left",
-    padding: "space",
-    width: "normal",
-    prefix: "",
-    suffix: ":  "
+    align: 'left',
+    padding: 'space',
+    width: 'normal',
+    prefix: '',
+    suffix: ':  ',
 };
 
 let normalizedFormatConfigs: InsertLineNumberConfig.Format[];

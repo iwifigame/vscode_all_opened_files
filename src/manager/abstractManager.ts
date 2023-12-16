@@ -1,11 +1,11 @@
-import * as vscode from "vscode";
-import * as fs from "fs";
-import * as path from "path";
-import { getStoreFolder } from "../global";
-import { IFileTextItem, IFileTextChange } from "./common";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
+import { getStoreFolder } from '../global';
+import { IFileTextChange, IFileTextItem } from './common';
 
 const CUR_VERSION = 3;
-const SAVE_FILE_TIME_GAP = 1000 * 10
+const SAVE_FILE_TIME_GAP = 1000 * 10; // 每10s保存一次文件
 
 export abstract class AbstractManager implements vscode.Disposable {
     protected _disposable: vscode.Disposable[] = [];
@@ -22,17 +22,17 @@ export abstract class AbstractManager implements vscode.Disposable {
         this.loadFileTexts();
 
         vscode.window.onDidChangeWindowState(
-            state => {
+            (state) => {
                 if (state.focused) {
                     this.checkFileTextsUpdate();
                 }
             },
             this,
-            this._disposable
+            this._disposable,
         );
 
         vscode.workspace.onDidChangeConfiguration(
-            e => e.affectsConfiguration(this.getConfigName()) && this.savefileTexts()
+            (e) => e.affectsConfiguration(this.getConfigName()) && this.savefileTexts(),
         );
 
         this._timer = setInterval(() => this.saveFileLoop(), SAVE_FILE_TIME_GAP);
@@ -40,8 +40,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         this.init();
     }
 
-    protected init() {
-    }
+    protected init() {}
 
     protected abstract getConfigName(): string;
 
@@ -51,17 +50,17 @@ export abstract class AbstractManager implements vscode.Disposable {
 
     protected get avoidDuplicates(): boolean {
         const config = vscode.workspace.getConfiguration(this.getConfigName());
-        return config.get("avoidDuplicates", true);
+        return config.get('avoidDuplicates', true);
     }
 
     protected get maxfileTexts(): number {
         const config = vscode.workspace.getConfiguration(this.getConfigName());
-        return config.get("maxfileTexts", 100);
+        return config.get('maxfileTexts', 100);
     }
 
     protected get moveToTop(): boolean {
         const config = vscode.workspace.getConfiguration(this.getConfigName());
-        return config.get("moveToTop", true);
+        return config.get('moveToTop', true);
     }
 
     protected isFileTextItemEqual(a: IFileTextItem, b: IFileTextItem): boolean {
@@ -85,19 +84,19 @@ export abstract class AbstractManager implements vscode.Disposable {
         };
 
         if (this.avoidDuplicates) {
-            const index = this._fileTexts.findIndex(c => this.isFileTextItemEqual(c, newItem));
+            const index = this._fileTexts.findIndex((c) => this.isFileTextItemEqual(c, newItem));
 
             if (index >= 0) {
                 let item = this._fileTexts[index];
-                item.value = change.value
-                item.param = change.param
+                item.value = change.value;
+                item.param = change.param;
                 if (change.createdLocation) {
-                    item.createdLocation = change.createdLocation
+                    item.createdLocation = change.createdLocation;
                 }
 
                 item.addCount++;
 
-                this.hdlMoveIndexToTop(index)
+                this.hdlMoveIndexToTop(index);
             } else {
                 this._fileTexts.unshift(newItem);
             }
@@ -110,7 +109,30 @@ export abstract class AbstractManager implements vscode.Disposable {
             this._fileTexts = this._fileTexts.slice(0, this.maxfileTexts);
         }
 
-        this.fireAndSave(newItem)
+        this.fireAndSave(newItem);
+    }
+
+    public async updateFileText(value: string) {
+        let item = this.getFileText(value);
+        if (item) {
+            this.updateFileTextByItem(item);
+        }
+    }
+
+    public async updateFileTextByItem(item: IFileTextItem) {
+        this.checkFileTextsUpdate();
+
+        const index = this._fileTexts.findIndex((c) => this.isFileTextItemEqual(c, item));
+        if (index < 0) {
+            return;
+        }
+
+        item = this._fileTexts[index];
+        item.updateCount++;
+        item.updatedAtString = new Date().toLocaleString();
+
+        this.hdlMoveIndexToTop(index);
+        this.fireAndSave(item);
     }
 
     private hdlMoveIndexToTop(index: number) {
@@ -120,42 +142,19 @@ export abstract class AbstractManager implements vscode.Disposable {
         }
     }
 
-    public async updateFileText(value: string) {
-        let item = this.getFileText(value)
-        if (item) {
-            this.updateFileTextByItem(item)
-        }
-    }
-
-    public async updateFileTextByItem(item: IFileTextItem) {
-        this.checkFileTextsUpdate();
-
-        const index = this._fileTexts.findIndex(c => this.isFileTextItemEqual(c, item));
-        if (index < 0) {
-            return
-        }
-
-        item = this._fileTexts[index]
-        item.updateCount++;
-        item.updatedAtString = new Date().toLocaleString()
-
-        this.hdlMoveIndexToTop(index)
-        this.fireAndSave(item)
-    }
-
     public getFileText(value: string): IFileTextItem | null {
-        const index = this._fileTexts.findIndex(c => c.value === value);
+        const index = this._fileTexts.findIndex((c) => c.value === value);
         if (index < 0) {
-            return null
+            return null;
         }
-        return this._fileTexts[index]
+        return this._fileTexts[index];
     }
 
     public removeFileText(value: string) {
         this.checkFileTextsUpdate();
-        let t = this.getFileText(value)
+        let t = this.getFileText(value);
         if (t == null) {
-            return false
+            return false;
         }
         return this.remove(t);
     }
@@ -163,15 +162,15 @@ export abstract class AbstractManager implements vscode.Disposable {
     public remove(value: IFileTextItem) {
         this.checkFileTextsUpdate();
 
-        const index = this._fileTexts.findIndex(c => c === value);
+        const index = this._fileTexts.findIndex((c) => c === value);
         if (index < 0) {
-            return false
+            return false;
         }
         this.fileTexts.splice(index, 1);
 
-        this.fireAndSave(undefined)
+        this.fireAndSave(undefined);
 
-        return true
+        return true;
     }
 
     public clearAll() {
@@ -179,23 +178,20 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         this._fileTexts = [];
 
-        this.fireAndSave(undefined)
+        this.fireAndSave(undefined);
 
         return true;
     }
 
     private getStoreFile() {
-        let folder = getStoreFolder();
-
-        const filePath = path.join(folder, "." + this.getConfigName() + ".json");
+        const folder = getStoreFolder();
+        const filePath = path.join(folder, '.' + this.getConfigName() + '.json');
 
         const config = vscode.workspace.getConfiguration(this.getConfigName());
-        const saveTo = config.get<string | null | boolean>("saveTo");
-
-        if (typeof saveTo === "string") {
+        const saveTo = config.get<string | null | boolean>('saveTo');
+        if (typeof saveTo === 'string') {
             return saveTo;
         }
-
         if (saveTo === false) {
             return false;
         }
@@ -203,35 +199,19 @@ export abstract class AbstractManager implements vscode.Disposable {
         return filePath;
     }
 
-    private jsonReplacer(key: string, value: any) {
-        if (key === "createdLocation" && value) {
-            value = {
-                range: {
-                    start: value.range.start,
-                    end: value.range.end,
-                },
-                uri: value.uri.toString(),
-            };
-        } else if (value instanceof vscode.Uri) {
-            value = value.toString();
-        }
-
-        return value;
-    }
-
-    protected fireAndSave(item:IFileTextItem|undefined) {
+    protected fireAndSave(item: IFileTextItem | undefined) {
         this.isFileDirty = true;
         this._onDidFileTextListChange.fire(item);
     }
 
     private saveFileLoop() {
         if (!this.isFileDirty) {
-            return
+            return;
         }
 
         // console.info("FileTextsOperate saveFileLoop", this.getConfigName(), this.lastUpdate, Date.now());
         this.isFileDirty = false;
-        this.savefileTexts()
+        this.savefileTexts();
     }
 
     // 保存文件
@@ -241,16 +221,32 @@ export abstract class AbstractManager implements vscode.Disposable {
             return;
         }
 
-        let json = "[]";
+        let json = '[]';
         try {
+            let jsonReplacer = (key: string, value: any) => {
+                if (key === 'createdLocation' && value) {
+                    value = {
+                        range: {
+                            start: value.range.start,
+                            end: value.range.end,
+                        },
+                        uri: value.uri.toString(),
+                    };
+                } else if (value instanceof vscode.Uri) {
+                    value = value.toString();
+                }
+
+                return value;
+            };
+
             json = JSON.stringify(
                 {
                     version: CUR_VERSION,
-                    count:this._fileTexts.length,
+                    count: this._fileTexts.length,
                     fileTexts: this._fileTexts,
                 },
-                this.jsonReplacer,
-                2
+                jsonReplacer,
+                2,
             );
         } catch (error) {
             console.error(error);
@@ -286,9 +282,7 @@ export abstract class AbstractManager implements vscode.Disposable {
             fs.writeFileSync(file, json);
             this.lastUpdate = fs.statSync(file).mtimeMs;
         } catch (error) {
-            vscode.window.showErrorMessage(
-                `Failed to save file:"${file}". error:${error}`
-            );
+            vscode.window.showErrorMessage(`Failed to save file:"${file}". error:${error}`);
             // switch (error.code) {
             //     case "EPERM":
             //         vscode.window.showErrorMessage(
@@ -331,7 +325,7 @@ export abstract class AbstractManager implements vscode.Disposable {
     private loadFileTexts() {
         // console.info("FileTextsOperate load", this.getConfigName(), this.lastUpdate);
 
-        let json: string = "";
+        let json: string = '';
 
         const file = this.getStoreFile();
         if (file && fs.existsSync(file)) {
@@ -364,17 +358,17 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         // 老版本数据转换
         if (stored.version === CUR_VERSION - 1) {
-            fileTexts = fileTexts.map(c => {
+            fileTexts = fileTexts.map((c) => {
                 if (c.createdAt) {
-                    let d = new Date(c.createdAt)
-                    c.createdAtString = d.toLocaleString()
+                    let d = new Date(c.createdAt);
+                    c.createdAtString = d.toLocaleString();
                 }
                 return c;
             });
             stored.version = CUR_VERSION;
         }
 
-        this._fileTexts = fileTexts.map(c => {
+        this._fileTexts = fileTexts.map((c) => {
             const fileText: IFileTextItem = {
                 value: c.value,
                 param: c.param,
@@ -401,7 +395,7 @@ export abstract class AbstractManager implements vscode.Disposable {
                     c.createdLocation.range.start.line,
                     c.createdLocation.range.start.character,
                     c.createdLocation.range.end.line,
-                    c.createdLocation.range.end.character
+                    c.createdLocation.range.end.character,
                 );
                 fileText.createdLocation = new vscode.Location(uri, range);
             }
@@ -413,6 +407,6 @@ export abstract class AbstractManager implements vscode.Disposable {
     }
 
     public dispose() {
-        this._disposable.forEach(d => d.dispose());
+        this._disposable.forEach((d) => d.dispose());
     }
 }

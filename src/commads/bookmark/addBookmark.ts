@@ -1,34 +1,38 @@
-import * as vscode from "vscode";
-import { commandList } from "../../global";
-import { getWordAtCursor } from "../../util/util";
-import { decoration } from "../../util/decorationUtil";
-import { BookmarkManager } from "../../manager/bookmarkManager";
-import { QuickBookmarkManager } from "../../manager/quickBookmarkManager";
-import { IFileTextChange, createChange } from "../../manager/common";
+import * as vscode from 'vscode';
+import { commandList } from '../../global';
+import { BookmarkManager } from '../../manager/bookmarkManager';
+import { IFileTextChange, createTextChange } from '../../manager/common';
+import { QuickBookmarkManager } from '../../manager/quickBookmarkManager';
+import { decoration } from '../../util/decorationUtil';
+import { getWordAtCursor } from '../../util/util';
 
 export class AddBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
-    constructor(protected _manager: BookmarkManager, protected _quickManager: QuickBookmarkManager) {
+    constructor(
+        protected _manager: BookmarkManager,
+        protected _quickManager: QuickBookmarkManager,
+    ) {
         this._disposable.push(
-            vscode.commands.registerCommand(
-                commandList.addBookmark,
-                this.execute,
-                this
-            )
+            vscode.commands.registerCommand(commandList.addBookmark, this.execute, this),
         );
     }
 
-    // @param mark: 当前光标所在单词，对应的标签:如a,b,c...
+    public dispose() {
+        this._disposable.forEach((d) => d.dispose());
+    }
+
+    // @param mark: 当前光标所在单词对应的标签:如a,b,c...
     // 有mark则添加到quick bookmark中，否则添加到默认的bookmark中
     protected async execute(mark: string) {
         const editor = vscode.window.activeTextEditor;
         if (editor == undefined) {
-            return
+            return;
         }
 
         let change = this.createBookmarkChange(editor);
-        if (mark) {// 有标签，则添加到快捷标签列表中
+        if (mark) {
+            // 有标签，则添加到快捷标签列表中
             this.addQuickBookmark(change, mark, editor);
         } else {
             this._manager.addFileText(change);
@@ -41,15 +45,19 @@ export class AddBookmarkCommand implements vscode.Disposable {
         if (!text) {
             text = getWordAtCursor(editor);
             if (!text) {
+                // 没有单词，则使用整行
                 const cursorPosition = editor.selection.active;
-                text = editor.document.lineAt(cursorPosition.line).text;
+                text = editor.document.lineAt(cursorPosition.line).text.trim();
+                // range = editor.document.lineAt(cursorPosition.line).range;
+            } else {
+                // 得到当前光标处的单词范围
+                range = editor.document.getWordRangeAtPosition(editor.selection.active);
             }
-            range = editor.document.getWordRangeAtPosition(editor.selection.active);
         }
 
-        const change = createChange(editor, text);
+        const change = createTextChange(editor, text);
         if (range && change.createdLocation) {
-            change.createdLocation.range = range
+            change.createdLocation.range = range;
         }
 
         return change;
@@ -64,9 +72,5 @@ export class AddBookmarkCommand implements vscode.Disposable {
         if (change.createdLocation) {
             editor.setDecorations(m, [change.createdLocation.range]);
         }
-    }
-
-    public dispose() {
-        this._disposable.forEach(d => d.dispose());
     }
 }

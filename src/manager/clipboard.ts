@@ -1,4 +1,4 @@
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
 
 /**
  * Clipboard base class to read and write text and detect changes
@@ -33,7 +33,7 @@ export abstract class BaseClipboard {
     protected abstract writeTextInternal(value: string): Thenable<void>;
 
     public dispose() {
-        this._disposables.forEach(d => d.dispose());
+        this._disposables.forEach((d) => d.dispose());
     }
 }
 

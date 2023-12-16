@@ -9,7 +9,7 @@ export namespace InsertLineNumberConfig {
      *                user selects line 10-15 in the editor,
      *                line number 1-6 will be inserted to these lines.
      */
-    export type StartNumberType = "current" | number;
+    export type StartNumberType = 'current' | number;
 
     /**
      * Type of the 'align' value.
@@ -19,14 +19,14 @@ export namespace InsertLineNumberConfig {
      *   The alignment only apply to the formatted number, no matter the perfix and suffix.
      *   For example, when prefix is 'C_' and suffix is ':', the result may be 'C_1  :' or 'C_12 :'.
      */
-    export type AlignType = "left" | "right";
+    export type AlignType = 'left' | 'right';
 
     /**
      * Type of the 'padding' value.
      *   - "space": Pad line numbers with whitespaces.
      *   -  "zero": Pad line numbers with 0.
      */
-    export type PaddingCharType = "space" | "zero";
+    export type PaddingCharType = 'space' | 'zero';
 
     /**
      * Type of the 'width' value.
@@ -34,7 +34,7 @@ export namespace InsertLineNumberConfig {
      *   - "alignToLast": Pad the line numbers to the last (longest) one.
      *   -        number: Pad the line numbers to the given width.
      */
-    export type NumberWidthType = "normal" | "alignToLast" | number;
+    export type NumberWidthType = 'normal' | 'alignToLast' | number;
 
     /**
      * Schema of each element in 'InsertLineNumber.formats' array in settings file.
@@ -61,7 +61,7 @@ export namespace InsertLineNumberConfig {
         /**
          * Width of each line number.
          * Default: "normal"
-         * 
+         *
          * Note, if a line number were longer than the specified width,
          *       it won't be truncated.
          */
@@ -83,6 +83,6 @@ export namespace InsertLineNumberConfig {
 
 export namespace ShowAllOpenedFilesConfig {
     export interface Config {
-        itemWidth:number;
+        itemWidth: number;
     }
 }

@@ -1,17 +1,15 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import { GIT_EXT, commandList, getStoreFolder } from '../global';
+import * as vscode from 'vscode';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
-import { IFileTextItem, createChange } from '../manager/common';
+import { DESCRIPTION_CONNECTOR_SYMBOL, GIT_EXT, commandList } from '../global';
+import { IFileTextItem, createTextChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
-import { isOpenPathlegal } from '../util/util';
+import { createIconPath, isOpenPathlegal } from '../util/util';
+
+const MAX_RECENT_FILES = 20;
 
 // todo: 自动获取宽度
 let config: ShowAllOpenedFilesConfig.Config = { itemWidth: 80 };
-
-interface FileQuickPickItem extends vscode.QuickPickItem {
-    fileTextItem: IFileTextItem
-}
 
 export class ShowAllOpenedFilesCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
@@ -20,55 +18,166 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
 
     constructor(protected _manager: FileManager) {
         this._disposable.push(
-            vscode.commands.registerCommand(
-                commandList.showAllOpenedFiles,
-                this.execute,
-                this
-            )
+            vscode.commands.registerCommand(commandList.showAllOpenedFiles, this.execute, this),
         );
 
         this.setupConfg();
-        vscode.workspace.onDidChangeConfiguration(event => {
-            let affected = event.affectsConfiguration("ShowAllOpenedFiles.itemWidth");
+        vscode.workspace.onDidChangeConfiguration((event) => {
+            let affected = event.affectsConfiguration('ShowAllOpenedFiles.itemWidth');
             if (affected) {
                 this.setupConfg();
             }
-        })
+        });
 
         this.watchFileOpen();
     }
 
     protected async execute() {
-        let quickPickItems = this.buildFileQuickPickItems(this._manager.fileTexts);
-        vscode.window.showQuickPick(quickPickItems, {
-            canPickMany: false,
-            placeHolder: ""
-        }).then(item => {
+        /*
+        const qpOptions = { title: "demos of iconPaths", canPickMany: false };
+        let iconPath22 = createIconPath("remove.svg");
+        let iconPath2 = createIconPath("string.svg");
+        const qpItems = [
+            { label: "first item", iconPath: iconPath22, buttons: [deleteButton], },
+            { label: "second item", iconPath: iconPath2 },
+            { label: "third item", iconPath: "C:\\Users\\Mark\\folder-operations\\images\\camera.svg" },
+            { label: "fourth item", iconPath: "C:\\Users\\Mark\\\folder-operations\\images\\github.svg" },
+            { label: "fifth item", iconPath: "C:\\Users\\Mark\\folder-operations\\images\\mail.svg" }
+        ];
+        const selectedItem = await vscode.window.showQuickPick(qpItems, qpOptions);
+        */
+
+        // 在快速输入框的上面会显示标题。并在标题栏的右边显示删除按钮
+        let deleteButton: vscode.QuickInputButton = {
+            iconPath: createIconPath('remove.svg'),
+            tooltip: 'delete',
+        };
+
+        let quickPick = vscode.window.createQuickPick();
+        quickPick.items = this.createPicks();
+        quickPick.buttons = [deleteButton];
+        quickPick.onDidAccept(() => {
+            quickPick.hide();
+            const item = quickPick.selectedItems[0] as FileQuickPickItem;
             if (item) {
-                // console.log(`execshowAllOpenedFiles: ${item.fileName}`);
-                const path = item.fileTextItem.value;
-                const options = {
-                    selection: item.fileTextItem.createdLocation?.range,
-                    // 是否预览，默认true，预览的意思是下次再打开文件是否会替换当前文件
-                    // preview: false,
-                    // 显示在第二个编辑器
-                    // viewColumn: vscode.ViewColumn.Two
-                };
-                vscode.window.showTextDocument(vscode.Uri.file(path), options).then((editor) => {
-                    // this._manager.updateFileText(path);
-                }, (err) => {
-                    this._manager.removeFileText(path)
-                });
+                this.showPickItem(item);
             }
         });
+        quickPick.placeholder = 'Select to open...';
+        quickPick.title = 'All Opened Files';
+        quickPick.onDidTriggerButton((e: vscode.QuickInputButton) => {
+            const item = quickPick.activeItems[0] as FileQuickPickItem;
+            if (item) {
+                this._manager.remove(item.fileTextItem);
+                vscode.window.showWarningMessage('delete ' + item.fileTextItem.value);
+            }
+        });
+        quickPick.show();
+    }
+
+    private showPickItem(item: FileQuickPickItem) {
+        const path = item.fileTextItem.value;
+        const options = {
+            selection: item.fileTextItem.createdLocation?.range,
+            // 是否预览，默认true，预览的意思是下次再打开文件是否会替换当前文件
+            // preview: false,
+            // 显示在第二个编辑器
+            // viewColumn: vscode.ViewColumn.Two
+        };
+        vscode.window.showTextDocument(vscode.Uri.file(path), options).then(
+            (editor) => {
+                // this._manager.updateFileText(path);
+            },
+            (err) => {
+                this._manager.removeFileText(path);
+            },
+        );
+    }
+
+    private createPicks(): FileQuickPickItem[] {
+        const fileTexts = this._manager.fileTexts;
+
+        const picks = fileTexts.map((fileText, i) => {
+            let weight = 0;
+            if (i < MAX_RECENT_FILES) {
+                weight = 10000 * (MAX_RECENT_FILES - i) + fileText.updateCount;
+            } else {
+                weight = fileText.updateCount;
+            }
+            const item: FileQuickPickItem = {
+                fileTextItem: fileText,
+                label: '',
+                weight: weight,
+            };
+            return item;
+        });
+
+        picks.sort((a: FileQuickPickItem, b: FileQuickPickItem) => {
+            // let ta = a.fileTextItem.updateCount;
+            // let tb = b.fileTextItem.updateCount;
+            // return tb - ta;
+            return b.weight - a.weight;
+        });
+
+        picks.forEach((pick, i) => {
+            const fileText = pick.fileTextItem;
+            const dirName = path.dirname(fileText.value);
+            const baseName = path.basename(fileText.value);
+
+            const label = i.toString() + ') ' + baseName;
+            let description = dirName;
+            let updateCountStr = DESCRIPTION_CONNECTOR_SYMBOL + fileText.updateCount.toString();
+
+            // 调整宽度与显示
+            const cfgWidth = config.itemWidth;
+            const prefix = '...';
+            const tmpWidth = label.length + description.length + updateCountStr.length;
+            if (tmpWidth > cfgWidth) {
+                let charToFind = '\\';
+                let firstPosition = description.indexOf(charToFind);
+                let secondPosition = -1;
+                if (firstPosition != -1) {
+                    // 如果找到了指定字符
+                    secondPosition = description.indexOf(charToFind, firstPosition + 1);
+                    if (secondPosition != -1) {
+                        // 如果找到了第二个指定字符
+                        secondPosition++;
+                    } else {
+                        secondPosition = 10;
+                    }
+                } else {
+                    secondPosition = 10;
+                }
+
+                let tle = cfgWidth - label.length - prefix.length - updateCountStr.length;
+                if (tle > 0) {
+                    let toDeleteLen = description.length - tle;
+                    description =
+                        description.substring(0, secondPosition) +
+                        prefix +
+                        description.substring(secondPosition + toDeleteLen) +
+                        updateCountStr;
+                    // description = prefix + description.slice(-tle) + updateCountStr;
+                } else {
+                    description = prefix + description + updateCountStr;
+                }
+            } else {
+                description = description + updateCountStr;
+            }
+
+            pick.label = label;
+            pick.description = description;
+        });
+
+        return picks;
     }
 
     private setupConfg() {
-        let w = vscode.workspace.getConfiguration("ShowAllOpenedFiles").get<number>("itemWidth");
+        let w = vscode.workspace.getConfiguration('ShowAllOpenedFiles').get<number>('itemWidth');
         if (w == undefined) {
-            w = 80
+            w = 80;
         }
-        config.itemWidth = w
+        config.itemWidth = w;
     }
 
     private watchFileOpen() {
@@ -77,18 +186,18 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             // console.log(`onDidOpenTextDocument  ${filePath}`);
 
             if (!isOpenPathlegal(filePath)) {
-                return
+                return;
             }
 
             let item = this._manager.getFileText(filePath);
             if (item) {
                 this._manager.updateFileText(filePath);
             } else {
-                const editor = vscode.window.activeTextEditor
-                const change = createChange(editor, filePath);
+                const editor = vscode.window.activeTextEditor;
+                const change = createTextChange(editor, filePath);
                 this._manager.addFileText(change);
             }
-        })
+        });
 
         /*
         // 当编辑器更改时触发。切换已打开的文件也会触发
@@ -96,12 +205,12 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             if (!editor) {
                 return
             }
-
+    
             let doc = editor.document
             if (doc == undefined) {
                 return
             }
-
+    
             let item = this._manager.getFileText(doc.fileName);
             if (item) {
                 this._manager.updateFileText(doc.fileName);
@@ -116,9 +225,9 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             let filePath = doc.fileName;
             // console.log(`onDidCloseTextDocument  ${filePath}`);
 
-            let extname = path.extname(filePath)
+            let extname = path.extname(filePath);
             if (GIT_EXT == extname) {
-                filePath = filePath.slice(0, -GIT_EXT.length)
+                filePath = filePath.slice(0, -GIT_EXT.length);
                 // return
             }
 
@@ -126,12 +235,12 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
 
             const selection = this.fileSections.get(filePath);
             if (!selection) {
-                return
+                return;
             }
 
             let item = this._manager.getFileText(filePath);
             if (!item) {
-                return
+                return;
             }
 
             if (!item.createdLocation) {
@@ -140,66 +249,33 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
                     uri: vscode.Uri.file(filePath),
                 };
             } else {
-                item.createdLocation.range = new vscode.Range(selection.start, selection.end)
+                item.createdLocation.range = new vscode.Range(selection.start, selection.end);
             }
 
             this._manager.updateFileTextByItem(item);
-        })
+        });
 
         vscode.window.onDidChangeTextEditorSelection((e) => {
             let editor = vscode.window.activeTextEditor;
             if (!editor) {
-                return
+                return;
             }
 
-            let document = editor.document
+            let document = editor.document;
             if (!document) {
-                return
+                return;
             }
 
-            this.fileSections.set(document.fileName, editor.selection)
+            this.fileSections.set(document.fileName, editor.selection);
         });
-    }
-
-    private buildFileQuickPickItems(fileTexts: Array<IFileTextItem>): FileQuickPickItem[] {
-        let count = fileTexts.length
-
-        const items = fileTexts.map((fileText, i) => {
-            const dirName = path.dirname(fileText.value)
-            const baseName = path.basename(fileText.value)
-
-            const label = i.toString() + ") " + baseName;
-            let description = dirName;
-            let updateCountStr = "  " + fileText.updateCount.toString();
-
-            // 调整宽度与显示
-            const cfgWidth = config.itemWidth;
-            const prefix = "   ...";
-            const tmpWidth = label.length + description.length + updateCountStr.length
-            if (tmpWidth > cfgWidth) {
-                const wholeWidth = label.length + description.length + prefix.length + updateCountStr.length
-                let tle = cfgWidth - label.length - prefix.length - updateCountStr.length
-                if (tle > 0) {
-                    description = prefix + description.slice(-tle) + updateCountStr;
-                } else {
-                    description = prefix + description + updateCountStr
-                }
-            } else {
-                description = description + updateCountStr
-            }
-
-            let item = {
-                fileTextItem: fileText,
-                label: label,
-                description: description,
-            } as FileQuickPickItem;
-            return item
-        });
-
-        return items;
     }
 
     public dispose() {
-        this._disposable.forEach(d => d.dispose());
+        this._disposable.forEach((d) => d.dispose());
     }
+}
+
+interface FileQuickPickItem extends vscode.QuickPickItem {
+    fileTextItem: IFileTextItem;
+    weight: number;
 }

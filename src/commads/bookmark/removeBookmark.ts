@@ -1,23 +1,22 @@
-import * as vscode from "vscode";
-import { BookmarkItem } from "../../tree/bookmarkTree";
-import { commandList } from "../../global";
-import { BookmarkManager } from "../../manager/bookmarkManager";
-import { QuickBookmarkManager } from "../../manager/quickBookmarkManager";
+import * as vscode from 'vscode';
+import { BookmarkTreeItem } from '../../tree/bookmarkTree';
+import { commandList } from '../../global';
+import { BookmarkManager } from '../../manager/bookmarkManager';
+import { QuickBookmarkManager } from '../../manager/quickBookmarkManager';
 
 export class RemoveBookmarkCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
-    constructor(protected _manager: BookmarkManager, protected _quickManager: QuickBookmarkManager) {
+    constructor(
+        protected _manager: BookmarkManager,
+        protected _quickManager: QuickBookmarkManager,
+    ) {
         this._disposable.push(
-            vscode.commands.registerCommand(
-                commandList.removeBookmark,
-                this.execute,
-                this
-            )
+            vscode.commands.registerCommand(commandList.removeBookmark, this.execute, this),
         );
     }
 
-    protected execute(item: BookmarkItem) {
+    protected execute(item: BookmarkTreeItem) {
         if (item.bookmark.param) {
             // this._quickManager.removeAllByParam(item.bookmark.param);
             this._quickManager.remove(item.bookmark);
@@ -27,6 +26,6 @@ export class RemoveBookmarkCommand implements vscode.Disposable {
     }
 
     public dispose() {
-        this._disposable.forEach(d => d.dispose());
+        this._disposable.forEach((d) => d.dispose());
     }
 }
