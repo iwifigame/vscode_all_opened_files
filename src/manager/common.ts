@@ -1,7 +1,7 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
+import * as vscode from 'vscode';
+import { EXTRA_PARAM_NOT_FOUND } from '../global';
 import { AbstractManager } from './abstractManager';
-import { EXT_PARAM_NOT_FOUND } from '../global';
 
 export interface IFileTextItem {
     value: string; // 内容
@@ -89,7 +89,7 @@ export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
     }
 }
 
-// 在文件中显示指定项目
+// 在文件中显示指定项目。如果不匹配，则根据内容查找并更新到最适合的range
 export async function showFileTextItem(fileTextItem: IFileTextItem, manager: AbstractManager) {
     if (!fileTextItem || !fileTextItem.createdLocation) {
         return;
@@ -121,7 +121,10 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
 }
 
 // 当前range可能与内容不匹配，则根据内容查找并更新到最适合的range
-function updateFileTextItemRange(document: vscode.TextDocument, fileTextItem: IFileTextItem) {
+export function updateFileTextItemRange(
+    document: vscode.TextDocument,
+    fileTextItem: IFileTextItem,
+) {
     if (!fileTextItem.createdLocation) {
         return;
     }
@@ -131,7 +134,7 @@ function updateFileTextItemRange(document: vscode.TextDocument, fileTextItem: IF
     let lastIndex = text.indexOf(fileTextItem.value); // 找到第一个匹配的索引
     if (lastIndex < 0) {
         // 没有找到
-        fileTextItem.extraParam = EXT_PARAM_NOT_FOUND;
+        fileTextItem.extraParam = EXTRA_PARAM_NOT_FOUND;
     } else {
         fileTextItem.extraParam = undefined;
 

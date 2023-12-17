@@ -1,10 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import {
-    DESCRIPTION_CONNECTOR_SYMBOL,
-    EXT_PARAM_NOT_FOUND as EXTRA_PARAM_NOT_FOUND,
-    commandList,
-} from '../global';
+import { DESCRIPTION_CONNECTOR_SYMBOL, EXTRA_PARAM_NOT_FOUND, commandList } from '../global';
 import { AbstractManager } from '../manager/abstractManager';
 import { IFileTextItem } from '../manager/common';
 import { compressSpaces, getWordAtCursor, pathEqual } from '../util/util';

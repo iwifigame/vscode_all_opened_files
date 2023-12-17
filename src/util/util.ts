@@ -66,26 +66,29 @@ export function pathEqual(a: string | undefined, b: string | undefined): boolean
 
 // 将路径中“/\.”等全移除，因为win/linux各个平台不同
 function simplePath(path: string): string {
-    const replace: [RegExp, string][] = [
-        // [/\\/g, '/'],
-        // [/(\w):/, '/$1'],
-        // [/(\w+)\/\.\.\/?/g, ''],
-        // [/^\.\//, ''],
-        // [/\/\.\//, '/'],
-        // [/\/\.$/, ''],
-        // [/\/$/, '']
-        [/\\/g, ''],
-        [/\//g, ''],
-        [/\./g, ''],
-    ];
+    // const replace: [RegExp, string][] = [
+    //     // [/\\/g, '/'],
+    //     // [/(\w):/, '/$1'],
+    //     // [/(\w+)\/\.\.\/?/g, ''],
+    //     // [/^\.\//, ''],
+    //     // [/\/\.\//, '/'],
+    //     // [/\/\.$/, ''],
+    //     // [/\/$/, '']
+    //     [/\\/g, ''],
+    //     [/\//g, ''],
+    //     [/\./g, ''],
+    // ];
 
-    replace.forEach((array) => {
-        while (array[0].test(path)) {
-            path = path.replace(array[0], array[1]);
-        }
-    });
+    // replace.forEach((array) => {
+    //     while (array[0].test(path)) {
+    //         path = path.replace(array[0], array[1]);
+    //     }
+    // });
 
-    return path;
+    // 去除路径中的斜杠和冒号，并将所有字符转换为小写
+    const normalizedPath = path.replace(/[\/\\:]/g, '').toLowerCase();
+
+    return normalizedPath;
 }
 
 export function isOpenPathlegal(filePath: string): boolean {

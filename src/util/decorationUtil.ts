@@ -2,8 +2,9 @@ import * as vscode from 'vscode';
 
 class DecorationImpl {
     private _default!: vscode.TextEditorDecorationType;
-    private _markDecorationCache = new Map<string, vscode.TextEditorDecorationType>();
+    private _markDecorationCache = new Map<string, vscode.TextEditorDecorationType>(); // name <---> 标记
 
+    // 创建标记
     private _createMarkDecoration(name: string): vscode.TextEditorDecorationType {
         const svg = [
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30px" height="30px">',
@@ -11,13 +12,13 @@ class DecorationImpl {
             '<path fill="rgb(3,102,214)" d="M23,27l-8-7l-8,7V5c0-1.105,0.895-2,2-2h12c1.105,0,2,0.895,2,2V27z"/>',
             `<text x="50%" y="40%" fill="rgb(200,200,200)" text-anchor="middle" dominant-baseline="middle">${name}</text>`,
             '</svg>',
-        ].join('');
+        ].join(''); // 以name创建svg
 
         const uri = vscode.Uri.parse(`data:image/svg+xml;utf8,${encodeURI(svg)}`);
 
         return vscode.window.createTextEditorDecorationType({
             isWholeLine: false,
-            gutterIconPath: uri,
+            gutterIconPath: uri, // 槽图标为上面创建的
             gutterIconSize: 'cover',
         });
     }
@@ -33,6 +34,7 @@ class DecorationImpl {
         return this._default;
     }
 
+    // 得到或者创建标记
     public getOrCreateMarkDecoration(name: string): vscode.TextEditorDecorationType {
         const decorationType = this.getMarkDecoration(name);
 

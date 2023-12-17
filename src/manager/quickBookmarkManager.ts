@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { decoration } from '../util/decorationUtil';
 import { pathEqual } from '../util/util';
 import { AbstractManager } from './abstractManager';
-import { IFileTextItem, fileTextLocationCompare } from './common';
+import { IFileTextItem, fileTextLocationCompare, updateFileTextItemRange } from './common';
 
 export class QuickBookmarkManager extends AbstractManager {
     private searchedSet = new Set<IFileTextItem>(); // 已搜索过的项目。用来对t的循环跳转
@@ -12,63 +12,48 @@ export class QuickBookmarkManager extends AbstractManager {
             this.sortBookmarks();
         });
 
-        // 要使用这个方法，不能使用打开事件。
+        // 要使用这个方法，不能使用打开事件onDidOpenTextDocument。
         vscode.window.onDidChangeActiveTextEditor((editor) => {
-            if (!editor) {
-                return;
+            if (editor) {
+                this.addDecorations(editor);
             }
-
-            let doc = editor.document;
-            if (doc == undefined) {
-                return;
-            }
-
-            let filePath = doc.fileName;
-            this.fileTexts.forEach((item) => {
-                if (!item.param || !item.createdLocation) {
-                    return;
-                }
-
-                let pa = item.createdLocation.uri.path;
-                if (pathEqual(pa, filePath)) {
-                    let m = decoration.getOrCreateMarkDecoration(item.param);
-                    if (item.createdLocation) {
-                        editor.setDecorations(m, [item.createdLocation.range]);
-                    }
-                }
-            });
         });
 
         /*
         // 给当前文件添加高亮标签
         vscode.workspace.onDidOpenTextDocument((doc: vscode.TextDocument) => {
-            const editor = vscode.window.activeTextEditor
+            const editor = vscode.window.activeTextEditor;
             if (!editor) {
-                return
+                return;
             }
 
-            let filePath = doc.fileName;
-            if (!isOpenPathlegal(filePath)) {
-                return
-            }
-
-            this.fileTexts.forEach(
-                item => {
-                    if (!item.param || !item.createdLocation) {
-                        return
-                    }
-
-                    let pa = item.createdLocation.uri.path;
-                    if (pathEqual(pa, filePath)) {
-                        let m = decoration.getOrCreateMarkDecoration(item.param);
-                        if (item.createdLocation) {
-                            editor.setDecorations(m, [item.createdLocation.range]);
-                        }
-                    }
-                }
-            );
-        })
+            this.addDecorations(editor);
+        });
         */
+    }
+
+    private addDecorations(editor: vscode.TextEditor) {
+        let doc = editor.document;
+        if (doc == undefined) {
+            return;
+        }
+
+        let filePath = doc.fileName;
+        this.fileTexts.forEach((item) => {
+            if (!item.param || !item.createdLocation) {
+                return;
+            }
+
+            // 切换文件时，添加所有标记
+            let p = item.createdLocation.uri.path;
+            if (pathEqual(p, filePath)) {
+                // 要查找最近的位置，更新，再添加
+                updateFileTextItemRange(doc, item);
+
+                let m = decoration.getOrCreateMarkDecoration(item.param);
+                editor.setDecorations(m, [item.createdLocation.range]);
+            }
+        });
     }
 
     public getConfigName(): string {
