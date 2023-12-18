@@ -125,11 +125,8 @@ export class BookmarkTreeDataProvider
     public getChildren(
         _element?: BookmarkTreeItem | undefined,
     ): vscode.ProviderResult<BookmarkTreeItem[]> {
-        const bookmarks = this._manager.fileTexts;
-
-        const maxLength = `${bookmarks.length}`.length;
-
         // 创建树中的子节点
+        const bookmarks = this._manager.fileTexts;
         const childs = bookmarks.map((c, index) => {
             return new BookmarkTreeItem(c, index);
         });
@@ -173,21 +170,26 @@ export class BookmarkTreeItem extends vscode.TreeItem {
         }
         this.label = compressSpaces(this.label);
         this.description =
-            path.basename(this.resourceUri.path) +
+            this.getBasePathWithLine(this.bookmark.createdLocation) +
             DESCRIPTION_CONNECTOR_SYMBOL +
             this.bookmark.updateCount;
         this.tooltip = `${this.bookmark.value}\nTimes: ${this.bookmark.updateCount}\nPath: ${this.resourceUri.fsPath}`;
-
-        this.command = this.createShowBookmarkInFileCommand();
+        this.command = this.createShowBookmarkInFileCommand(this.bookmark.param);
     }
 
-    private createShowBookmarkInFileCommand(): vscode.Command {
+    private getBasePathWithLine(location: vscode.Location): string {
+        const lineNumber = location.range.start.line + 1;
+        const description = path.basename(location.uri.path) + ':' + lineNumber;
+        return description;
+    }
+
+    private createShowBookmarkInFileCommand(mark: string | undefined): vscode.Command {
         return {
             // 当选择本项目时，触发的命令
             command: commandList.showBookmarkInFile,
             title: 'Show in the file',
             tooltip: 'Show in the file',
-            arguments: [null, this.bookmark],
+            arguments: [mark, this.bookmark],
         };
     }
 }

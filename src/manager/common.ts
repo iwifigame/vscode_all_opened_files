@@ -90,7 +90,10 @@ export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
 }
 
 // 在文件中显示指定项目。如果不匹配，则根据内容查找并更新到最适合的range
-export async function showFileTextItem(fileTextItem: IFileTextItem, manager: AbstractManager) {
+export async function showFileTextItem(
+    fileTextItem: IFileTextItem | undefined,
+    manager: AbstractManager,
+) {
     if (!fileTextItem || !fileTextItem.createdLocation) {
         return;
     }
