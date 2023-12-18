@@ -12,6 +12,12 @@ export class QuickBookmarkManager extends AbstractManager {
             this.sortBookmarks();
         });
 
+        // 选择范围变化时，重新添加快速标签
+        vscode.window.onDidChangeTextEditorSelection((e) => {
+            let editor = e.textEditor;
+            this.addDecorations(editor);
+        });
+
         // 要使用这个方法，不能使用打开事件onDidOpenTextDocument。
         vscode.window.onDidChangeActiveTextEditor((editor) => {
             if (editor) {
@@ -32,6 +38,7 @@ export class QuickBookmarkManager extends AbstractManager {
         */
     }
 
+    // 添加当前文件中的所有快速标签
     private addDecorations(editor: vscode.TextEditor) {
         let doc = editor.document;
         if (doc == undefined) {
@@ -44,12 +51,12 @@ export class QuickBookmarkManager extends AbstractManager {
                 return;
             }
 
-            // 切换文件时，添加所有标记
             let p = item.createdLocation.uri.path;
             if (pathEqual(p, filePath)) {
-                // 要查找最近的位置，更新，再添加
+                // 更新标签目标位置
                 updateFileTextItemRange(doc, item);
 
+                // 在目标位置添加标签
                 let m = decoration.getOrCreateMarkDecoration(item.param);
                 editor.setDecorations(m, [item.createdLocation.range]);
             }
