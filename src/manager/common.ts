@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { EXTRA_PARAM_NOT_FOUND } from '../global';
+import { DESCRIPTION_CONNECTOR_SYMBOL, EXTRA_PARAM_NOT_FOUND } from '../global';
 import { AbstractManager } from './abstractManager';
 
 export interface IFileTextItem {
@@ -51,6 +51,21 @@ export function createTextChange(
     }
 
     return change;
+}
+
+export function getFileTextDescription(fileText: IFileTextItem): string {
+    const location = fileText.createdLocation;
+    if (!location) {
+        return '';
+    }
+    const lineNumber = location.range.start.line + 1;
+    const description =
+        path.basename(location.uri.path) +
+        ':' +
+        lineNumber +
+        DESCRIPTION_CONNECTOR_SYMBOL +
+        fileText.updateCount;
+    return description;
 }
 
 // 先按文件名排序；再按所在位置排序

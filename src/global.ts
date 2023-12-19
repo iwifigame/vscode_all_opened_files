@@ -39,4 +39,5 @@ export const GIT_EXT = '.git';
 
 export const EXTRA_PARAM_NOT_FOUND = 'not found';
 
+export const LABEL_CONNECTOR_SYMBOL = ') ';
 export const DESCRIPTION_CONNECTOR_SYMBOL = '  ';

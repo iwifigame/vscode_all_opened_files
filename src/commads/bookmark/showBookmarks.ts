@@ -1,13 +1,21 @@
-import * as path from 'path';
 import * as vscode from 'vscode';
-import { DESCRIPTION_CONNECTOR_SYMBOL, commandList } from '../../global';
+import { LABEL_CONNECTOR_SYMBOL, commandList } from '../../global';
 import { BookmarkManager } from '../../manager/bookmarkManager';
-import { IFileTextItem, showFileTextItem } from '../../manager/common';
+import {
+    IFileTextItem,
+    fileTextLocationCompare,
+    getFileTextDescription,
+    showFileTextItem,
+} from '../../manager/common';
+import { QuickBookmarkManager } from '../../manager/quickBookmarkManager';
 
 export class ShowBookmarksCommand implements vscode.Disposable {
     private _disposable: vscode.Disposable[] = [];
 
-    constructor(protected _manager: BookmarkManager) {
+    constructor(
+        private _bookmarkManager: BookmarkManager,
+        private _quickBookmarkManager: QuickBookmarkManager,
+    ) {
         this._disposable.push(
             vscode.commands.registerCommand(commandList.showBookmarks, this.execute, this),
         );
@@ -23,12 +31,21 @@ export class ShowBookmarksCommand implements vscode.Disposable {
             if (!item) {
                 return;
             }
-            showFileTextItem(item.fileTextItem, this._manager);
+
+            if (item.fileTextItem.param) {
+                showFileTextItem(item.fileTextItem, this._quickBookmarkManager);
+            } else {
+                showFileTextItem(item.fileTextItem, this._bookmarkManager);
+            }
         });
     }
 
     private createPicks() {
-        const bookmarks = this._manager.fileTexts;
+        const bookmarks = [
+            ...this._bookmarkManager.fileTexts,
+            ...this._quickBookmarkManager.fileTexts,
+        ];
+
         const picks = bookmarks.map((fileText) => {
             const item: BookmarkQuickPickItem = {
                 fileTextItem: fileText,
@@ -38,21 +55,41 @@ export class ShowBookmarksCommand implements vscode.Disposable {
         });
 
         picks.sort((a: BookmarkQuickPickItem, b: BookmarkQuickPickItem) => {
-            let ta = a.fileTextItem.updateCount;
-            let tb = b.fileTextItem.updateCount;
-            return tb - ta;
+            let fa = a.fileTextItem;
+            let fb = b.fileTextItem;
+            if (fa.param && fb.param) {
+                if (fa.param > fb.param) {
+                    return 1;
+                } else if (fa.param < fb.param) {
+                    return -1;
+                } else {
+                    return fileTextLocationCompare(fa, fb);
+                }
+            } else if (!fa.param && !fb.param) {
+                let ca = fa.updateCount;
+                let cb = fb.updateCount;
+                return cb - ca;
+            } else if (fa.param) {
+                return -1;
+            } else {
+                return 1;
+            }
         });
 
+        let bookmarkIndex = 0;
         picks.forEach((pick, i) => {
-            const label = i.toString() + ') ' + pick.fileTextItem.value;
+            const bookmark = pick.fileTextItem;
+            let label: string;
+            if (bookmark.param) {
+                label = bookmark.param + LABEL_CONNECTOR_SYMBOL + bookmark.value;
+            } else {
+                bookmarkIndex++;
+                label = bookmarkIndex.toString() + LABEL_CONNECTOR_SYMBOL + bookmark.value;
+            }
             pick.label = label;
 
             if (pick.fileTextItem.createdLocation) {
-                const description =
-                    path.basename(pick.fileTextItem.createdLocation.uri.path) +
-                    DESCRIPTION_CONNECTOR_SYMBOL +
-                    pick.fileTextItem.updateCount.toString();
-                pick.description = description;
+                pick.description = getFileTextDescription(pick.fileTextItem);
             }
         });
 

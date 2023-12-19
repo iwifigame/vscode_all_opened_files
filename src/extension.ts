@@ -137,7 +137,7 @@ function initCommand(disposable: vscode.Disposable[], clipboardMonitor: Clipboar
 
         new AddBookmarkCommand(bookmarkManager, quickBookmarkManager),
         new RemoveBookmarkCommand(bookmarkManager, quickBookmarkManager),
-        new ShowBookmarksCommand(bookmarkManager),
+        new ShowBookmarksCommand(bookmarkManager, quickBookmarkManager),
         new ShowBookmarkInFileCommand(bookmarkManager, quickBookmarkManager),
     ];
 
