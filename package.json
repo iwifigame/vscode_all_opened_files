@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files",
     "license": "MIT",
-    "version": "3.1.72",
+    "version": "3.1.73",
     "keywords": [
         "file",
         "clipboard",
@@ -284,6 +284,11 @@
                         "default": true,
                         "description": "Avoid duplicate clips in the list"
                     },
+                    "ClipManager.moveToTop": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Move used clip to top in the list"
+                    },
                     "ClipManager.checkInterval": {
                         "type": "integer",
                         "default": 500,
@@ -298,11 +303,6 @@
                         "type": "integer",
                         "default": 1000,
                         "description": "Maximum number of clips to save in clipboard"
-                    },
-                    "ClipManager.moveToTop": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Move used clip to top in the list"
                     },
                     "ClipManager.onlyWindowFocused": {
                         "type": "boolean",
