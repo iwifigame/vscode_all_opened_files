@@ -179,7 +179,7 @@ export class BookmarkTreeItem extends vscode.TreeItem {
             command: commandList.showBookmarkInFile,
             title: 'Show in the file',
             tooltip: 'Show in the file',
-            arguments: [mark, this.bookmark],
+            arguments: [mark, this.bookmark, true],
         };
     }
 }

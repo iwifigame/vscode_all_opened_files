@@ -74,6 +74,7 @@ export class QuickBookmarkManager extends AbstractManager {
     public getFileTextByParam(value: string): IFileTextItem | undefined {
         let item = this._fileTexts.find((c, index) => {
             if (this.searchedSet.has(c)) {
+                // 已搜索过
                 return false;
             }
             return c.param === value;

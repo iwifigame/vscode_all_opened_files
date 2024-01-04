@@ -16,9 +16,14 @@ export class ShowBookmarkInFileCommand implements vscode.Disposable {
         );
     }
 
-    protected async execute(mark: string, item: IFileTextItem) {
+    protected async execute(mark: string, item: IFileTextItem, isFromTree: boolean) {
         if (mark) {
-            const bookmark = this._quickManager.getFileTextByParam(mark);
+            let bookmark: IFileTextItem | undefined;
+            if (isFromTree) {
+                bookmark = item;
+            } else {
+                bookmark = this._quickManager.getFileTextByParam(mark);
+            }
             showFileTextItem(bookmark, this._quickManager);
         } else {
             const bookmark = item;
