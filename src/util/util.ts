@@ -31,11 +31,11 @@ export function selectWordAtCursor(editor: vscode.TextEditor) {
     if (!editor.selection.isEmpty) {
         return true;
     }
-    var cursorWordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
+    let cursorWordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
     if (!cursorWordRange) {
         return false;
     }
-    var newSe = new vscode.Selection(
+    let newSe = new vscode.Selection(
         cursorWordRange.start.line,
         cursorWordRange.start.character,
         cursorWordRange.end.line,
@@ -50,7 +50,7 @@ export function getWordAtCursor(editor: vscode.TextEditor): string {
     if (!editor.selection.isEmpty) {
         return '';
     }
-    var cursorWordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
+    let cursorWordRange = editor.document.getWordRangeAtPosition(editor.selection.active);
     if (!cursorWordRange) {
         return '';
     }
@@ -114,7 +114,7 @@ export function createIconPath(iconName: string) {
 }
 
 export function dateFormat(date: Date, fmt: string) {
-    var o = {
+    let o = {
         'M+': date.getMonth() + 1, // 月份
         'd+': date.getDate(), // 日
         'h+': date.getHours(), // 小时
@@ -126,7 +126,7 @@ export function dateFormat(date: Date, fmt: string) {
     if (/(y+)/.test(fmt)) {
         fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
     }
-    for (var k in o) {
+    for (let k in o) {
         if (new RegExp('(' + k + ')').test(fmt)) {
             let ok = k as keyof typeof o;
             let ov = o[ok].toString();

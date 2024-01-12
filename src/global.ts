@@ -14,6 +14,8 @@ export const RESOURCES_ROOT = path.join(PROJECT_ROOT, 'resources');
 export enum commandList {
     showAllOpenedFiles = 'AllOpenedFiles.showAllOpenedFiles',
     quickOpen = 'AllOpenedFiles.quickOpen',
+    preFunction = 'AllOpenedFiles.preFunction',
+    nextFunction = 'AllOpenedFiles.nextFunction',
 
     insertLineNumber = 'AllOpenedFiles.insertLineNumber',
 

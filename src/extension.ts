@@ -6,6 +6,8 @@ import { defaultClipboard } from './manager/clipboard';
 
 import { InsertLineNumberCommand } from './commads/insertLineNumber';
 import { QuickOpenCommand } from './commads/quickOpen';
+import { PreFunctionCommand } from './commads/preFunction';
+import { NextFunctionCommand } from './commads/nextFunction';
 import { ShowAllOpenedFilesCommand } from './commads/showAllOpenedFiles';
 import { FileManager } from './manager/fileManager';
 
@@ -133,6 +135,8 @@ function initCommand(disposable: vscode.Disposable[], clipboardMonitor: Clipboar
 
         new ShowAllOpenedFilesCommand(fileManager),
         new QuickOpenCommand(fileManager),
+        new PreFunctionCommand(),
+        new NextFunctionCommand(),
         new InsertLineNumberCommand(),
 
         new AddBookmarkCommand(bookmarkManager, quickBookmarkManager),

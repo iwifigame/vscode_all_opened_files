@@ -59,7 +59,7 @@ export class BookmarkTreeDataProvider
     }
 
     private updateCurFileData(filePath: string) {
-        for (var i = this.data.length - 1; i >= 0; i--) {
+        for (let i = this.data.length - 1; i >= 0; i--) {
             let x = this.data[i];
             if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
                 this.curFileData.push(x);
@@ -83,7 +83,7 @@ export class BookmarkTreeDataProvider
 
         let targetItem: BookmarkTreeItem | undefined;
         let firstItem: BookmarkTreeItem | undefined;
-        for (var i = this.curFileData.length - 1; i >= 0; i--) {
+        for (let i = this.curFileData.length - 1; i >= 0; i--) {
             let x = this.curFileData[i];
             if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
                 if (firstItem == undefined) {
