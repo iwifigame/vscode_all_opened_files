@@ -143,7 +143,8 @@ export function updateFileTextItemRange(
     document: vscode.TextDocument,
     fileTextItem: IFileTextItem,
 ) {
-    if (!fileTextItem.createdLocation) {
+    if (!fileTextItem.createdLocation || !fileTextItem.value) {
+        // 空字符，不做处理。否则插件会奔溃
         return;
     }
 
