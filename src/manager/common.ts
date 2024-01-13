@@ -81,8 +81,8 @@ export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
         return 1;
     }
 
-    let ua = path.basename(ta).toLowerCase();
-    let ub = path.basename(tb).toLowerCase();
+    let ua = ta;
+    let ub = tb;
 
     if (ua > ub) {
         return 1;
@@ -149,37 +149,27 @@ export function updateFileTextItemRange(
     }
 
     const text = document.getText(); // 所有文档内容
+    const targetText = fileTextItem.value;
 
-    let lastIndex = text.indexOf(fileTextItem.value); // 找到第一个匹配的索引
-    if (lastIndex < 0) {
+    const targetOffset = document.offsetAt(fileTextItem.createdLocation.range.start);
+    let lastIndex = text.lastIndexOf(targetText, targetOffset - 1);
+    let nextIndex = text.indexOf(targetText, targetOffset);
+    let curIndex = nextIndex;
+    if (Math.abs(lastIndex - targetOffset) < Math.abs(nextIndex - targetOffset)) {
+        curIndex = lastIndex;
+    }
+
+    if (curIndex < 0) {
         // 没有找到
         fileTextItem.extraParam = EXTRA_PARAM_NOT_FOUND;
     } else {
         fileTextItem.extraParam = undefined;
 
-        // 找到了
-        const indexes: number[] = []; // 找到的所有位置
-
-        // 查找文档中所有匹配的索引
-        while (lastIndex >= 0) {
-            indexes.push(lastIndex);
-            // 查找bookmark所在位置
-            lastIndex = text.indexOf(fileTextItem.value, lastIndex + 1);
-        }
-
-        // 根据离书签原始位置的距离，排序
-        const offset = document.offsetAt(fileTextItem.createdLocation.range.start);
-        indexes.sort((a, b) => Math.abs(a - offset) - Math.abs(b - offset));
-
-        const index = indexes[0]; // 取最近的一个位置
-        if (index >= 0) {
-            const range = new vscode.Range(
-                document.positionAt(index),
-                document.positionAt(index + fileTextItem.value.length),
-            );
-
-            // 更新书签位置范围
-            fileTextItem.createdLocation.range = range;
-        }
+        const range = new vscode.Range(
+            document.positionAt(curIndex),
+            document.positionAt(curIndex + targetText.length),
+        );
+        // 更新书签位置范围
+        fileTextItem.createdLocation.range = range;
     }
 }

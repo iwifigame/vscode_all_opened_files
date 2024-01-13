@@ -65,7 +65,7 @@ export function pathEqual(a: string | undefined, b: string | undefined): boolean
 }
 
 // 将路径中“/\.”等全移除，因为win/linux各个平台不同
-function simplePath(path: string): string {
+export function simplePath(path: string): string {
     // const replace: [RegExp, string][] = [
     //     // [/\\/g, '/'],
     //     // [/(\w):/, '/$1'],
