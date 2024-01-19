@@ -1,7 +1,17 @@
 import * as vscode from 'vscode';
+import { log } from '../util/logger';
 
 export class JumpFunctionCommand implements vscode.Disposable {
     protected _disposable: vscode.Disposable[] = [];
+    private languageFuncNames: any = {};
+
+    constructor() {
+        this.setupConfigs();
+    }
+
+    private setupConfigs() {
+        this.languageFuncNames = vscode.workspace.getConfiguration('FunctionJump');
+    }
 
     protected async execute(isNext: boolean) {
         const editor = vscode.window.activeTextEditor;
@@ -11,26 +21,33 @@ export class JumpFunctionCommand implements vscode.Disposable {
         let document = editor.document;
         const text = document.getText(); // 所有文档内容
 
-        // todolyj 走配置
-        const FUNC_NAME_MAP = new Map();
-        FUNC_NAME_MAP.set('go', 'func');
-        FUNC_NAME_MAP.set('lua', 'function');
-        FUNC_NAME_MAP.set('javascript', 'function');
-        FUNC_NAME_MAP.set('typescript', 'function');
-
-        let funcName = FUNC_NAME_MAP.get(document.languageId);
+        let funcName = this.languageFuncNames.get(document.languageId);
         if (!funcName) {
-            funcName = 'function';
+            funcName = '\\bfunction\\b';
         }
 
         let cursorPos = editor.selection.active;
+
         let curIndex: number = document.offsetAt(cursorPos);
 
-        let index: number = 0;
+        let index: number = -1;
+        const reg = new RegExp(funcName);
         if (isNext) {
-            index = text.indexOf(funcName, curIndex + 1); // 找到第一个匹配的索引
+            for (let line = cursorPos.line + 1; line < document.lineCount; line++) {
+                let i = this.getDocumentLineMatchIndex(document, line, reg);
+                if (i != undefined) {
+                    index = i;
+                    break;
+                }
+            }
         } else {
-            index = text.lastIndexOf(funcName, curIndex - 1); // 找到第一个匹配的索引
+            for (let line = cursorPos.line - 1; line >= 0; line--) {
+                let i = this.getDocumentLineMatchIndex(document, line, reg);
+                if (i != undefined) {
+                    index = i;
+                    break;
+                }
+            }
         }
         if (index >= 0) {
             const range = new vscode.Range(
@@ -52,5 +69,39 @@ export class JumpFunctionCommand implements vscode.Disposable {
 
     public dispose() {
         this._disposable.forEach((d) => d.dispose());
+    }
+
+    private getFirstNonWhitespaceCharIndex(str: String): number | undefined {
+        const match = str.match(/\S/);
+        if (match) {
+            return match.index;
+        }
+        return;
+    }
+
+    private getDocumentLineMatchIndex(
+        document: vscode.TextDocument,
+        line: number,
+        reg: RegExp,
+    ): number | undefined {
+        let lineText = document.lineAt(line).text;
+        let pos = this.getTextMatchPos(lineText, reg);
+        if (pos != undefined) {
+            let p = new vscode.Position(line, pos);
+            let index = document.offsetAt(p);
+            return index;
+        }
+    }
+
+    private getTextMatchPos(text: String, reg: RegExp): number | undefined {
+        if (!text) {
+            return;
+        }
+
+        let m = text.match(reg);
+        if (m && m.length > 0) {
+            let pos = this.getFirstNonWhitespaceCharIndex(m[0]);
+            return pos;
+        }
     }
 }

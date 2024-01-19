@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files",
     "license": "MIT",
-    "version": "3.1.78",
+    "version": "3.1.83",
     "keywords": [
         "file",
         "clipboard",
@@ -283,6 +283,18 @@
                             }
                         ],
                         "description": "insert line number"
+                    },
+                    "FunctionJump": {
+                        "type": "object",
+                        "default": {
+                            "go": "^func\\b",
+                            "rust": "^\\s*fn\\b",
+                            "lua": "^function\\b",
+                            "javascript": "\\bfunction\\b",
+                            "typescript": "\\bfunction\\b"
+                        },
+                        "description": "Set the function name regex of each language.",
+                        "scope": "resource"
                     }
                 }
             },
