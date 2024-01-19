@@ -1,7 +1,7 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
+import * as vscode from 'vscode';
+import { DESCRIPTION_CONNECTOR_SYMBOL, EXTRA_PARAM_NOT_FOUND } from '../global';
 import { AbstractManager } from './abstractManager';
-import { EXT_PARAM_NOT_FOUND } from '../global';
 
 export interface IFileTextItem {
     value: string; // 内容
@@ -53,6 +53,21 @@ export function createTextChange(
     return change;
 }
 
+export function getFileTextDescription(fileText: IFileTextItem): string {
+    const location = fileText.createdLocation;
+    if (!location) {
+        return '';
+    }
+    const lineNumber = location.range.start.line + 1;
+    const description =
+        path.basename(location.uri.path) +
+        ':' +
+        lineNumber +
+        DESCRIPTION_CONNECTOR_SYMBOL +
+        fileText.updateCount;
+    return description;
+}
+
 // 先按文件名排序；再按所在位置排序
 export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
     let ta = a.createdLocation?.uri.path;
@@ -66,8 +81,8 @@ export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
         return 1;
     }
 
-    let ua = path.basename(ta).toLowerCase();
-    let ub = path.basename(tb).toLowerCase();
+    let ua = ta;
+    let ub = tb;
 
     if (ua > ub) {
         return 1;
@@ -89,8 +104,11 @@ export function fileTextLocationCompare(a: IFileTextItem, b: IFileTextItem) {
     }
 }
 
-// 在文件中显示指定项目
-export async function showFileTextItem(fileTextItem: IFileTextItem, manager: AbstractManager) {
+// 在文件中显示指定项目。如果不匹配，则根据内容查找并更新到最适合的range
+export async function showFileTextItem(
+    fileTextItem: IFileTextItem | undefined,
+    manager: AbstractManager,
+) {
     if (!fileTextItem || !fileTextItem.createdLocation) {
         return;
     }
@@ -121,43 +139,37 @@ export async function showFileTextItem(fileTextItem: IFileTextItem, manager: Abs
 }
 
 // 当前range可能与内容不匹配，则根据内容查找并更新到最适合的range
-function updateFileTextItemRange(document: vscode.TextDocument, fileTextItem: IFileTextItem) {
-    if (!fileTextItem.createdLocation) {
+export function updateFileTextItemRange(
+    document: vscode.TextDocument,
+    fileTextItem: IFileTextItem,
+) {
+    if (!fileTextItem.createdLocation || !fileTextItem.value) {
+        // 空字符，不做处理。否则插件会奔溃
         return;
     }
 
     const text = document.getText(); // 所有文档内容
+    const targetText = fileTextItem.value;
 
-    let lastIndex = text.indexOf(fileTextItem.value); // 找到第一个匹配的索引
-    if (lastIndex < 0) {
+    const targetOffset = document.offsetAt(fileTextItem.createdLocation.range.start);
+    let lastIndex = text.lastIndexOf(targetText, targetOffset - 1);
+    let nextIndex = text.indexOf(targetText, targetOffset);
+    let curIndex = nextIndex;
+    if (Math.abs(lastIndex - targetOffset) < Math.abs(nextIndex - targetOffset)) {
+        curIndex = lastIndex;
+    }
+
+    if (curIndex < 0) {
         // 没有找到
-        fileTextItem.extraParam = EXT_PARAM_NOT_FOUND;
+        fileTextItem.extraParam = EXTRA_PARAM_NOT_FOUND;
     } else {
         fileTextItem.extraParam = undefined;
 
-        // 找到了
-        const indexes: number[] = []; // 找到的所有位置
-
-        // 查找文档中所有匹配的索引
-        while (lastIndex >= 0) {
-            indexes.push(lastIndex);
-            // 查找bookmark所在位置
-            lastIndex = text.indexOf(fileTextItem.value, lastIndex + 1);
-        }
-
-        // 根据离书签原始位置的距离，排序
-        const offset = document.offsetAt(fileTextItem.createdLocation.range.start);
-        indexes.sort((a, b) => Math.abs(a - offset) - Math.abs(b - offset));
-
-        const index = indexes[0]; // 取最近的一个位置
-        if (index >= 0) {
-            const range = new vscode.Range(
-                document.positionAt(index),
-                document.positionAt(index + fileTextItem.value.length),
-            );
-
-            // 更新书签位置范围
-            fileTextItem.createdLocation.range = range;
-        }
+        const range = new vscode.Range(
+            document.positionAt(curIndex),
+            document.positionAt(curIndex + targetText.length),
+        );
+        // 更新书签位置范围
+        fileTextItem.createdLocation.range = range;
     }
 }

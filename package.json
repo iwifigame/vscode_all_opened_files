@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files",
     "license": "MIT",
-    "version": "3.1.68",
+    "version": "3.1.83",
     "keywords": [
         "file",
         "clipboard",
@@ -48,6 +48,16 @@
                 "command": "AllOpenedFiles.quickOpen",
                 "category": "AllOpenedFiles",
                 "title": "Quick Open"
+            },
+            {
+                "command": "AllOpenedFiles.preFunction",
+                "category": "AllOpenedFiles",
+                "title": "Pre Function"
+            },
+            {
+                "command": "AllOpenedFiles.nextFunction",
+                "category": "AllOpenedFiles",
+                "title": "Next Function"
             },
             {
                 "command": "AllOpenedFiles.insertLineNumber",
@@ -273,6 +283,18 @@
                             }
                         ],
                         "description": "insert line number"
+                    },
+                    "FunctionJump": {
+                        "type": "object",
+                        "default": {
+                            "go": "^func\\b",
+                            "rust": "^\\s*fn\\b",
+                            "lua": "^function\\b",
+                            "javascript": "\\bfunction\\b",
+                            "typescript": "\\bfunction\\b"
+                        },
+                        "description": "Set the function name regex of each language.",
+                        "scope": "resource"
                     }
                 }
             },
@@ -283,6 +305,11 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Avoid duplicate clips in the list"
+                    },
+                    "ClipManager.moveToTop": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Move used clip to top in the list"
                     },
                     "ClipManager.checkInterval": {
                         "type": "integer",
@@ -298,11 +325,6 @@
                         "type": "integer",
                         "default": 1000,
                         "description": "Maximum number of clips to save in clipboard"
-                    },
-                    "ClipManager.moveToTop": {
-                        "type": "boolean",
-                        "default": true,
-                        "description": "Move used clip to top in the list"
                     },
                     "ClipManager.onlyWindowFocused": {
                         "type": "boolean",

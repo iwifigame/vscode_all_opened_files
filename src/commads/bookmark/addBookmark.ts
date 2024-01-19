@@ -67,7 +67,7 @@ export class AddBookmarkCommand implements vscode.Disposable {
         change.param = mark;
         this._quickManager.addFileText(change);
 
-        // 添加装饰标记
+        // 添加标记
         let m = decoration.getOrCreateMarkDecoration(mark);
         if (change.createdLocation) {
             editor.setDecorations(m, [change.createdLocation.range]);

@@ -1,7 +1,12 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { ShowAllOpenedFilesConfig } from '../config/configuration';
-import { DESCRIPTION_CONNECTOR_SYMBOL, GIT_EXT, commandList } from '../global';
+import {
+    DESCRIPTION_CONNECTOR_SYMBOL,
+    GIT_EXT,
+    LABEL_CONNECTOR_SYMBOL,
+    commandList,
+} from '../global';
 import { IFileTextItem, createTextChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
 import { createIconPath, isOpenPathlegal } from '../util/util';
@@ -124,7 +129,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             const dirName = path.dirname(fileText.value);
             const baseName = path.basename(fileText.value);
 
-            const label = i.toString() + ') ' + baseName;
+            const label = i.toString() + LABEL_CONNECTOR_SYMBOL + baseName;
             let description = dirName;
             let updateCountStr = DESCRIPTION_CONNECTOR_SYMBOL + fileText.updateCount.toString();
 

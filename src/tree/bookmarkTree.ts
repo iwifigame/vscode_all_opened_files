@@ -1,12 +1,7 @@
-import * as path from 'path';
 import * as vscode from 'vscode';
-import {
-    DESCRIPTION_CONNECTOR_SYMBOL,
-    EXT_PARAM_NOT_FOUND as EXTRA_PARAM_NOT_FOUND,
-    commandList,
-} from '../global';
+import { EXTRA_PARAM_NOT_FOUND, LABEL_CONNECTOR_SYMBOL, commandList } from '../global';
 import { AbstractManager } from '../manager/abstractManager';
-import { IFileTextItem } from '../manager/common';
+import { IFileTextItem, getFileTextDescription } from '../manager/common';
 import { compressSpaces, getWordAtCursor, pathEqual } from '../util/util';
 
 export class BookmarkTreeDataProvider
@@ -64,7 +59,7 @@ export class BookmarkTreeDataProvider
     }
 
     private updateCurFileData(filePath: string) {
-        for (var i = this.data.length - 1; i >= 0; i--) {
+        for (let i = this.data.length - 1; i >= 0; i--) {
             let x = this.data[i];
             if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
                 this.curFileData.push(x);
@@ -88,7 +83,7 @@ export class BookmarkTreeDataProvider
 
         let targetItem: BookmarkTreeItem | undefined;
         let firstItem: BookmarkTreeItem | undefined;
-        for (var i = this.curFileData.length - 1; i >= 0; i--) {
+        for (let i = this.curFileData.length - 1; i >= 0; i--) {
             let x = this.curFileData[i];
             if (pathEqual(x.bookmark.createdLocation?.uri.path, filePath)) {
                 if (firstItem == undefined) {
@@ -129,11 +124,8 @@ export class BookmarkTreeDataProvider
     public getChildren(
         _element?: BookmarkTreeItem | undefined,
     ): vscode.ProviderResult<BookmarkTreeItem[]> {
-        const bookmarks = this._manager.fileTexts;
-
-        const maxLength = `${bookmarks.length}`.length;
-
         // 创建树中的子节点
+        const bookmarks = this._manager.fileTexts;
         const childs = bookmarks.map((c, index) => {
             return new BookmarkTreeItem(c, index);
         });
@@ -167,31 +159,27 @@ export class BookmarkTreeItem extends vscode.TreeItem {
         // 从左到右：文件后缀对应的图标  label description(变暗，缩小显示)
         if (this.bookmark.param) {
             // 快速书签
-            this.label = `${this.bookmark.param}) ${this.bookmark.value}`; // 标签)书签名
+            this.label = `${this.bookmark.param}${LABEL_CONNECTOR_SYMBOL}${this.bookmark.value}`; // 标签)书签名
         } else {
             // 普通书签
-            this.label = `${index + 1}) ${this.bookmark.value}`; // 序号)书签名
+            this.label = `${index + 1}${LABEL_CONNECTOR_SYMBOL}${this.bookmark.value}`; // 序号)书签名
             if (this.bookmark.extraParam === EXTRA_PARAM_NOT_FOUND) {
                 this.label = '❌️' + this.label;
             }
         }
         this.label = compressSpaces(this.label);
-        this.description =
-            path.basename(this.resourceUri.path) +
-            DESCRIPTION_CONNECTOR_SYMBOL +
-            this.bookmark.updateCount;
+        this.description = getFileTextDescription(this.bookmark);
         this.tooltip = `${this.bookmark.value}\nTimes: ${this.bookmark.updateCount}\nPath: ${this.resourceUri.fsPath}`;
-
-        this.command = this.createShowBookmarkInFileCommand();
+        this.command = this.createShowBookmarkInFileCommand(this.bookmark.param);
     }
 
-    private createShowBookmarkInFileCommand(): vscode.Command {
+    private createShowBookmarkInFileCommand(mark: string | undefined): vscode.Command {
         return {
             // 当选择本项目时，触发的命令
             command: commandList.showBookmarkInFile,
             title: 'Show in the file',
             tooltip: 'Show in the file',
-            arguments: [null, this.bookmark],
+            arguments: [mark, this.bookmark, true],
         };
     }
 }
