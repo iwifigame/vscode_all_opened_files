@@ -29,16 +29,23 @@ export class JumpFunctionCommand implements vscode.Disposable {
         let cursorPos = editor.selection.active;
         const reg = new RegExp(funcNameRegExp);
         let line = cursorPos.line;
+        let isLoop = false;
         for (let i = 0; i < lineCount; i++) {
             if (isNext) {
                 line++;
             } else {
                 line--;
             }
-            if (line < 0) {
-                line = lineCount - 1;
-            } else if (line > lineCount - 1) {
-                line = 0;
+            if (isLoop) {
+                if (line < 0) {
+                    line = lineCount - 1;
+                } else if (line > lineCount - 1) {
+                    line = 0;
+                }
+            } else {
+                if (line < 0 || line > lineCount - 1) {
+                    break;
+                }
             }
             let t = this.getDocumentLineMatchIndex(document, line, reg);
             if (t != undefined) {
@@ -48,7 +55,7 @@ export class JumpFunctionCommand implements vscode.Disposable {
         }
 
         if (marchedIndex < 0) {
-            vscode.window.showInformationMessage('No function found');
+            // vscode.window.showInformationMessage('No function found');
             return;
         }
 
