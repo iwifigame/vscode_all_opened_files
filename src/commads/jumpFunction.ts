@@ -21,7 +21,7 @@ export class JumpFunctionCommand implements vscode.Disposable {
 
         let funcNameRegExp = this.languageFuncNames.get(document.languageId);
         if (!funcNameRegExp) {
-            funcNameRegExp = '\\bfunction\\b';
+            funcNameRegExp = '.*\\bfunction\\b';
         }
 
         let marchedIndex: number = -1;

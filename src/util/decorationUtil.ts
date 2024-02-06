@@ -3,6 +3,25 @@ import * as vscode from 'vscode';
 class DecorationImpl {
     private _default!: vscode.TextEditorDecorationType;
     private _markDecorationCache = new Map<string, vscode.TextEditorDecorationType>(); // name <---> 标记
+    private _markDecorationToEditorMap = new Map<
+        vscode.TextEditorDecorationType,
+        vscode.TextEditor
+    >(); // 标记 <---> editor
+
+    public setEditorMarkDecoration(
+        editor: vscode.TextEditor,
+        range: vscode.Range,
+        markName: string,
+    ) {
+        let mark = this.getOrCreateMarkDecoration(markName);
+        const oldEditor = this._markDecorationToEditorMap.get(mark);
+        if (oldEditor) {
+            oldEditor.setDecorations(mark, []);
+        }
+
+        editor.setDecorations(mark, [range]);
+        this._markDecorationToEditorMap.set(mark, editor);
+    }
 
     // 创建标记
     private _createMarkDecoration(name: string): vscode.TextEditorDecorationType {
@@ -23,39 +42,42 @@ class DecorationImpl {
         });
     }
 
-    public set default(value: vscode.TextEditorDecorationType) {
+    private set default(value: vscode.TextEditorDecorationType) {
         if (this._default) {
             this._default.dispose();
         }
         this._default = value;
     }
 
-    public get default() {
+    private get default() {
         return this._default;
     }
 
     // 得到或者创建标记
-    public getOrCreateMarkDecoration(name: string): vscode.TextEditorDecorationType {
-        const decorationType = this.getMarkDecoration(name);
-
-        if (decorationType) {
-            return decorationType;
+    private getOrCreateMarkDecoration(markName: string): vscode.TextEditorDecorationType {
+        let mark = this.getMarkDecorationCache(markName);
+        if (mark) {
+            return mark;
         } else {
-            const type = this._createMarkDecoration(name);
-            this._markDecorationCache.set(name, type);
-            return type;
+            mark = this._createMarkDecoration(markName);
+            this.setMarkDecorationCache(markName, mark);
+            return mark;
         }
     }
 
-    public getMarkDecoration(name: string): vscode.TextEditorDecorationType | undefined {
+    private getMarkDecorationCache(name: string): vscode.TextEditorDecorationType | undefined {
         return this._markDecorationCache.get(name);
     }
 
-    public allMarkDecorations(): IterableIterator<vscode.TextEditorDecorationType> {
+    private setMarkDecorationCache(name: string, type: vscode.TextEditorDecorationType) {
+        this._markDecorationCache.set(name, type);
+    }
+
+    private allMarkDecorations(): IterableIterator<vscode.TextEditorDecorationType> {
         return this._markDecorationCache.values();
     }
 
-    public load() {
+    private load() {
         this.default = vscode.window.createTextEditorDecorationType({
             backgroundColor: new vscode.ThemeColor('editorCursor.foreground'),
             borderColor: new vscode.ThemeColor('editorCursor.foreground'),

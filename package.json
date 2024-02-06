@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files",
     "license": "MIT",
-    "version": "3.1.85",
+    "version": "3.1.86",
     "keywords": [
         "file",
         "clipboard",
@@ -287,11 +287,9 @@
                     "FunctionJump": {
                         "type": "object",
                         "default": {
+                            "default": ".*\\bfunction\\b",
                             "go": "^func\\b",
-                            "rust": "^\\s*fn\\b",
-                            "lua": "^function\\b",
-                            "javascript": "\\bfunction\\b",
-                            "typescript": "\\bfunction\\b"
+                            "rust": ".*\\bfn\\b"
                         },
                         "description": "Set the function name regex of each language.",
                         "scope": "resource"
