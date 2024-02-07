@@ -28,6 +28,7 @@ import { ClipboardTreeDataProvider } from './tree/clipboardTree';
 import { AddBookmarkCommand } from './commads/bookmark/addBookmark';
 import { RemoveBookmarkCommand } from './commads/bookmark/removeBookmark';
 import { ShowBookmarkInFileCommand } from './commads/bookmark/showBookmarkInfile';
+import { ClearQuickBookmarkCommand } from './commads/bookmark/clearQuickBookmark';
 import { ShowBookmarksCommand } from './commads/bookmark/showBookmarks';
 import { BookmarkManager } from './manager/bookmarkManager';
 import { QuickBookmarkManager } from './manager/quickBookmarkManager';
@@ -143,6 +144,7 @@ function initCommand(disposable: vscode.Disposable[], clipboardMonitor: Clipboar
         new RemoveBookmarkCommand(bookmarkManager, quickBookmarkManager),
         new ShowBookmarksCommand(bookmarkManager, quickBookmarkManager),
         new ShowBookmarkInFileCommand(bookmarkManager, quickBookmarkManager),
+        new ClearQuickBookmarkCommand(quickBookmarkManager),
     ];
 
     list.forEach((element) => {
@@ -192,7 +194,7 @@ function initTreeView(disposable: vscode.Disposable[]) {
 
     const quickBookmarkTreeDataProvider = new BookmarkTreeDataProvider(quickBookmarkManager);
     disposable.push(quickBookmarkTreeDataProvider);
-    const quickTreeView = vscode.window.createTreeView('quick bookmark', {
+    const quickTreeView = vscode.window.createTreeView('quickBookmark', {
         treeDataProvider: quickBookmarkTreeDataProvider,
     });
     disposable.push(quickTreeView);

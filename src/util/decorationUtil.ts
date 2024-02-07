@@ -23,6 +23,13 @@ class DecorationImpl {
         this._markDecorationToEditorMap.set(mark, editor);
     }
 
+    public clearMarkDecoration() {
+        this._markDecorationToEditorMap.forEach((editor, mark) => {
+            editor.setDecorations(mark, []);
+        });
+        this._markDecorationToEditorMap.clear();
+    }
+
     // 创建标记
     private _createMarkDecoration(name: string): vscode.TextEditorDecorationType {
         const svg = [

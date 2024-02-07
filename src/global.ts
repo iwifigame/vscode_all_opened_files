@@ -35,6 +35,7 @@ export enum commandList {
     removeBookmark = 'BookmarkManager.remove',
     showBookmarks = 'BookmarkManager.showBookmarks',
     showBookmarkInFile = 'BookmarkManager.showBookmarkInFile',
+    clearQuickBookmark = 'BookmarkManager.clearQuickBookmark',
 }
 
 export const GIT_EXT = '.git';
