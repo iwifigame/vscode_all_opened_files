@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { log } from '../util/logger';
 
 export class JumpFunctionCommand implements vscode.Disposable {
     protected _disposable: vscode.Disposable[] = [];
@@ -19,52 +18,53 @@ export class JumpFunctionCommand implements vscode.Disposable {
             return;
         }
         let document = editor.document;
-        const text = document.getText(); // 所有文档内容
 
-        let funcName = this.languageFuncNames.get(document.languageId);
-        if (!funcName) {
-            funcName = '\\bfunction\\b';
+        let funcNameRegExp = this.languageFuncNames.get(document.languageId);
+        if (!funcNameRegExp) {
+            funcNameRegExp = '.*\\bfunction\\b';
         }
 
+        let marchedIndex: number = -1;
+        const lineCount = document.lineCount;
         let cursorPos = editor.selection.active;
-
-        let curIndex: number = document.offsetAt(cursorPos);
-
-        let index: number = -1;
-        const reg = new RegExp(funcName);
-        if (isNext) {
-            for (let line = cursorPos.line + 1; line < document.lineCount; line++) {
-                let i = this.getDocumentLineMatchIndex(document, line, reg);
-                if (i != undefined) {
-                    index = i;
+        const reg = new RegExp(funcNameRegExp);
+        let line = cursorPos.line;
+        let isLoop = false;
+        for (let i = 0; i < lineCount; i++) {
+            if (isNext) {
+                line++;
+            } else {
+                line--;
+            }
+            if (isLoop) {
+                if (line < 0) {
+                    line = lineCount - 1;
+                } else if (line > lineCount - 1) {
+                    line = 0;
+                }
+            } else {
+                if (line < 0 || line > lineCount - 1) {
                     break;
                 }
             }
-        } else {
-            for (let line = cursorPos.line - 1; line >= 0; line--) {
-                let i = this.getDocumentLineMatchIndex(document, line, reg);
-                if (i != undefined) {
-                    index = i;
-                    break;
-                }
+            let t = this.getDocumentLineMatchIndex(document, line, reg);
+            if (t != undefined) {
+                marchedIndex = t;
+                break;
             }
         }
-        if (index >= 0) {
-            const range = new vscode.Range(
-                document.positionAt(index),
-                document.positionAt(index + funcName.length),
-            );
 
-            const opts: vscode.TextDocumentShowOptions = {
-                viewColumn: vscode.ViewColumn.Active,
-            };
-            opts.selection = range;
-            // 光标移到单词的开头
-            if (opts.selection) {
-                opts.selection = new vscode.Range(opts.selection.start, opts.selection.start);
-            }
-            vscode.window.showTextDocument(document, opts);
+        if (marchedIndex < 0) {
+            // vscode.window.showInformationMessage('No function found');
+            return;
         }
+
+        const pos = document.positionAt(marchedIndex);
+        const opts: vscode.TextDocumentShowOptions = {
+            viewColumn: vscode.ViewColumn.Active,
+            selection: new vscode.Range(pos, pos),
+        };
+        vscode.window.showTextDocument(document, opts);
     }
 
     public dispose() {

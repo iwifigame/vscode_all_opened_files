@@ -16,12 +16,15 @@ export class ShowBookmarkInFileCommand implements vscode.Disposable {
         );
     }
 
+    // execute的参数，由执行命令时传入。可通过配置设置参数
     protected async execute(mark: string, item: IFileTextItem, isFromTree: boolean) {
         if (mark) {
             let bookmark: IFileTextItem | undefined;
             if (isFromTree) {
+                // 是从树视图中执行的
                 bookmark = item;
             } else {
+                // 是直接从命令中执行的
                 bookmark = this._quickManager.getFileTextByParam(mark);
             }
             showFileTextItem(bookmark, this._quickManager);

@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files",
     "license": "MIT",
-    "version": "3.1.83",
+    "version": "3.1.89",
     "keywords": [
         "file",
         "clipboard",
@@ -125,6 +125,15 @@
                 "command": "BookmarkManager.showBookmarkInFile",
                 "title": "Show Bookmark In The File",
                 "category": "BookmarkManager"
+            },
+            {
+                "command": "BookmarkManager.clearQuickBookmark",
+                "title": "Clear Quick Bookmark",
+                "category": "BookmarkManager",
+                "icon": {
+                    "dark": "resources/dark/clear-history.svg",
+                    "light": "resources/light/clear-history.svg"
+                }
             }
         ],
         "keybindings": [
@@ -185,7 +194,7 @@
                     "name": "bookmark"
                 },
                 {
-                    "id": "quick bookmark",
+                    "id": "quickBookmark",
                     "name": "quick bookmark"
                 }
             ]
@@ -216,6 +225,9 @@
                 {
                     "command": "BookmarkManager.remove",
                     "when": "false"
+                },
+                {
+                    "command": "BookmarkManager.clearQuickBookmark"
                 }
             ],
             "view/item/context": [
@@ -249,6 +261,11 @@
                 {
                     "command": "ClipManager.history.clear",
                     "when": "view == clipboardHistory",
+                    "group": "navigation"
+                },
+                {
+                    "command": "BookmarkManager.clearQuickBookmark",
+                    "when": "view == quickBookmark",
                     "group": "navigation"
                 }
             ]
@@ -287,11 +304,9 @@
                     "FunctionJump": {
                         "type": "object",
                         "default": {
+                            "default": ".*\\bfunction\\b",
                             "go": "^func\\b",
-                            "rust": "^\\s*fn\\b",
-                            "lua": "^function\\b",
-                            "javascript": "\\bfunction\\b",
-                            "typescript": "\\bfunction\\b"
+                            "rust": ".*\\bfn\\b"
                         },
                         "description": "Set the function name regex of each language.",
                         "scope": "resource"

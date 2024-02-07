@@ -57,8 +57,7 @@ export class QuickBookmarkManager extends AbstractManager {
                 updateFileTextItemRange(doc, item);
 
                 // 在目标位置添加标签
-                let m = decoration.getOrCreateMarkDecoration(item.param);
-                editor.setDecorations(m, [item.createdLocation.range]);
+                decoration.setEditorMarkDecoration(editor, item.createdLocation.range, item.param);
             }
         });
     }
