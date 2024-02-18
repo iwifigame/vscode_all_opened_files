@@ -3,7 +3,7 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files",
     "license": "MIT",
-    "version": "3.1.89",
+    "version": "3.1.91",
     "keywords": [
         "file",
         "clipboard",
@@ -306,7 +306,8 @@
                         "default": {
                             "default": ".*\\bfunction\\b",
                             "go": "^func\\b",
-                            "rust": ".*\\bfn\\b"
+                            "rust": ".*\\bfn\\b",
+                            "csharp": "\\s*(public|protected|private)\\s+.*\\("
                         },
                         "description": "Set the function name regex of each language.",
                         "scope": "resource"
