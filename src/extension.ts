@@ -34,6 +34,7 @@ import { BookmarkManager } from './manager/bookmarkManager';
 import { QuickBookmarkManager } from './manager/quickBookmarkManager';
 import { BookmarkTreeDataProvider } from './tree/bookmarkTree';
 import { DEBUG, ERROR, FATAL, INFO, TRACE, WARN, log } from './util/logger';
+import { UnityShaderFormattingEditProvider } from './shaderFormater';
 
 let fileManager: FileManager;
 let clipboardManager: ClipboardManager;
@@ -42,6 +43,12 @@ let quickBookmarkManager: QuickBookmarkManager;
 
 export async function activate(context: vscode.ExtensionContext) {
     const disposable: vscode.Disposable[] = [];
+
+    let formater = vscode.languages.registerDocumentFormattingEditProvider(
+        'UnityShader',
+        new UnityShaderFormattingEditProvider(),
+    );
+    disposable.push(formater);
 
     // handleUncaughtException();
     // throw new Error('这是一个异常');
