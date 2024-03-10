@@ -79,7 +79,7 @@ export class UnityShaderFormattingEditProvider implements vscode.DocumentFormatt
                 }
             }
 
-            var firstCharIdx = line.firstNonWhitespaceCharacterIndex; // todolyj 第一个非空白字符的索引
+            var firstCharIdx = line.firstNonWhitespaceCharacterIndex; // 第一个非空白字符的索引
             if (!indentUtil.isIndent(lineText, firstCharIdx, nowIndent)) {
                 // 不全是缩进字符，说明缩进出错。重新缩进
                 result.push(

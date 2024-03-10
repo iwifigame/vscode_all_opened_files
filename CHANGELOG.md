@@ -1,4 +1,4 @@
-# 3.1.98 (2024-3-10)
+# 3.2.00 (2024-3-10)
 * **Unity Shader File Formatting**: Supports formatting of Unity Shader (*.shader) files, assisting users in standardizing code formatting and improving code readability.
 
 # 3.1.75 (2024-1-12)

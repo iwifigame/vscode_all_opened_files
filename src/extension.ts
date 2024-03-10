@@ -44,11 +44,11 @@ let quickBookmarkManager: QuickBookmarkManager;
 export async function activate(context: vscode.ExtensionContext) {
     const disposable: vscode.Disposable[] = [];
 
-    let formater = vscode.languages.registerDocumentFormattingEditProvider(
+    let f = vscode.languages.registerDocumentFormattingEditProvider(
         'UnityShader',
         new UnityShaderFormattingEditProvider(),
     );
-    disposable.push(formater);
+    disposable.push(f);
 
     // handleUncaughtException();
     // throw new Error('这是一个异常');
