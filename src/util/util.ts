@@ -91,7 +91,7 @@ export function simplePath(path: string): string {
     return normalizedPath;
 }
 
-export function isOpenPathlegal(filePath: string): boolean {
+export function isOpenPathLegal(filePath: string): boolean {
     let extname = path.extname(filePath);
     // 打开文件时，vscode会打开.git同名的后缀文件
     if (GIT_EXT == extname) {

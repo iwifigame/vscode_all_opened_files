@@ -32,7 +32,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         );
 
         vscode.workspace.onDidChangeConfiguration(
-            (e) => e.affectsConfiguration(this.getConfigName()) && this.savefileTexts(),
+            (e) => e.affectsConfiguration(this.getConfigName()) && this.saveFileTexts(),
         );
 
         this._timer = setInterval(() => this.saveFileLoop(), SAVE_FILE_TIME_GAP);
@@ -40,7 +40,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         this.init();
     }
 
-    protected init() {}
+    protected init() { }
 
     protected abstract getConfigName(): string;
 
@@ -211,11 +211,11 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         // console.info("FileTextsOperate saveFileLoop", this.getConfigName(), this.lastUpdate, Date.now());
         this.isFileDirty = false;
-        this.savefileTexts();
+        this.saveFileTexts();
     }
 
     // 保存文件
-    public savefileTexts() {
+    public saveFileTexts() {
         const file = this.getStoreFile();
         if (!file) {
             return;
