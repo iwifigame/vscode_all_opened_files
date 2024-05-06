@@ -4,36 +4,38 @@ import * as vscode from 'vscode';
 import { setStoreFolder } from './global';
 import { defaultClipboard } from './manager/clipboard';
 
-import { InsertLineNumberCommand } from './commads/insertLineNumber';
-import { QuickOpenCommand } from './commads/quickOpen';
-import { PreFunctionCommand } from './commads/preFunction';
-import { NextFunctionCommand } from './commads/nextFunction';
-import { ShowAllOpenedFilesCommand } from './commads/showAllOpenedFiles';
+import { InsertLineNumberCommand } from './commands/insertLineNumber';
+import { QuickOpenCommand } from './commands/quickOpen';
+import { PreFunctionCommand } from './commands/preFunction';
+import { NextFunctionCommand } from './commands/nextFunction';
+import { ShowAllOpenedFilesCommand } from './commands/showAllOpenedFiles';
 import { FileManager } from './manager/fileManager';
 
-import { ApiGetMonitor } from './commads/clipboard/apiGetMonitor';
-import { ClearClipboardHistoryCommand } from './commads/clipboard/clearClipboardHistory';
-import { CopyToHistoryCommand } from './commads/clipboard/copyToHistory';
-import { HistoryTreeDoubleClickCommand } from './commads/clipboard/historyTreeDoubleClick';
-import { PickAndPasteCommand } from './commads/clipboard/pickAndPaste';
-import { RemoveClipboardHistoryCommand } from './commads/clipboard/removeClipboardHistory';
-import { RingPasteCommand } from './commads/clipboard/ringPaste';
-import { SetClipboardValueCommand } from './commads/clipboard/setClipboardValue';
-import { ShowClipboardInFileCommand } from './commads/clipboard/showClipboardInFile';
+import { ApiGetMonitor } from './commands/clipboard/apiGetMonitor';
+import { ClearClipboardHistoryCommand } from './commands/clipboard/clearClipboardHistory';
+import { CopyToHistoryCommand } from './commands/clipboard/copyToHistory';
+import { HistoryTreeDoubleClickCommand } from './commands/clipboard/historyTreeDoubleClick';
+import { PickAndPasteCommand } from './commands/clipboard/pickAndPaste';
+import { RemoveClipboardHistoryCommand } from './commands/clipboard/removeClipboardHistory';
+import { RingPasteCommand } from './commands/clipboard/ringPaste';
+import { SetClipboardValueCommand } from './commands/clipboard/setClipboardValue';
+import { ShowClipboardInFileCommand } from './commands/clipboard/showClipboardInFile';
 import { ClipboardCompletion } from './manager/clipboardCompletion';
 import { ClipboardManager } from './manager/clipboardManager';
 import { ClipboardMonitor } from './manager/clipboardMonitor';
 import { ClipboardTreeDataProvider } from './tree/clipboardTree';
 
-import { AddBookmarkCommand } from './commads/bookmark/addBookmark';
-import { RemoveBookmarkCommand } from './commads/bookmark/removeBookmark';
-import { ShowBookmarkInFileCommand } from './commads/bookmark/showBookmarkInfile';
-import { ClearQuickBookmarkCommand } from './commads/bookmark/clearQuickBookmark';
-import { ShowBookmarksCommand } from './commads/bookmark/showBookmarks';
+import { AddBookmarkCommand } from './commands/bookmark/addBookmark';
+import { RemoveBookmarkCommand } from './commands/bookmark/removeBookmark';
+import { ShowBookmarkInFileCommand } from './commands/bookmark/showBookmarkInFiles';
+import { ClearQuickBookmarkCommand } from './commands/bookmark/clearQuickBookmark';
+import { ShowBookmarksCommand } from './commands/bookmark/showBookmarks';
 import { BookmarkManager } from './manager/bookmarkManager';
 import { QuickBookmarkManager } from './manager/quickBookmarkManager';
 import { BookmarkTreeDataProvider } from './tree/bookmarkTree';
 import { DEBUG, ERROR, FATAL, INFO, TRACE, WARN, log } from './util/logger';
+import { UnityShaderFormattingEditProvider } from './shaderFormater';
+import { ShowLogCommand } from './commands/bookmark/showLog';
 
 let fileManager: FileManager;
 let clipboardManager: ClipboardManager;
@@ -43,10 +45,34 @@ let quickBookmarkManager: QuickBookmarkManager;
 export async function activate(context: vscode.ExtensionContext) {
     const disposable: vscode.Disposable[] = [];
 
+    let f = vscode.languages.registerDocumentFormattingEditProvider(
+        'UnityShader',
+        new UnityShaderFormattingEditProvider(),
+    );
+    disposable.push(f);
+
     // handleUncaughtException();
     // throw new Error('这是一个异常');
 
     // testLog();
+
+    // const provider = new ColorsViewProvider(context.extensionUri);
+
+    // context.subscriptions.push(
+    //     vscode.window.registerWebviewViewProvider(ColorsViewProvider.viewType, provider),
+    // );
+
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('calicoColors.addColor', () => {
+    //         provider.addColor();
+    //     }),
+    // );
+
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('calicoColors.clearColors', () => {
+    //         provider.clearColors();
+    //     }),
+    // );
 
     setExtensionStoreFolder(context);
 
@@ -139,6 +165,7 @@ function initCommand(disposable: vscode.Disposable[], clipboardMonitor: Clipboar
         new PreFunctionCommand(),
         new NextFunctionCommand(),
         new InsertLineNumberCommand(),
+        new ShowLogCommand(),
 
         new AddBookmarkCommand(bookmarkManager, quickBookmarkManager),
         new RemoveBookmarkCommand(bookmarkManager, quickBookmarkManager),
@@ -204,16 +231,16 @@ function initTreeView(disposable: vscode.Disposable[]) {
 // this method is called when your extension is deactivated
 export function deactivate() {
     if (clipboardManager) {
-        clipboardManager.savefileTexts();
+        clipboardManager.saveFileTexts();
     }
     if (bookmarkManager) {
-        bookmarkManager.savefileTexts();
+        bookmarkManager.saveFileTexts();
     }
     if (quickBookmarkManager) {
-        quickBookmarkManager.savefileTexts();
+        quickBookmarkManager.saveFileTexts();
     }
     if (fileManager) {
-        fileManager.savefileTexts();
+        fileManager.saveFileTexts();
     }
 }
 

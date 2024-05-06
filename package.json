@@ -3,8 +3,9 @@
     "displayName": "All Opened Files",
     "description": "Manage all Opened Files",
     "license": "MIT",
-    "version": "3.1.89",
+    "version": "3.2.4",
     "keywords": [
+        "ctrlp",
         "file",
         "clipboard",
         "bookmark",
@@ -63,6 +64,11 @@
                 "command": "AllOpenedFiles.insertLineNumber",
                 "category": "AllOpenedFiles",
                 "title": "Insert Line Number"
+            },
+            {
+                "command": "AllOpenedFiles.showLog",
+                "category": "AllOpenedFiles",
+                "title": "Show Log"
             },
             {
                 "command": "ClipManager.copyToHistory",
@@ -170,6 +176,11 @@
         "viewsContainers": {
             "activitybar": [
                 {
+                    "id": "vs-sidebar-view",
+                    "title": "CNODE 社区",
+                    "icon": "media/cnode_icon_64.png"
+                },
+                {
                     "id": "ClipManager",
                     "title": "ClipManager",
                     "icon": "images/clipboard_activitybar.svg"
@@ -182,6 +193,15 @@
             ]
         },
         "views": {
+            "vs-sidebar-view": [
+                {
+                    "type": "webview",
+                    "id": "vs-sidebar-view",
+                    "name": "Topic 列表",
+                    "icon": "media/cnode_icon_64.png",
+                    "contextualTitle": "Topic 列表"
+                }
+            ],
             "ClipManager": [
                 {
                     "id": "clipboardHistory",
@@ -306,7 +326,8 @@
                         "default": {
                             "default": ".*\\bfunction\\b",
                             "go": "^func\\b",
-                            "rust": ".*\\bfn\\b"
+                            "rust": ".*\\bfn\\b",
+                            "csharp": "\\s*(public|protected|private)\\s+.*\\("
                         },
                         "description": "Set the function name regex of each language.",
                         "scope": "resource"

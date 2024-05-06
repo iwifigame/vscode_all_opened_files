@@ -9,7 +9,7 @@ import {
 } from '../global';
 import { IFileTextItem, createTextChange } from '../manager/common';
 import { FileManager } from '../manager/fileManager';
-import { createIconPath, isOpenPathlegal } from '../util/util';
+import { createIconPath, isOpenPathLegal } from '../util/util';
 
 const MAX_RECENT_FILES = 20;
 
@@ -26,11 +26,11 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             vscode.commands.registerCommand(commandList.showAllOpenedFiles, this.execute, this),
         );
 
-        this.setupConfg();
+        this.setupConfig();
         vscode.workspace.onDidChangeConfiguration((event) => {
             let affected = event.affectsConfiguration('ShowAllOpenedFiles.itemWidth');
             if (affected) {
-                this.setupConfg();
+                this.setupConfig();
             }
         });
 
@@ -177,7 +177,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
         return picks;
     }
 
-    private setupConfg() {
+    private setupConfig() {
         let w = vscode.workspace.getConfiguration('ShowAllOpenedFiles').get<number>('itemWidth');
         if (w == undefined) {
             w = 80;
@@ -190,7 +190,7 @@ export class ShowAllOpenedFilesCommand implements vscode.Disposable {
             let filePath = doc.fileName;
             // console.log(`onDidOpenTextDocument  ${filePath}`);
 
-            if (!isOpenPathlegal(filePath)) {
+            if (!isOpenPathLegal(filePath)) {
                 return;
             }
 

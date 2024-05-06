@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { EXTRA_PARAM_NOT_FOUND, LABEL_CONNECTOR_SYMBOL, commandList } from '../global';
 import { AbstractManager } from '../manager/abstractManager';
 import { IFileTextItem, getFileTextDescription } from '../manager/common';
@@ -156,6 +157,10 @@ export class BookmarkTreeItem extends vscode.TreeItem {
         this.resourceUri = this.bookmark.createdLocation.uri; // 会自动根据后缀设置前面的图标
         // this.iconPath = createIconPath('string.svg'); // 最前面的图标。如果没有设置，则使用resourceUri对应的文件类型图标
 
+        // Check if the file exists
+        const filePath = this.bookmark.createdLocation.uri.fsPath;
+        const fileExists = fs.existsSync(filePath);
+
         // 从左到右：文件后缀对应的图标  label description(变暗，缩小显示)
         if (this.bookmark.param) {
             // 快速书签
@@ -163,7 +168,7 @@ export class BookmarkTreeItem extends vscode.TreeItem {
         } else {
             // 普通书签
             this.label = `${index + 1}${LABEL_CONNECTOR_SYMBOL}${this.bookmark.value}`; // 序号)书签名
-            if (this.bookmark.extraParam === EXTRA_PARAM_NOT_FOUND) {
+            if (!fileExists || this.bookmark.extraParam === EXTRA_PARAM_NOT_FOUND) {
                 this.label = '❌️' + this.label;
             }
         }

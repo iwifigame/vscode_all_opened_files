@@ -32,7 +32,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         );
 
         vscode.workspace.onDidChangeConfiguration(
-            (e) => e.affectsConfiguration(this.getConfigName()) && this.savefileTexts(),
+            (e) => e.affectsConfiguration(this.getConfigName()) && this.saveFileTexts(),
         );
 
         this._timer = setInterval(() => this.saveFileLoop(), SAVE_FILE_TIME_GAP);
@@ -211,11 +211,11 @@ export abstract class AbstractManager implements vscode.Disposable {
 
         // console.info("FileTextsOperate saveFileLoop", this.getConfigName(), this.lastUpdate, Date.now());
         this.isFileDirty = false;
-        this.savefileTexts();
+        this.saveFileTexts();
     }
 
     // 保存文件
-    public savefileTexts() {
+    public saveFileTexts() {
         const file = this.getStoreFile();
         if (!file) {
             return;
@@ -257,7 +257,7 @@ export abstract class AbstractManager implements vscode.Disposable {
         fs.writeFile(file, json, (error) => {
             if (!error) {
                 this.lastUpdate = fs.statSync(file).mtimeMs;
-                // console.info("FileTextsOperate savefileTexts", this.getConfigName(), this.lastUpdate);
+                // console.info("FileTextsOperate save file texts", this.getConfigName(), this.lastUpdate);
                 return
             }
 
@@ -332,7 +332,7 @@ export abstract class AbstractManager implements vscode.Disposable {
             try {
                 json = fs.readFileSync(file).toString();
                 this.lastUpdate = fs.statSync(file).mtimeMs;
-                // console.info("FileTextsOperate load readed", this.getConfigName(), this.lastUpdate);
+                // console.info("FileTextsOperate load read", this.getConfigName(), this.lastUpdate);
             } catch (error) {
                 // ignore
             }
