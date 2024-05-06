@@ -18,6 +18,7 @@ export enum commandList {
     nextFunction = 'AllOpenedFiles.nextFunction',
 
     insertLineNumber = 'AllOpenedFiles.insertLineNumber',
+    showLog = 'AllOpenedFiles.showLog',
 
     pickAndPaste = 'ClipManager.pickAndPaste',
     ringPaste = 'ClipManager.ringPaste',

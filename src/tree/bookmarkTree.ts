@@ -6,7 +6,8 @@ import { IFileTextItem, getFileTextDescription } from '../manager/common';
 import { compressSpaces, getWordAtCursor, pathEqual } from '../util/util';
 
 export class BookmarkTreeDataProvider
-    implements vscode.TreeDataProvider<BookmarkTreeItem>, vscode.Disposable {
+    implements vscode.TreeDataProvider<BookmarkTreeItem>, vscode.Disposable
+{
     private _disposables: vscode.Disposable[] = [];
 
     private _onDidChangeTreeData: vscode.EventEmitter<BookmarkTreeItem | null> =
@@ -155,7 +156,6 @@ export class BookmarkTreeItem extends vscode.TreeItem {
         this.contextValue = 'bookmarkItem:file'; // 用来在package.json中定义when
         this.resourceUri = this.bookmark.createdLocation.uri; // 会自动根据后缀设置前面的图标
         // this.iconPath = createIconPath('string.svg'); // 最前面的图标。如果没有设置，则使用resourceUri对应的文件类型图标
-
 
         // Check if the file exists
         const filePath = this.bookmark.createdLocation.uri.fsPath;

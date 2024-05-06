@@ -127,8 +127,14 @@ export class QuickBookmarkManager extends AbstractManager {
             } else if (a.param < b.param) {
                 return -1;
             } else {
-                return fileTextLocationCompare(a, b);
+                return this.fileTextTimeCompare(a, b);
             }
         });
+    }
+
+    private fileTextTimeCompare(a: IFileTextItem, b: IFileTextItem) {
+        let ta = new Date(a.createdAtString).getTime();
+        let tb = new Date(b.createdAtString).getTime();
+        return ta - tb;
     }
 }

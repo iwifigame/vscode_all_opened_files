@@ -27,7 +27,7 @@ import { ClipboardTreeDataProvider } from './tree/clipboardTree';
 
 import { AddBookmarkCommand } from './commands/bookmark/addBookmark';
 import { RemoveBookmarkCommand } from './commands/bookmark/removeBookmark';
-import { ShowBookmarkInFileCommand } from './commands/bookmark/showBookmarkInfile';
+import { ShowBookmarkInFileCommand } from './commands/bookmark/showBookmarkInFiles';
 import { ClearQuickBookmarkCommand } from './commands/bookmark/clearQuickBookmark';
 import { ShowBookmarksCommand } from './commands/bookmark/showBookmarks';
 import { BookmarkManager } from './manager/bookmarkManager';
@@ -35,6 +35,7 @@ import { QuickBookmarkManager } from './manager/quickBookmarkManager';
 import { BookmarkTreeDataProvider } from './tree/bookmarkTree';
 import { DEBUG, ERROR, FATAL, INFO, TRACE, WARN, log } from './util/logger';
 import { UnityShaderFormattingEditProvider } from './shaderFormater';
+import { ShowLogCommand } from './commands/bookmark/showLog';
 
 let fileManager: FileManager;
 let clipboardManager: ClipboardManager;
@@ -54,6 +55,24 @@ export async function activate(context: vscode.ExtensionContext) {
     // throw new Error('这是一个异常');
 
     // testLog();
+
+    // const provider = new ColorsViewProvider(context.extensionUri);
+
+    // context.subscriptions.push(
+    //     vscode.window.registerWebviewViewProvider(ColorsViewProvider.viewType, provider),
+    // );
+
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('calicoColors.addColor', () => {
+    //         provider.addColor();
+    //     }),
+    // );
+
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('calicoColors.clearColors', () => {
+    //         provider.clearColors();
+    //     }),
+    // );
 
     setExtensionStoreFolder(context);
 
@@ -146,6 +165,7 @@ function initCommand(disposable: vscode.Disposable[], clipboardMonitor: Clipboar
         new PreFunctionCommand(),
         new NextFunctionCommand(),
         new InsertLineNumberCommand(),
+        new ShowLogCommand(),
 
         new AddBookmarkCommand(bookmarkManager, quickBookmarkManager),
         new RemoveBookmarkCommand(bookmarkManager, quickBookmarkManager),
@@ -226,7 +246,7 @@ export function deactivate() {
 
 function getDefaultClipboardMonitor() {
     defaultClipboard.readText().then(
-        (s: string) => { },
+        (s: string) => {},
         (error: Error) => {
             console.log(error);
             // Small delay to force show error

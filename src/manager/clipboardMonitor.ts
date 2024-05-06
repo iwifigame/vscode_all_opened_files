@@ -86,8 +86,6 @@ export class ClipboardMonitor implements vscode.Disposable {
     }
 
     public async checkChangeText() {
-        // console.log('checkchangetext')
-
         // Don't check the clipboard when windows is not focused
         if (this.onlyWindowFocused && !this._windowFocused) {
             return;
